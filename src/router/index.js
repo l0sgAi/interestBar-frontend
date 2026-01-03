@@ -1,9 +1,9 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import Login from '../views/Login.vue'
 import { auth } from '@/utils/auth'
 
 const router = createRouter({
-  history: createWebHistory('/'),
+  history: createWebHashHistory('/interestBar-frontend/'), // 使用 Hash 模式，更适合 GitHub Pages
   routes: [
     {
       path: '/',

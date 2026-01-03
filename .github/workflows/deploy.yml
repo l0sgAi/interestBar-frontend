@@ -17,7 +17,7 @@ permissions:
 # 只允许同时部署一个实例
 concurrency:
   group: 'pages'
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -37,6 +37,14 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Check build output
+        run: |
+          echo "Build artifacts:"
+          ls -la dist/
+          echo ""
+          echo "dist/index.html:"
+          cat dist/index.html
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
