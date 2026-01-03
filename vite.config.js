@@ -13,5 +13,6 @@ export default defineConfig({
   server: {
     port: 5173,
     open: true
-  }
+  },
+  base: '/interestBar-frontend/' // 修改为你的 GitHub 仓库名
 })
