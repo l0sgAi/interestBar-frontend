@@ -21,8 +21,9 @@
           size="large"
           class="enter-btn"
           @click="handleEnterCommunity"
+          :loading="loading"
         >
-          进入社区
+          {{ loading ? '处理中...' : '进入社区' }}
         </NButton>
       </div>
     </NCard>
@@ -41,39 +42,91 @@ const message = useMessage()
 
 const token = ref('')
 const userEmail = ref('')
+const loading = ref(false)
 
 const userInitial = computed(() => {
   return userEmail.value ? userEmail.value.charAt(0).toUpperCase() : '✓'
 })
 
-onMounted(() => {
-  // 从 URL 参数获取 token 和 email
+onMounted(async () => {
   const urlParams = new URLSearchParams(window.location.search)
-  token.value = urlParams.get('token') || ''
-  const expire = urlParams.get('expire') || ''
-  userEmail.value = urlParams.get('email') || 'user@example.com'
 
-  // 如果有 token，保存到本地存储
-  if (token.value) {
-    // 使用 auth 工具保存 token 和过期时间
-    auth.setToken(token.value, expire)
+  // 方式1：后端直接在 URL 参数中返回 token
+  const urlToken = urlParams.get('token')
+  const expire = urlParams.get('expire') || '259200' // 默认 3 天
+  const email = urlParams.get('email')
 
-    // 清除 URL 中的参数，保持地址栏干净
-    window.history.replaceState({}, document.title, window.location.pathname)
-
-    message.success('登录成功！')
-    console.log('登录成功，Token已保存:', {
-      token: token.value.substring(0, 20) + '...',
-      expire: expire + '秒'
-    })
-  } else {
-    // 如果没有 token，重定向回登录页
-    message.warning('未检测到登录信息，正在跳转到登录页...')
-    setTimeout(() => {
-      router.push('/')
-    }, 2000)
+  if (urlToken) {
+    // 后端直接返回 token
+    handleLoginSuccess(urlToken, expire, email || 'user@example.com')
+    return
   }
+
+  // 方式2：后端返回 JSON 格式（需要解析）
+  // 检查 URL 中是否有特殊标识，或者尝试读取页面内容
+  const code = urlParams.get('code')
+  if (code) {
+    // Google OAuth 回调，需要发送给后端
+    try {
+      message.loading('正在登录...', { duration: 0 })
+
+      const response = await fetch('https://undeclared-porsha-nonformatively.ngrok-free.dev/auth/google/callback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ code })
+      })
+
+      const data = await response.json()
+
+      if (data.code === 200 && data.data && data.data.token) {
+        handleLoginSuccess(data.data.token, data.data.expire, data.data.email || 'user@example.com')
+      } else {
+        throw new Error(data.message || '登录失败')
+      }
+    } catch (error) {
+      message.destroyAll()
+      message.error('登录失败: ' + error.message)
+      // console.error('OAuth 登录错误:', error)
+      setTimeout(() => {
+        router.push('/')
+      }, 2000)
+    }
+    return
+  }
+
+  // 既没有 token 也没有 code，可能是直接访问
+  message.warning('未检测到登录信息，正在跳转到登录页...')
+  setTimeout(() => {
+    router.push('/')
+  }, 2000)
 })
+
+const handleLoginSuccess = (tokenValue, expire, email) => {
+  token.value = tokenValue
+  userEmail.value = email
+
+  // 保存 token
+  auth.setToken(tokenValue, expire)
+
+  // 清除 URL 中的参数
+  window.history.replaceState({}, document.title, window.location.pathname)
+
+  loading.value = false
+  message.destroyAll()
+  message.success('登录成功！', { duration: 2000 })
+  // console.log('登录成功，Token已保存:', {
+  //   token: tokenValue.substring(0, 20) + '...',
+  //   expire: expire + '秒',
+  //   email: email
+  // })
+
+  // 自动跳转到主页
+  setTimeout(() => {
+    router.push('/home')
+  }, 1500)
+}
 
 const handleEnterCommunity = () => {
   // 跳转到系统主页
