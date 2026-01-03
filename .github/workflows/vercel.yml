@@ -1,0 +1,63 @@
+name: Deploy to Vercel
+
+on:
+  # 当推送到 vercel-deploy 分支时触发
+  push:
+    branches: ['vercel-deploy']
+
+  # 允许手动触发工作流
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout 代码
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 构建项目
+        env:
+          # 生产环境 API 地址（建议在 Vercel Dashboard 中配置，这里只是备用）
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          VITE_OAUTH_CALLBACK_URL: ${{ secrets.VITE_OAUTH_CALLBACK_URL }}
+          VITE_BASE_URL: '/'
+        run: npm run build
+
+      - name: 检查构建产物
+        run: |
+          echo "构建产物列表:"
+          ls -la dist/
+          echo ""
+          echo "检查关键文件:"
+          test -f dist/index.html && echo "✓ index.html 存在"
+          test -f dist/assets/index.js && echo "✓ index.js 存在"
+
+      # 可选：将构建产物上传为 artifact，方便调试
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: ./dist
+          retention-days: 7
+
+  # 这个 job 只是一个通知，实际的部署由 Vercel 通过 GitHub App 自动完成
+  notify:
+    needs: build
+    runs-on: ubuntu-latest
+    if: success()
+    steps:
+      - name: 部署成功通知
+        run: |
+          echo "✅ 构建成功！"
+          echo "📦 Vercel 会自动从 vercel-deploy 分支部署"
+          echo "🔗 查看部署状态: https://vercel.com/dashboard"

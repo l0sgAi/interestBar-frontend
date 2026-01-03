@@ -1,9 +1,9 @@
 import axios from 'axios'
-import { useMessage } from 'naive-ui'
 
 // 创建 axios 实例
 const request = axios.create({
-  baseURL: 'https://undeclared-porsha-nonformatively.ngrok-free.dev',
+  // 从环境变量读取 API 基础 URL
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://undeclared-porsha-nonformatively.ngrok-free.dev',
   timeout: 10000
 })
 
