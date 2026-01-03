@@ -44,6 +44,7 @@ import { NCard, NButton, NDivider, NTag, useMessage } from 'naive-ui'
 import { useRouter } from 'vue-router'
 import AnimatedBackground from '@/components/AnimatedBackground.vue'
 import { auth } from '@/utils/auth'
+import request from '@/utils/request'
 
 const router = useRouter()
 const message = useMessage()
@@ -71,11 +72,21 @@ onMounted(() => {
   token.value = auth.getToken() || ''
 })
 
-const handleLogout = () => {
-  // 清除 token
-  auth.clearToken()
-  message.success('已退出登录')
-  router.push('/')
+const handleLogout = async () => {
+  try {
+    // 调用后端登出接口
+    await request.post('/auth/logout')
+
+    // 清除本地 token
+    auth.clearToken()
+    message.success('已退出登录')
+    router.push('/')
+  } catch (error) {
+    // 即使接口调用失败，也清除本地 token
+    auth.clearToken()
+    message.warning('退出登录')
+    router.push('/')
+  }
 }
 </script>
 
