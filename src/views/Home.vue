@@ -44,6 +44,7 @@ import { NCard, NButton, NDivider, NTag, useMessage } from 'naive-ui'
 import { useRouter } from 'vue-router'
 import AnimatedBackground from '@/components/AnimatedBackground.vue'
 import { auth } from '@/utils/auth'
+import request from '@/utils/request'
 
 const router = useRouter()
 const message = useMessage()
