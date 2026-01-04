@@ -5,17 +5,7 @@
 
     <NCard class="success-container" :bordered="false">
       <div class="success-view">
-        <div class="avatar-placeholder">{{ userInitial }}</div>
         <h2 class="welcome-title">欢迎回来!</h2>
-        <p class="user-email">{{ userEmail }}</p>
-
-        <div class="token-section">
-          <div class="token-label">Token Debug:</div>
-          <NScrollbar style="max-height: 100px">
-            <div class="token-box">{{ token }}</div>
-          </NScrollbar>
-        </div>
-
         <NButton
           type="primary"
           size="large"

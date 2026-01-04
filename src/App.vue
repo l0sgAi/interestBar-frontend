@@ -1,11 +1,17 @@
 <template>
-  <NMessageProvider>
-    <router-view />
-  </NMessageProvider>
+  <NConfigProvider :theme="darkTheme">
+    <NGlobalStyle />
+    <NMessageProvider>
+      <NDialogProvider>
+        <router-view />
+      </NDialogProvider>
+    </NMessageProvider>
+  </NConfigProvider>
 </template>
 
 <script setup>
-import { NMessageProvider } from 'naive-ui'
+import { darkTheme } from 'naive-ui'
+import { NConfigProvider, NGlobalStyle, NMessageProvider, NDialogProvider } from 'naive-ui'
 </script>
 
 <style>

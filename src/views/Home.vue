@@ -1,64 +1,142 @@
 <template>
   <div class="home-page">
-    <!-- 动态背景 -->
-    <AnimatedBackground />
+    <!-- 顶栏 -->
+    <AppHeader />
 
-    <NCard class="home-container" :bordered="false">
-      <div class="home-content">
-        <div class="header">
-          <h1 class="title">欢迎来到趣吧 Quba</h1>
-          <p class="subtitle">连接多元兴趣，发现无限可能</p>
-        </div>
+    <!-- 侧边栏 -->
+    <SideNav />
 
-        <NDivider />
-
-        <div class="user-info">
-          <div class="avatar">{{ userInitial }}</div>
-          <div class="info">
-            <p class="label">登录状态</p>
-            <p class="status">已登录</p>
-          </div>
-        </div>
-
-        <NDivider />
-
-        <div class="token-debug">
-          <h3>Token 信息</h3>
-          <p><strong>Token:</strong> {{ maskedToken }}</p>
-          <p><strong>状态:</strong> <NTag type="success" size="small">有效</NTag></p>
-        </div>
-
-        <div class="actions">
-          <NButton type="error" @click="handleLogout">
-            退出登录
-          </NButton>
+    <!-- 主内容区域 -->
+    <div class="main-content">
+      <div class="home-container">
+        <div class="content-header">
+          <NTabs animated>
+            <NTabPane name="recommend" tab="推荐">
+              <PostList :posts="recommendPosts" />
+            </NTabPane>
+            <NTabPane name="following" tab="关注">
+              <PostList :posts="followingPosts" />
+            </NTabPane>
+            <NTabPane name="hot" tab="热门">
+              <PostList :posts="hotPosts" />
+            </NTabPane>
+          </NTabs>
         </div>
       </div>
-    </NCard>
+    </div>
+
+    <!-- 右侧信息栏 -->
+    <RightSidebar />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { NCard, NButton, NDivider, NTag, useMessage } from 'naive-ui'
+import { ref, onMounted } from 'vue'
+import { NTabs, NTabPane, useMessage } from 'naive-ui'
 import { useRouter } from 'vue-router'
-import AnimatedBackground from '@/components/AnimatedBackground.vue'
+import AppHeader from '@/components/AppHeader.vue'
+import SideNav from '@/components/SideNav.vue'
+import PostList from '@/components/PostList.vue'
+import RightSidebar from '@/components/RightSidebar.vue'
 import { auth } from '@/utils/auth'
 import request from '@/utils/request'
 
 const router = useRouter()
 const message = useMessage()
 
-const token = ref('')
+// 示例帖子数据
+const recommendPosts = ref([
+  {
+    postId: '1',
+    circleName: 'Vue.js 开发者',
+    circleColor: '#42b883',
+    userName: '张三',
+    userColor: '#22c55e',
+    title: 'Vue 3 Composition API 最佳实践',
+    content: '分享一些在 Vue 3 项目中使用 Composition API 的最佳实践，包括响应式数据管理、组件复用等技巧...',
+    images: [
+      'https://picsum.photos/800/500?random=1',
+      'https://picsum.photos/800/500?random=2'
+    ],
+    postTime: new Date(Date.now() - 1000 * 60 * 30),
+    likeCount: 234,
+    commentCount: 45,
+    shareCount: 12
+  },
+  {
+    postId: '2',
+    circleName: 'UI/UX 设计',
+    circleColor: '#ec4899',
+    userName: '李四',
+    userColor: '#f97316',
+    title: '2024年最流行的设计趋势',
+    content: '总结了一下今年最流行的设计趋势，包括玻璃拟态、新拟物化、暗色模式等...',
+    images: [
+      'https://picsum.photos/800/500?random=3',
+      'https://picsum.photos/800/500?random=4',
+      'https://picsum.photos/800/500?random=5'
+    ],
+    postTime: new Date(Date.now() - 1000 * 60 * 60 * 2),
+    likeCount: 567,
+    commentCount: 89,
+    shareCount: 34
+  },
+  {
+    postId: '3',
+    circleName: '前端技术交流',
+    circleColor: '#3b82f6',
+    userName: '王五',
+    userColor: '#8b5cf6',
+    title: '如何优化前端性能',
+    content: '从前端性能优化的角度出发，分享一些实用的技巧和工具...',
+    images: [],
+    postTime: new Date(Date.now() - 1000 * 60 * 60 * 5),
+    likeCount: 892,
+    commentCount: 156,
+    shareCount: 67
+  }
+])
 
-const userInitial = computed(() => {
-  return 'U'
-})
+const followingPosts = ref([
+  {
+    postId: '4',
+    circleName: '摄影爱好者',
+    circleColor: '#f59e0b',
+    userName: '赵六',
+    userColor: '#06b6d4',
+    title: '周末去公园拍的照片',
+    content: '今天天气真好，去公园拍了一些风景照，大家觉得怎么样？',
+    images: [
+      'https://picsum.photos/800/500?random=6',
+      'https://picsum.photos/800/500?random=7',
+      'https://picsum.photos/800/500?random=8',
+      'https://picsum.photos/800/500?random=9'
+    ],
+    postTime: new Date(Date.now() - 1000 * 60 * 60 * 24),
+    likeCount: 1234,
+    commentCount: 234,
+    shareCount: 89
+  }
+])
 
-const maskedToken = computed(() => {
-  if (!token.value) return '未获取'
-  return token.value.substring(0, 20) + '...' + token.value.substring(token.value.length - 10)
-})
+const hotPosts = ref([
+  {
+    postId: '5',
+    circleName: 'React 社区',
+    circleColor: '#06b6d4',
+    userName: '孙七',
+    userColor: '#ec4899',
+    title: 'React 18 新特性详解',
+    content: 'React 18 带来了很多新特性，比如并发渲染、自动批处理等...',
+    images: [
+      'https://picsum.photos/800/500?random=10'
+    ],
+    postTime: new Date(Date.now() - 1000 * 60 * 60 * 48),
+    likeCount: 5678,
+    commentCount: 890,
+    shareCount: 234
+  }
+])
 
 onMounted(() => {
   // 检查登录状态
@@ -67,11 +145,7 @@ onMounted(() => {
     router.push('/')
     return
   }
-
-  // 获取 token
-  token.value = auth.getToken() || ''
 })
-
 
 const handleLogout = async () => {
   try {
@@ -94,25 +168,41 @@ const handleLogout = async () => {
 <style scoped>
 .home-page {
   min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   position: relative;
-  padding: 20px;
+}
+
+.main-content {
+  margin-left: 260px;
+  margin-right: 384px;
+  margin-top: 64px;
+  padding: 24px;
+  min-height: calc(100vh - 64px);
+  transition: margin-left 0.3s ease, margin-right 0.3s ease;
+}
+
+/* 当侧边栏折叠时的样式 */
+.main-content.collapsed {
+  margin-left: 80px;
 }
 
 .home-container {
-  position: relative;
-  z-index: 1;
-  background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--glass-border);
-  border-radius: 24px;
-  box-shadow: var(--shadow-md);
   width: 100%;
-  max-width: 600px;
-  padding: 40px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.content-header {
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ec4899 0%, #a855f7 25%, #3b82f6 50%, #06b6d4 75%, #22c55e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 20px;
 }
 
 .home-content {
@@ -212,6 +302,21 @@ const handleLogout = async () => {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* 响应式 */
+@media (max-width: 1200px) {
+  .main-content {
+    margin-right: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    margin-right: 0;
+    padding: 16px;
   }
 }
 </style>
