@@ -110,8 +110,7 @@ const summary = computed(() => {
 })
 
 const handleClick = () => {
-  message.info(`查看帖子: ${props.title}`)
-  console.log('Click post:', props.postId)
+  // message.info(`查看帖子: ${props.title}`)
 }
 </script>
 

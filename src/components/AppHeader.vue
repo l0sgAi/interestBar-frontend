@@ -50,11 +50,9 @@
           <NAvatar
             round
             :size="40"
-            :src="userAvatarUrl || undefined"
-            class="user-avatar"
-          >
-            {{ userInitial }}
-          </NAvatar>
+            :src="userAvatarUrl"
+            fallback-src="https://img.icons8.com/ios-glyphs/64/user-male-circle.png"
+            class="user-avatar"/>
           <span class="username">{{ username }}</span>
           <span class="dropdown-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -93,17 +91,12 @@ const userInitial = computed(() => {
 
 // 获取用户信息
 const fetchUserInfo = async () => {
-  try {
     const response = await request.get('/user/get')
     if (response.data) {
       const userData = response.data
       username.value = userData.username || 'User'
       userAvatarUrl.value = userData.avatar_url || ''
     }
-  } catch (error) {
-    console.error('获取用户信息失败:', error)
-    // 如果获取失败，保持默认值
-  }
 }
 
 // 组件挂载时获取用户信息

@@ -19,12 +19,10 @@
                 <div class="avatar-wrapper">
                   <NAvatar
                     :size="120"
-                    :src="userInfo.avatar_url || undefined"
+                    :src="userInfo.avatar_url"
+                    fallback-src="https://img.icons8.com/ios-glyphs/64/user-male-circle.png"
                     round
-                    class="profile-avatar"
-                  >
-                    {{ userInfo.username?.charAt(0) || 'U' }}
-                  </NAvatar>
+                    class="profile-avatar"/>
                   <NBadge :value="getStatusBadge(userInfo.status)" type="success" />
                 </div>
                 <div class="profile-basic-info">
@@ -287,8 +285,11 @@ const userInfo = ref({
 const fetchUserInfo = async () => {
   try {
     const response = await request.get('/user/get')
+    console.log('UserProfile - 用户信息响应:', response)
+    console.log('UserProfile - 用户数据:', response.data)
     if (response.data) {
       userInfo.value = response.data
+      console.log('UserProfile - avatar_url:', response.data.avatar_url)
     }
   } catch (error) {
     console.error('获取用户信息失败:', error)
@@ -344,6 +345,11 @@ const getRoleType = (role) => {
 // 获取状态徽章
 const getStatusBadge = (status) => {
   return status === 1 ? '' : 'disabled'
+}
+
+// 处理头像加载错误
+const handleAvatarError = () => {
+  console.log('UserProfile - 头像加载失败，URL:', userInfo.value.avatar_url)
 }
 
 onMounted(() => {
