@@ -12,7 +12,7 @@
         <div class="profile-container">
           <!-- 用户信息卡片 -->
           <NCard class="profile-card" :bordered="false">
-            <!-- 头部背景 -->
+            <!-- 头部区域 -->
             <div class="profile-header">
               <div class="header-background"></div>
               <div class="profile-avatar-section">
@@ -23,12 +23,23 @@
                     fallback-src="https://img.icons8.com/ios-glyphs/64/user-male-circle.png"
                     round
                     class="profile-avatar"/>
-                  <NBadge :value="getStatusBadge(userInfo.status)" type="success" />
                 </div>
                 <div class="profile-basic-info">
                   <h1 class="username">{{ userInfo.username || '未设置' }}</h1>
                   <p class="user-email">{{ userInfo.email || '未设置' }}</p>
                 </div>
+                <!-- 编辑按钮移到头像下方 -->
+                <NButton type="primary" size="medium" @click="handleEditClick" class="edit-avatar-btn">
+                  <template #icon>
+                    <NIcon>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                      </svg>
+                    </NIcon>
+                  </template>
+                  编辑个人信息
+                </NButton>
               </div>
             </div>
 
@@ -47,46 +58,47 @@
                   基本信息
                 </h3>
 
-                <div class="info-grid">
-                  <div class="info-item">
-                    <span class="info-label">用户ID</span>
-                    <span class="info-value">{{ userInfo.id || '-' }}</span>
+                <!-- 改为文本行+标签的方式 -->
+                <div class="info-list">
+                  <!-- <div class="info-row">
+                    <NText depth="3" class="info-label-text">用户ID</NText>
+                    <NText class="info-value-text">{{ userInfo.id || '-' }}</NText>
+                  </div> -->
+
+                  <div class="info-row">
+                    <NText depth="3" class="info-label-text">用户名</NText>
+                    <NText class="info-value-text">{{ userInfo.username || '-' }}</NText>
                   </div>
 
-                  <div class="info-item">
-                    <span class="info-label">用户名</span>
-                    <span class="info-value">{{ userInfo.username || '-' }}</span>
+                  <div class="info-row">
+                    <NText depth="3" class="info-label-text">邮箱</NText>
+                    <NText class="info-value-text">{{ userInfo.email || '-' }}</NText>
                   </div>
 
-                  <div class="info-item">
-                    <span class="info-label">邮箱</span>
-                    <span class="info-value">{{ userInfo.email || '-' }}</span>
+                  <div class="info-row">
+                    <NText depth="3" class="info-label-text">手机号</NText>
+                    <NText class="info-value-text">{{ userInfo.phone || '未绑定' }}</NText>
                   </div>
 
-                  <div class="info-item">
-                    <span class="info-label">手机号</span>
-                    <span class="info-value">{{ userInfo.phone || '未绑定' }}</span>
+                  <div class="info-row">
+                    <NText depth="3" class="info-label-text">性别</NText>
+                    <NText class="info-value-text">{{ getGenderText(userInfo.gender) }}</NText>
                   </div>
 
-                  <div class="info-item">
-                    <span class="info-label">性别</span>
-                    <span class="info-value">{{ getGenderText(userInfo.gender) }}</span>
+                  <div class="info-row">
+                    <NText depth="3" class="info-label-text">生日</NText>
+                    <NText class="info-value-text">{{ formatDate(userInfo.birthdate) }}</NText>
                   </div>
 
-                  <div class="info-item">
-                    <span class="info-label">生日</span>
-                    <span class="info-value">{{ formatDate(userInfo.birthdate) }}</span>
-                  </div>
-
-                  <div class="info-item">
-                    <span class="info-label">角色</span>
+                  <div class="info-row">
+                    <NText depth="3" class="info-label-text">角色</NText>
                     <NTag :type="getRoleType(userInfo.role)" size="small" round>
                       {{ getRoleText(userInfo.role) }}
                     </NTag>
                   </div>
 
-                  <div class="info-item">
-                    <span class="info-label">状态</span>
+                  <div class="info-row">
+                    <NText depth="3" class="info-label-text">状态</NText>
                     <NTag :type="userInfo.status === 1 ? 'success' : 'error'" size="small" round>
                       {{ userInfo.status === 1 ? '正常' : '禁用' }}
                     </NTag>
@@ -107,23 +119,22 @@
                   账号绑定
                 </h3>
 
-                <div class="binding-list">
-                  <div class="binding-item">
-                    <div class="binding-icon github">
+                <!-- 缩小版账号绑定列表 -->
+                <div class="binding-list-compact">
+                  <div class="binding-item-compact">
+                    <div class="binding-icon-small github">
                       <svg viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
                       </svg>
                     </div>
-                    <div class="binding-info">
-                      <span class="binding-name">GitHub</span>
-                      <span class="binding-status" :class="{ bound: !!userInfo.github_id }">
-                        {{ userInfo.github_id ? '已绑定' : '未绑定' }}
-                      </span>
-                    </div>
+                    <span class="binding-name-small">GitHub</span>
+                    <NTag :type="userInfo.github_id ? 'success' : 'default'" size="small" round>
+                      {{ userInfo.github_id ? '已绑定' : '未绑定' }}
+                    </NTag>
                   </div>
 
-                  <div class="binding-item">
-                    <div class="binding-icon google">
+                  <div class="binding-item-compact">
+                    <div class="binding-icon-small google">
                       <svg viewBox="0 0 24 24" fill="currentColor">
                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -131,26 +142,22 @@
                         <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                       </svg>
                     </div>
-                    <div class="binding-info">
-                      <span class="binding-name">Google</span>
-                      <span class="binding-status" :class="{ bound: !!userInfo.google_id }">
-                        {{ userInfo.google_id ? '已绑定' : '未绑定' }}
-                      </span>
-                    </div>
+                    <span class="binding-name-small">Google</span>
+                    <NTag :type="userInfo.google_id ? 'success' : 'default'" size="small" round>
+                      {{ userInfo.google_id ? '已绑定' : '未绑定' }}
+                    </NTag>
                   </div>
 
-                  <div class="binding-item">
-                    <div class="binding-icon x">
+                  <div class="binding-item-compact">
+                    <div class="binding-icon-small x">
                       <svg viewBox="0 0 24 24" fill="currentColor">
                         <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                       </svg>
                     </div>
-                    <div class="binding-info">
-                      <span class="binding-name">X (Twitter)</span>
-                      <span class="binding-status" :class="{ bound: !!userInfo.x_id }">
-                        {{ userInfo.x_id ? '已绑定' : '未绑定' }}
-                      </span>
-                    </div>
+                    <span class="binding-name-small">X (Twitter)</span>
+                    <NTag :type="userInfo.x_id ? 'success' : 'default'" size="small" round>
+                      {{ userInfo.x_id ? '已绑定' : '未绑定' }}
+                    </NTag>
                   </div>
                 </div>
               </div>
@@ -169,43 +176,99 @@
                   时间信息
                 </h3>
 
-                <div class="info-grid">
-                  <div class="info-item">
-                    <span class="info-label">注册时间</span>
-                    <span class="info-value">{{ formatDateTime(userInfo.create_time) }}</span>
+                <div class="info-list">
+                  <div class="info-row">
+                    <NText depth="3" class="info-label-text">注册时间</NText>
+                    <NText class="info-value-text">{{ formatDateTime(userInfo.create_time) }}</NText>
                   </div>
 
-                  <div class="info-item">
-                    <span class="info-label">更新时间</span>
-                    <span class="info-value">{{ formatDateTime(userInfo.update_time) }}</span>
+                  <div class="info-row">
+                    <NText depth="3" class="info-label-text">更新时间</NText>
+                    <NText class="info-value-text">{{ formatDateTime(userInfo.update_time) }}</NText>
                   </div>
                 </div>
               </div>
             </div>
           </NCard>
-
-          <!-- 功能提示 -->
-          <NCard class="features-card" :bordered="false">
-            <div class="features-content">
-              <NAlert type="info" :bordered="false">
-                <template #header>
-                  <div class="alert-title">
-                    <NIcon>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="16" x2="12" y2="12"></line>
-                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                      </svg>
-                    </NIcon>
-                    功能开发中
-                  </div>
-                </template>
-                个人信息修改功能正在开发中，敬请期待！
-              </NAlert>
-            </div>
-          </NCard>
         </div>
       </div>
+
+      <!-- 编辑个人信息模态框 -->
+       <NModal v-model:show="showEditModal" preset="card" title="编辑个人信息" class="edit-modal" style="width: 500px;">
+        <NForm ref="formRef" :model="formData" :rules="rules" label-placement="left" label-width="80">
+          <!-- 用户名 -->
+          <NFormItem label="用户名" path="username">
+            <NInput
+              v-model:value="formData.username"
+              placeholder="请输入用户名（1-50字符）"
+              maxlength="50"
+              show-count
+            />
+          </NFormItem>
+
+          <!-- 手机号 -->
+          <NFormItem label="手机号" path="phone">
+            <NInput
+              v-model:value="formData.phone"
+              placeholder="请输入手机号"
+              maxlength="11"
+            />
+          </NFormItem>
+
+          <!-- 性别 -->
+          <NFormItem label="性别" path="gender">
+            <NSelect
+              v-model:value="formData.gender"
+              :options="genderOptions"
+              placeholder="请选择性别"
+            />
+          </NFormItem>
+
+          <!-- 生日 -->
+          <NFormItem label="生日" path="birthdate">
+            <NDatePicker
+              v-model:value="formData.birthdate"
+              type="date"
+              placeholder="请选择生日"
+              :is-date-disabled="(timestamp) => timestamp > Date.now()"
+              format="yyyy-MM-dd"
+              value-format="yyyy-MM-dd"
+              style="width: 100%;"
+            />
+          </NFormItem>
+
+          <!-- 头像上传 -->
+          <NFormItem label="头像">
+            <NUpload
+              :max="1"
+              :default-file-list="avatarFileList"
+              list-type="image-card"
+              :custom-request="handleAvatarUpload"
+              @before-upload="beforeAvatarUpload"
+              @update:file-list="handleFileListChange"
+              accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,image/svg+xml"
+            >
+              <div style="text-align: center;">
+                <div>点击上传头像</div>
+              </div>
+            </NUpload>
+          </NFormItem>
+        </NForm>
+
+        <div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px;">
+                  头像支持 JPG、JPEG、PNG、GIF、WebP、SVG 格式,文件大小 ≤ 10MB
+                </div>
+
+        <template #footer>
+          <div class="modal-footer">
+            <NButton @click="showEditModal = false">取消</NButton>
+            <NButton type="primary" @click="handleUpdateInfo" :loading="updating">
+              保存修改
+            </NButton>
+          </div>
+        </template>
+      </NModal>
+      
     </div>
   </NConfigProvider>
 </template>
@@ -217,11 +280,18 @@ import {
   NConfigProvider,
   NCard,
   NAvatar,
-  NBadge,
   NDivider,
   NIcon,
   NTag,
-  NAlert,
+  NText,
+  NModal,
+  NForm,
+  NFormItem,
+  NInput,
+  NButton,
+  NUpload,
+  NSelect,
+  NDatePicker,
   darkTheme,
   useMessage
 } from 'naive-ui'
@@ -229,39 +299,10 @@ import AppHeader from '@/components/AppHeader.vue'
 import SideNav from '@/components/SideNav.vue'
 import { auth } from '@/utils/auth'
 import request from '@/utils/request'
+import { updateUserInfo, uploadImage } from '@/api/user'
 
 const router = useRouter()
 const message = useMessage()
-
-// NaiveUI 深色主题覆盖
-const themeOverrides = {
-  common: {
-    primaryColor: '#ec4899',
-    primaryColorHover: '#f472b6',
-    primaryColorPressed: '#db2777',
-    textColor1: 'rgba(255, 255, 255, 0.95)',
-    textColor2: 'rgba(255, 255, 255, 0.8)',
-    textColor3: 'rgba(255, 255, 255, 0.6)',
-    textColor4: 'rgba(255, 255, 255, 0.4)'
-  },
-  Card: {
-    color: 'rgba(255, 255, 255, 0.03)',
-    colorModal: 'rgba(255, 255, 255, 0.03)',
-    borderColor: 'rgba(255, 255, 255, 0.08)'
-  },
-  Divider: {
-    textColor: 'rgba(255, 255, 255, 0.3)'
-  },
-  Tag: {
-    color: 'rgba(255, 255, 255, 0.1)',
-    textColor: 'rgba(255, 255, 255, 0.8)'
-  },
-  Alert: {
-    color: 'rgba(102, 126, 234, 0.1)',
-    textColor: 'rgba(255, 255, 255, 0.8)',
-    borderColor: 'rgba(102, 126, 234, 0.2)'
-  }
-}
 
 // 用户信息
 const userInfo = ref({
@@ -342,14 +383,192 @@ const getRoleType = (role) => {
   return typeMap[role] || 'default'
 }
 
-// 获取状态徽章
-const getStatusBadge = (status) => {
-  return status === 1 ? '' : 'disabled'
+// 编辑模态框相关
+const showEditModal = ref(false)
+const updating = ref(false)
+const avatarFileList = ref([])
+
+// 性别选项
+const genderOptions = [
+  { label: '未设置', value: 0 },
+  { label: '男', value: 1 },
+  { label: '女', value: 2 },
+  { label: '其他', value: 3 }
+]
+
+// 表单数据
+const formData = ref({
+  username: '',
+  phone: '',
+  gender: 0,
+  birthdate: null,
+  avatar_url: ''
+})
+
+// 表单验证规则
+const rules = {
+  username: {
+    required: false,
+    trigger: ['blur', 'input'],
+    validator: (_rule, value) => {
+      if (!value) {
+        return true
+      }
+      if (value.length < 1 || value.length > 50) {
+        return new Error('用户名长度为1-50个字符')
+      }
+      return true
+    }
+  },
+  phone: {
+    required: false,
+    trigger: ['blur', 'input'],
+    validator: (_rule, value) => {
+      if (!value) {
+        return true
+      }
+      const phoneReg = /^1[3-9]\d{9}$/
+      if (!phoneReg.test(value)) {
+        return new Error('请输入正确的手机号')
+      }
+      return true
+    }
+  }
 }
 
-// 处理头像加载错误
-const handleAvatarError = () => {
-  console.log('UserProfile - 头像加载失败，URL:', userInfo.value.avatar_url)
+// 上传前校验
+const beforeAvatarUpload = (data) => {
+  const file = data.file
+
+  // 检查文件类型
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml']
+  const isValidType = allowedTypes.includes(file.type)
+
+  if (!isValidType) {
+    message.error('只支持 JPG、JPEG、PNG、GIF、WebP、SVG 格式的图片')
+    return false
+  }
+
+  // 检查文件大小（10MB = 10 * 1024 * 1024 bytes）
+  const maxSize = 10 * 1024 * 1024
+  if (file.size > maxSize) {
+    message.error('图片大小不能超过10MB')
+    return false
+  }
+
+  return true
+}
+
+// 处理文件列表变化
+const handleFileListChange = (fileList) => {
+  avatarFileList.value = fileList
+}
+
+// 处理头像上传
+const handleAvatarUpload = async ({ file, onFinish, onError }) => {
+  try {
+    const response = await uploadImage(file.file)
+
+    if (response.data && response.data.url) {
+      formData.value.avatar_url = response.data.url
+      message.success('头像上传成功')
+      onFinish()
+    }
+  } catch (error) {
+    console.error('头像上传失败:', error)
+    message.error('头像上传失败')
+    onError()
+  }
+}
+
+// 更新用户信息
+const handleUpdateInfo = async () => {
+  try {
+    // 检查是否有修改
+    const hasChanges =
+      formData.value.username ||
+      formData.value.phone ||
+      formData.value.avatar_url ||
+      formData.value.gender !== undefined ||
+      formData.value.birthdate
+
+    if (!hasChanges) {
+      message.warning('请至少修改一项信息')
+      return
+    }
+
+    updating.value = true
+
+    const updateData = {}
+
+    // 只添加有值的字段
+    if (formData.value.username) {
+      updateData.username = formData.value.username
+    }
+    if (formData.value.phone) {
+      updateData.phone = formData.value.phone
+    }
+    if (formData.value.avatar_url) {
+      updateData.avatar_url = formData.value.avatar_url
+    }
+    if (formData.value.gender !== undefined && formData.value.gender !== null) {
+      updateData.gender = formData.value.gender
+    }
+    if (formData.value.birthdate) {
+      // 将日期格式转换为 ISO 格式
+      updateData.birthdate = new Date(formData.value.birthdate).toISOString()
+    }
+
+    await updateUserInfo(updateData)
+
+    message.success('个人信息更新成功')
+
+    showEditModal.value = false
+
+    avatarFileList.value = []
+
+    await fetchUserInfo()
+  } catch (error) {
+    console.error('更新个人信息失败:', error)
+    message.error(error.message || '更新个人信息失败')
+  } finally {
+    updating.value = false
+  }
+}
+
+// 监听模态框打开，初始化表单数据
+const openEditModal = () => {
+  // 将生日字符串转换为时间戳（如果是 NaiveUI DatePicker 需要的格式）
+  let birthdateTimestamp = null
+  if (userInfo.value.birthdate) {
+    birthdateTimestamp = new Date(userInfo.value.birthdate).getTime()
+  }
+
+  formData.value = {
+    username: userInfo.value.username || '',
+    phone: userInfo.value.phone || '',
+    gender: userInfo.value.gender ?? 0,
+    birthdate: birthdateTimestamp,
+    avatar_url: userInfo.value.avatar_url || ''
+  }
+
+  if (userInfo.value.avatar_url) {
+    avatarFileList.value = [{
+      id: 'avatar',
+      name: 'avatar.jpg',
+      status: 'finished',
+      url: userInfo.value.avatar_url
+    }]
+  } else {
+    avatarFileList.value = []
+  }
+
+  showEditModal.value = true
+}
+
+// 修改按钮点击事件
+const handleEditClick = () => {
+  openEditModal()
 }
 
 onMounted(() => {
@@ -481,162 +700,112 @@ onMounted(() => {
   color: #ec4899;
 }
 
-/* 信息网格 */
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-}
-
-.info-item {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  transition: all 0.3s ease;
-}
-
-.info-item:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-.info-label {
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.5);
-  font-weight: 500;
-}
-
-.info-value {
-  font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.9);
-  font-weight: 600;
-}
-
-/* 账号绑定 */
-.binding-list {
+/* 信息列表 - 文本行+标签方式 */
+.info-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.binding-item {
+.info-row {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.2s ease;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-row:hover {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+}
+
+.info-label-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  min-width: 80px;
+}
+
+.info-value-text {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+}
+
+/* 编辑按钮 */
+.edit-avatar-btn {
+  margin-top: 16px;
+  background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
+  border: none;
+  box-shadow: 0 4px 16px rgba(236, 72, 153, 0.3);
   transition: all 0.3s ease;
 }
 
-.binding-item:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.1);
+.edit-avatar-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4);
 }
 
-.binding-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+/* 缩小版账号绑定列表 */
+.binding-list-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.binding-item-compact {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
+}
+
+.binding-item-compact:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.binding-icon-small {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.binding-icon svg {
-  width: 28px;
-  height: 28px;
+.binding-icon-small svg {
+  width: 18px;
+  height: 18px;
 }
 
-.binding-icon.github {
+.binding-icon-small.github {
   background: rgba(255, 255, 255, 0.05);
 }
 
-.binding-icon.google {
+.binding-icon-small.google {
   background: rgba(255, 255, 255, 0.05);
 }
 
-.binding-icon.x {
+.binding-icon-small.x {
   background: rgba(255, 255, 255, 0.05);
 }
 
-.binding-info {
-  flex: 1;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.binding-name {
-  font-size: 1rem;
-  font-weight: 600;
+.binding-name-small {
+  font-size: 0.875rem;
+  font-weight: 500;
   color: rgba(255, 255, 255, 0.9);
-}
-
-.binding-status {
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.4);
-  padding: 4px 12px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.binding-status.bound {
-  color: #22c55e;
-  background: rgba(34, 197, 94, 0.1);
-}
-
-/* 功能卡片 */
-.features-card {
-  background: rgba(255, 255, 255, 0.03) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-}
-
-.features-content {
-  display: flex;
-  align-items: center;
-}
-
-.alert-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-/* 深度样式覆盖 */
-:deep(.n-card__content) {
-  padding: 24px !important;
-}
-
-:deep(.n-divider) {
-  border-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-:deep(.n-badge) {
-  position: absolute;
-  bottom: 5px;
-  right: 5px;
-}
-
-:deep(.n-alert) {
-  background: rgba(102, 126, 234, 0.1) !important;
-  border: 1px solid rgba(102, 126, 234, 0.2) !important;
-}
-
-:deep(.n-alert__header) {
-  color: rgba(255, 255, 255, 0.9) !important;
-}
-
-:deep(.n-alert__body) {
-  color: rgba(255, 255, 255, 0.7) !important;
+  flex: 1;
 }
 
 /* 动画 */
@@ -651,6 +820,51 @@ onMounted(() => {
   }
 }
 
+/* 编辑模态框样式 */
+.edit-modal {
+  background: black !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+:deep(.n-card__content) {
+  padding: 24px !important;
+}
+
+:deep(.n-form-item-label) {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+:deep(.n-input__input) {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+:deep(.n-input__border) {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+:deep(.n-input:hover .n-input__border) {
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+:deep(.n-upload-trigger) {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+:deep(.n-upload-trigger:hover) {
+  border-color: #ec4899 !important;
+}
+
+:deep(.n-upload-file-list__item) {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
 /* 响应式 */
 @media (max-width: 768px) {
   .main-content {
@@ -662,26 +876,32 @@ onMounted(() => {
     max-width: 100%;
   }
 
-  .info-grid {
-    grid-template-columns: 1fr;
+  .info-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
   }
 
   .username {
     font-size: 1.5rem;
   }
 
-  .binding-item {
-    padding: 12px;
+  .binding-item-compact {
+    padding: 8px 12px;
   }
 
-  .binding-icon {
-    width: 40px;
-    height: 40px;
+  .binding-icon-small {
+    width: 28px;
+    height: 28px;
   }
 
-  .binding-icon svg {
-    width: 24px;
-    height: 24px;
+  .binding-icon-small svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .binding-name-small {
+    font-size: 0.8rem;
   }
 }
 </style>
