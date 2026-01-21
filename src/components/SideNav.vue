@@ -21,6 +21,12 @@
         @update:value="handleMenuSelect"
       />
     </NLayoutSider>
+
+    <!-- 新建兴趣圈弹窗 -->
+    <CreateCircleModal
+      v-model:show="showCreateModal"
+      @success="handleCreateSuccess"
+    />
   </NLayout>
 </template>
 
@@ -30,11 +36,9 @@ import {
   NLayout,
   NLayoutSider,
   NMenu,
-  NIcon,
-  useMessage
+  NIcon
 } from 'naive-ui'
-
-const message = useMessage()
+import CreateCircleModal from './CreateCircleModal.vue'
 
 // 自定义 SVG 图标组件
 const createIcon = (svgPath) => {
@@ -70,6 +74,9 @@ const PlusIcon = createIcon([
 
 // 是否折叠
 const isCollapsed = ref(false)
+
+// 新建兴趣圈弹窗状态
+const showCreateModal = ref(false)
 
 // 当前激活的导航项
 const activeItem = ref('home')
@@ -194,11 +201,17 @@ const handleMenuSelect = (key) => {
   activeItem.value = key
 
   if (key === 'create') {
-    message.info('创建兴趣圈功能开发中...')
+    showCreateModal.value = true
   } else {
     console.log('Navigate to:', key)
     // TODO: 实现路由跳转
   }
+}
+
+// 创建成功回调
+const handleCreateSuccess = (data) => {
+  console.log('兴趣圈创建成功:', data)
+  // TODO: 可以在这里刷新兴趣圈列表或跳转到新创建的兴趣圈
 }
 </script>
 
