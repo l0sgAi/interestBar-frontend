@@ -25,6 +25,18 @@
     <div class="header-right">
       <!-- 消息中心铃铛 -->
       <div class="notification-wrapper">
+        <!-- 发帖按钮 -->
+      <NButton 
+      size="large" 
+      quaternary
+      class="notification-btn" 
+      @click="handleCreatePost">
+            <NIcon size="20">
+            <AddIcon />
+            </NIcon>
+        发帖
+      </NButton>
+      
         <NButton
           quaternary
           circle
@@ -32,14 +44,9 @@
           class="notification-btn"
           @click="handleNotification"
         >
-          <template #icon>
-            <span class="bell-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-              </svg>
-            </span>
-          </template>
+          <NIcon size="20">
+            <Bell />
+            </NIcon>
         </NButton>
         <NBadge :value="notificationCount" :max="99" class="notification-badge" />
       </div>
@@ -68,8 +75,10 @@
 <script setup>
 import { ref, computed, h, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { NButton, NDropdown, NAvatar, NBadge, useMessage, useDialog } from 'naive-ui'
+import { NButton, NIcon, NDropdown, NAvatar, NBadge, useMessage, useDialog } from 'naive-ui'
 import { auth } from '@/utils/auth'
+import { AddCircleOutlineFilled as AddIcon } from '@vicons/material'
+import { Bell } from '@vicons/tabler'
 import request from '@/utils/request'
 
 const router = useRouter()
@@ -184,6 +193,11 @@ const handleLogout = () => {
       }
     }
   })
+}
+
+// 发帖
+const handleCreatePost = () => {
+  router.push('/create-post')
 }
 
 // 消息中心
@@ -311,6 +325,7 @@ const goHome = () => {
 .notification-btn:hover {
   color: #667eea;
   background: rgba(102, 126, 234, 0.1) !important;
+  border-radius: 32px;
 }
 
 .notification-badge {

@@ -31,7 +31,7 @@ const handleClick = () => {
 <style scoped>
 .floating-create-button {
   position: fixed;
-  right: 23dvw;
+  left: 16dvw;
   bottom: 65dvh;
   z-index: 1000;
 }

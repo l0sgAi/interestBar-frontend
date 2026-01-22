@@ -166,7 +166,7 @@ const handleLoadMore = () => {
 <style scoped>
 .right-sidebar {
   position: fixed;
-  right: 24px;
+  right: 8dvw;
   top: 88px;
   width: 360px;
   max-height: calc(100vh - 112px);
