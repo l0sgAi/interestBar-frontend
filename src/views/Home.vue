@@ -27,6 +27,9 @@
 
     <!-- 右侧信息栏 -->
     <RightSidebar />
+
+    <!-- 发帖悬浮按钮 -->
+    <FloatingCreateButton />
   </div>
 </template>
 
@@ -38,6 +41,7 @@ import AppHeader from '@/components/AppHeader.vue'
 import SideNav from '@/components/SideNav.vue'
 import PostList from '@/components/PostList.vue'
 import RightSidebar from '@/components/RightSidebar.vue'
+import FloatingCreateButton from '@/components/FloatingCreateButton.vue'
 import { auth } from '@/utils/auth'
 import request from '@/utils/request'
 
