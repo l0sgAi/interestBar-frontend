@@ -32,6 +32,7 @@
 
 <script setup>
 import { ref, h, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import {
   NLayout,
   NLayoutSider,
@@ -39,6 +40,8 @@ import {
   NIcon
 } from 'naive-ui'
 import CreateCircleModal from './CreateCircleModal.vue'
+
+const router = useRouter()
 
 // 自定义 SVG 图标组件
 const createIcon = (svgPath) => {
@@ -83,17 +86,17 @@ const activeItem = ref('home')
 
 // 我加入的兴趣圈（示例数据）- 每个圈有不同的彩虹色
 const joinedCircles = ref([
-  { id: 'joined-1', name: 'Vue.js 开发者', color: '#42b883' },
-  { id: 'joined-2', name: '前端技术交流', color: '#3b82f6' },
-  { id: 'joined-3', name: 'UI/UX 设计', color: '#ec4899' },
-  { id: 'joined-4', name: '摄影爱好者', color: '#f59e0b' }
+  { id: '1', name: 'Vue.js 开发者', color: '#42b883' },
+  { id: '2', name: '前端技术交流', color: '#3b82f6' },
+  { id: '3', name: 'UI/UX 设计', color: '#ec4899' },
+  { id: '4', name: '摄影爱好者', color: '#f59e0b' }
 ])
 
 // 近期活跃的兴趣圈（示例数据）
 const activeCircles = ref([
-  { id: 'active-1', name: 'React 社区', color: '#06b6d4' },
-  { id: 'active-2', name: 'Node.js 实战', color: '#22c55e' },
-  { id: 'active-3', name: 'Python 学习', color: '#8b5cf6' }
+  { id: '5', name: 'React 社区', color: '#06b6d4' },
+  { id: '6', name: 'Node.js 实战', color: '#22c55e' },
+  { id: '7', name: 'Python 学习', color: '#8b5cf6' }
 ])
 
 // 渲染兴趣圈图标
@@ -175,7 +178,7 @@ const menuOptions = computed(() => {
       key: 'joined-group',
       children: joinedCircles.value.map(circle => ({
         label: circle.name,
-        key: circle.id,
+        key: `circle-${circle.id}`,
         icon: () => renderCircleIcon(circle)
       }))
     },
@@ -189,7 +192,7 @@ const menuOptions = computed(() => {
       key: 'active-group',
       children: activeCircles.value.map(circle => ({
         label: circle.name,
-        key: circle.id,
+        key: `circle-${circle.id}`,
         icon: () => renderCircleIcon(circle)
       }))
     }
@@ -202,16 +205,24 @@ const handleMenuSelect = (key) => {
 
   if (key === 'create') {
     showCreateModal.value = true
+  } else if (key === 'home') {
+    router.push('/home')
+  } else if (key.startsWith('circle-')) {
+    // 提取圈子 ID
+    const circleId = key.replace('circle-', '')
+    router.push(`/circle/${circleId}`)
   } else {
     console.log('Navigate to:', key)
-    // TODO: 实现路由跳转
   }
 }
 
 // 创建成功回调
 const handleCreateSuccess = (data) => {
   console.log('兴趣圈创建成功:', data)
-  // TODO: 可以在这里刷新兴趣圈列表或跳转到新创建的兴趣圈
+  // 如果返回的数据中包含圈子ID，跳转到圈子详情页
+  if (data && data.id) {
+    router.push(`/circle/${data.id}`)
+  }
 }
 </script>
 

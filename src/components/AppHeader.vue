@@ -7,7 +7,7 @@
     <div class="header-center">
       <!-- 搜索栏 -->
       <div class="search-box">
-        <span class="search-icon">
+        <span class="search-icon" @click="handleSearch" style="cursor: pointer;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8"></circle>
             <path d="m21 21-4.35-4.35"></path>
@@ -18,6 +18,7 @@
           class="search-input"
           placeholder="搜索兴趣圈、帖子..."
           v-model="searchKeyword"
+          @keyup.enter="handleSearch"
         />
       </div>
     </div>
@@ -34,7 +35,7 @@
             <NIcon size="20">
             <AddIcon />
             </NIcon>
-        发帖
+        <div style="margin-left: 5px;">发帖</div>
       </NButton>
       
         <NButton
@@ -58,7 +59,6 @@
             round
             :size="40"
             :src="userAvatarUrl"
-            fallback-src="https://img.icons8.com/ios-glyphs/64/user-male-circle.png"
             class="user-avatar"/>
           <span class="username">{{ username }}</span>
           <span class="dropdown-icon">
@@ -73,8 +73,8 @@
 </template>
 
 <script setup>
-import { ref, computed, h, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, h, onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { NButton, NIcon, NDropdown, NAvatar, NBadge, useMessage, useDialog } from 'naive-ui'
 import { auth } from '@/utils/auth'
 import { AddCircleOutlineFilled as AddIcon } from '@vicons/material'
@@ -82,6 +82,7 @@ import { Bell } from '@vicons/tabler'
 import request from '@/utils/request'
 
 const router = useRouter()
+const route = useRoute()
 const message = useMessage()
 const dialog = useDialog()
 
@@ -108,10 +109,21 @@ const fetchUserInfo = async () => {
     }
 }
 
-// 组件挂载时获取用户信息
+// 组件挂载时获取用户信息和同步搜索关键词
 onMounted(() => {
   if (auth.isAuthenticated()) {
     fetchUserInfo()
+  }
+  // 同步搜索框内容与当前路由
+  if (route.name === 'search' && route.query.q) {
+    searchKeyword.value = route.query.q
+  }
+})
+
+// 监听路由变化，同步搜索框内容
+watch(() => route.query.q, (newQ) => {
+  if (route.name === 'search' && newQ) {
+    searchKeyword.value = newQ
   }
 })
 
@@ -209,6 +221,26 @@ const handleNotification = () => {
 // 返回主页
 const goHome = () => {
   router.push('/home')
+}
+
+// 搜索
+const handleSearch = () => {
+  const keyword = searchKeyword.value.trim()
+  if (keyword) {
+    // 如果已经在搜索页面且搜索相同关键词，需要强制刷新
+    if (route.name === 'search' && route.query.q === keyword) {
+      // 使用时间戳确保路由变化触发重新搜索
+      router.replace({
+        path: '/search',
+        query: { q: keyword, t: Date.now() }
+      })
+    } else {
+      router.push({
+        path: '/search',
+        query: { q: keyword }
+      })
+    }
+  }
 }
 </script>
 

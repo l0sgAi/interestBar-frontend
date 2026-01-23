@@ -314,6 +314,7 @@ const handleSubmit = async () => {
 
     // 调用创建兴趣圈接口
     const res = await createCircle(formData.value)
+    console.log('创建结果:'+res)
     if (res.code === 200) {
       message.success('兴趣圈创建成功！')
       emit('success', res.data)
@@ -324,7 +325,9 @@ const handleSubmit = async () => {
     }
   } catch (error) {
     console.error('创建兴趣圈失败:', error)
-    message.error(error.message || '创建失败，请检查网络连接')
+    // 优先显示接口返回的错误消息
+    const errorMsg = error.message || '创建失败，请检查网络连接'
+    message.error(errorMsg)
   } finally {
     loading.value = false
   }

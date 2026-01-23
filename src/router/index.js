@@ -42,6 +42,18 @@ const router = createRouter({
       path: '/privacy',
       name: 'privacy',
       component: () => import('../views/Privacy.vue')
+    },
+    {
+      path: '/search',
+      name: 'search',
+      component: () => import('../views/SearchResults.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/circle/:id',
+      name: 'circle-detail',
+      component: () => import('../views/CircleDetail.vue'),
+      meta: { requiresAuth: true }
     }
   ]
 })

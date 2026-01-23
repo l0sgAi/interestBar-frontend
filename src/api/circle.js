@@ -31,3 +31,31 @@ export function createCircle(data) {
     data
   })
 }
+
+/**
+ * 搜索兴趣圈（使用 Elasticsearch search_after 分页）
+ * @param {Object} params - 搜索参数
+ * @param {string} params.keyword - 搜索关键字，匹配圈子名称和描述
+ * @param {number} params.size - 每页数量，范围 1-100，默认 20
+ * @param {string} params.search_after - 上一页返回的 search_after 值（JSON字符串）
+ * @returns {Promise}
+ */
+export function searchCircles(params) {
+  return request({
+    url: '/circle/list',
+    method: 'get',
+    params
+  })
+}
+
+/**
+ * 获取圈子详情
+ * @param {number} id - 圈子ID
+ * @returns {Promise} 返回圈子详情 CircleDetailVO
+ */
+export function getCircleDetail(id) {
+  return request({
+    url: `/circle/detail/${id}`,
+    method: 'get'
+  })
+}

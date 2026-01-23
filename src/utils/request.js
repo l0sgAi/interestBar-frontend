@@ -44,35 +44,34 @@ request.interceptors.response.use(
         window.location.href = '/'
       }
 
-      return Promise.reject(new Error(res.message || '请求失败'))
+      // 创建自定义错误对象，保留完整的响应信息
+      const error = new Error(res.message || '请求失败')
+      error.code = res.code
+      error.data = res.data
+      return Promise.reject(error)
     }
 
     return res
   },
   error => {
-    console.error('响应错误:', error)
+    // 优先从响应体中获取结构化的错误信息
+    if (error.response?.data) {
+      const res = error.response.data
 
-    // 处理 HTTP 错误状态码
-    if (error.response) {
-      switch (error.response.status) {
-        case 401:
-          localStorage.removeItem('quba_token')
-          window.location.href = '/'
-          break
-        case 403:
-          console.error('没有权限访问')
-          break
-        case 404:
-          console.error('请求的资源不存在')
-          break
-        case 500:
-          console.error('服务器错误')
-          break
-        default:
-          console.error('请求失败:', error.response.data?.message || '网络错误')
+      // 处理 401 未授权
+      if (error.response.status === 401 || res.code === 401) {
+        localStorage.removeItem('quba_token')
+        window.location.href = '/'
       }
+
+      // 创建包含后端 message 的错误对象
+      const errorObj = new Error(res.message || '请求失败')
+      errorObj.code = res.code
+      errorObj.data = res.data
+      return Promise.reject(errorObj)
     }
 
+    // 网络错误或其他无法获取响应的情况
     return Promise.reject(error)
   }
 )
