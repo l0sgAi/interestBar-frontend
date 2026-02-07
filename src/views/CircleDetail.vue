@@ -74,9 +74,13 @@
                 size="large"
                 @click="handleLeaveCircle"
                 round
+                ghost
                 :loading="joinLoading"
+                @mouseenter="isButtonHovered = true"
+                @mouseleave="isButtonHovered = false"
+                :type="isButtonHovered ? 'error' : 'primary'"
               >
-                已加入
+                {{ isButtonHovered ? '退出圈子' : '已加入' }}
               </NButton>
 
               <!-- 更多选项下拉菜单 -->
@@ -232,7 +236,7 @@ import { NTabs, NTabPane, NButton, NIcon, NDropdown, NTag, useMessage } from 'na
 import AppHeader from '@/components/AppHeader.vue'
 import SideNav from '@/components/SideNav.vue'
 import PostList from '@/components/PostList.vue'
-import { getCircleDetail } from '@/api/circle'
+import { getCircleDetail, joinCircle, leaveCircle } from '@/api/circle'
 import { Bell as BellIcon, BellOff as BellOffIcon, Edit as EditIcon, DotsVertical as MoreIcon } from '@vicons/tabler'
 import { User as UserIcon, FileText as FileTextIcon, Flame as FlameIcon } from '@vicons/tabler'
 
@@ -252,20 +256,6 @@ const moreOptions = computed(() => {
       key: 'report'
     }
   ]
-
-  // 只有加入了圈子才显示退出选项
-  if (circleDetail.value.is_joined) {
-    options.push({
-      label: '退出圈子',
-      key: 'out',
-      props: {
-        style: {
-          color: 'red',
-          fontWeight: 'bold'
-        }
-      }
-    })
-  }
 
   return options
 })
@@ -300,6 +290,7 @@ const categoryName = ref('')
 const loading = ref(false)
 const joinLoading = ref(false)
 const activeTab = ref('hot')
+const isButtonHovered = ref(false)
 
 // 示例帖子数据（待对接后端）
 const hotPosts = ref([])
@@ -396,9 +387,10 @@ const fetchCircleDetail = async () => {
 const handleJoinCircle = async () => {
   joinLoading.value = true
   try {
-    // TODO: 调用加入圈子接口
+    await joinCircle({ circle_id: circleDetail.value.id })
     message.success('加入成功')
     circleDetail.value.is_joined = true
+    circleDetail.value.member_count += 1
   } catch (error) {
     message.error('加入失败：' + (error.message || '未知错误'))
   } finally {
@@ -409,10 +401,12 @@ const handleJoinCircle = async () => {
 // 退出圈子
 const handleLeaveCircle = async () => {
   joinLoading.value = true
+  isButtonHovered.value = false
   try {
-    // TODO: 调用退出圈子接口
+    await leaveCircle({ circle_id: circleDetail.value.id })
     message.success('已退出圈子')
     circleDetail.value.is_joined = false
+    circleDetail.value.member_count -= 1
   } catch (error) {
     message.error('退出失败：' + (error.message || '未知错误'))
   } finally {

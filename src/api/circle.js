@@ -59,3 +59,31 @@ export function getCircleDetail(id) {
     method: 'get'
   })
 }
+
+/**
+ * 加入兴趣圈
+ * @param {Object} data - 加入数据
+ * @param {number} data.circle_id - 圈子ID
+ * @returns {Promise}
+ */
+export function joinCircle(data) {
+  return request({
+    url: '/circle/join',
+    method: 'post',
+    data
+  })
+}
+
+/**
+ * 退出兴趣圈
+ * @param {Object} data - 退出数据
+ * @param {number} data.circle_id - 圈子ID
+ * @returns {Promise}
+ */
+export function leaveCircle(data) {
+  return request({
+    url: '/circle/leave',
+    method: 'post',
+    data
+  })
+}
