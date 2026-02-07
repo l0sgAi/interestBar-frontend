@@ -372,6 +372,10 @@ const fetchCircleDetail = async () => {
     const response = await getCircleDetail(circleId)
     if (response.data) {
       circleDetail.value = response.data
+      // 如果成员状态为4（已退出），则修正 is_joined 为 false
+      if (circleDetail.value.member_status === 4) {
+        circleDetail.value.is_joined = false
+      }
       // TODO: 根据category_id获取分类名称
       // TODO: 获取帖子列表数据
     }

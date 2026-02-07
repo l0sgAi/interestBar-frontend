@@ -183,9 +183,10 @@ const handleLogout = async () => {
 }
 
 .main-content {
-  flex: 0;
+  flex: 1;
   padding: 24px;
   min-height: calc(100vh - 64px);
+  width: 100%;
 }
 
 /* 当侧边栏折叠时的样式 */
