@@ -6,27 +6,30 @@
     <!-- 侧边栏 -->
     <SideNav />
 
-    <!-- 主内容区域 -->
-    <div class="main-content">
-      <div class="home-container">
-        <div class="content-header">
-          <NTabs animated>
-            <NTabPane name="recommend" tab="推荐">
-              <PostList :posts="recommendPosts" />
-            </NTabPane>
-            <NTabPane name="following" tab="关注">
-              <PostList :posts="followingPosts" />
-            </NTabPane>
-            <NTabPane name="hot" tab="热门">
-              <PostList :posts="hotPosts" />
-            </NTabPane>
-          </NTabs>
+    <!-- 主内容区域和右侧栏的容器 -->
+    <div class="content-wrapper">
+      <!-- 主内容区域 -->
+      <div class="main-content">
+        <div class="home-container">
+          <div class="content-header">
+            <NTabs animated>
+              <NTabPane name="recommend" tab="推荐">
+                <PostList :posts="recommendPosts" />
+              </NTabPane>
+              <NTabPane name="following" tab="关注">
+                <PostList :posts="followingPosts" />
+              </NTabPane>
+              <NTabPane name="hot" tab="热门">
+                <PostList :posts="hotPosts" />
+              </NTabPane>
+            </NTabs>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- 右侧信息栏 -->
-    <RightSidebar />
+      <!-- 右侧信息栏 -->
+      <RightSidebar />
+    </div>
   </div>
 </template>
 
@@ -171,17 +174,22 @@ const handleLogout = async () => {
   position: relative;
 }
 
-.main-content {
+.content-wrapper {
+  display: flex;
   margin-left: 260px;
-  margin-right: 384px;
   margin-top: 64px;
+  min-height: calc(100vh - 64px);
+  transition: margin-left 0.3s ease;
+}
+
+.main-content {
+  flex: 0;
   padding: 24px;
   min-height: calc(100vh - 64px);
-  transition: margin-left 0.3s ease, margin-right 0.3s ease;
 }
 
 /* 当侧边栏折叠时的样式 */
-.main-content.collapsed {
+.content-wrapper.collapsed {
   margin-left: 80px;
 }
 
@@ -307,16 +315,27 @@ const handleLogout = async () => {
 
 /* 响应式 */
 @media (max-width: 1200px) {
-  .main-content {
-    margin-right: 24px;
+  .content-wrapper {
+    flex-direction: column;
+  }
+
+  .right-sidebar {
+    display: none;
   }
 }
 
 @media (max-width: 768px) {
-  .main-content {
+  .content-wrapper {
     margin-left: 0;
-    margin-right: 0;
+    padding: 0;
+  }
+
+  .main-content {
     padding: 16px;
+  }
+
+  .right-sidebar {
+    display: none;
   }
 }
 </style>

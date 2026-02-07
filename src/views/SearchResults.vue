@@ -46,7 +46,7 @@
     </div>
 
     <!-- 右侧信息栏 -->
-    <RightSidebar />
+    <!-- <RightSidebar /> -->
   </div>
 </template>
 

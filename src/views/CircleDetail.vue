@@ -241,16 +241,34 @@ const router = useRouter()
 const message = useMessage()
 
 // 更多选项下拉菜单
-const moreOptions = ref([
-  {
-    label: '分享圈子',
-    key: 'share'
-  },
-  {
-    label: '举报',
-    key: 'report'
+const moreOptions = computed(() => {
+  const options = [
+    {
+      label: '分享圈子',
+      key: 'share'
+    },
+    {
+      label: '举报',
+      key: 'report'
+    }
+  ]
+
+  // 只有加入了圈子才显示退出选项
+  if (circleDetail.value.is_joined) {
+    options.push({
+      label: '退出圈子',
+      key: 'out',
+      props: {
+        style: {
+          color: 'red',
+          fontWeight: 'bold'
+        }
+      }
+    })
   }
-])
+
+  return options
+})
 
 // 圈子详情数据
 const circleDetail = ref({
@@ -546,8 +564,7 @@ onMounted(() => {
 
 /* 帖子区域 */
 .posts-section {
-  flex: 1;
-  min-width: 0;
+  width: 55dvw;
 }
 
 .posts-list {
@@ -622,8 +639,9 @@ onMounted(() => {
   gap: 2px;
 }
 .mid-con{
-  margin-left: 15%;
-  width: 70%;
+  /* margin-left: 0%; */
+  width: auto;
+  /* max-width: 85%; */
 }
 .stat-value {
   font-size: 1.2rem;

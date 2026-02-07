@@ -187,7 +187,6 @@ const handleGithubLogin = () => {
 .google-icon {
   width: 22px;
   height: 22px;
-  filter: brightness(0) invert(1);
 }
 
 .github-btn {

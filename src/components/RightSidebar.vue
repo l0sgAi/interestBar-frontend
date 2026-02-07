@@ -165,12 +165,12 @@ const handleLoadMore = () => {
 
 <style scoped>
 .right-sidebar {
-  position: fixed;
-  right: 8dvw;
-  top: 88px;
+  position: relative;
+  top: 1%;
   width: 360px;
   max-height: calc(100vh - 112px);
   z-index: 100;
+  flex-shrink: 0;
 }
 
 .sidebar-content {
@@ -291,14 +291,7 @@ const handleLoadMore = () => {
 
 @media (max-width: 1400px) {
   .right-sidebar {
-    right: 20px;
     width: 300px;
-  }
-}
-
-@media (max-width: 1200px) {
-  .right-sidebar {
-    display: none;
   }
 }
 
