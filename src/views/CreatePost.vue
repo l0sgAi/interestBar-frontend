@@ -29,6 +29,7 @@
                 @search="handleSearchCircle"
                 :render-label="renderCircleLabel"
                 size="large"
+                class="circle-select"
               />
             </NFormItem>
 
@@ -40,6 +41,7 @@
                 maxlength="200"
                 show-count
                 size="large"
+                class="title-input"
               />
             </NFormItem>
 
@@ -49,10 +51,10 @@
                 v-model:value="formData.summary"
                 type="textarea"
                 placeholder="请输入摘要，用于检索和关键词匹配"
-                :rows="3"
                 maxlength="500"
                 show-count
                 size="large"
+                class="title-input"
               />
             </NFormItem>
 
@@ -70,9 +72,6 @@
                 @onUploadImg="handleUploadImg"
               />
             </NFormItem>
-          </NForm>
-
-          <template #footer>
             <div class="footer-actions">
               <NButton size="large" @click="handleCancel">取消</NButton>
               <NButton
@@ -84,7 +83,7 @@
                 发布帖子
               </NButton>
             </div>
-          </template>
+          </NForm>
         </NCard>
       </div>
     </div>
@@ -109,7 +108,7 @@ import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 import AppHeader from '@/components/AppHeader.vue'
 import SideNav from '@/components/SideNav.vue'
-import { getCircles, createPost } from '@/api/post'
+import { getMyCircles, createPost } from '@/api/post'
 
 const router = useRouter()
 const message = useMessage()
@@ -117,6 +116,7 @@ const formRef = ref(null)
 const submitting = ref(false)
 const loadingCircles = ref(false)
 const language = ref('zh-CN')
+let searchTimer = null
 
 // 表单数据
 const formData = ref({
@@ -182,22 +182,20 @@ const rules = {
   }
 }
 
-// 加载圈子列表
+// 加载用户已加入的圈子列表
 const loadCircles = async (keyword = '') => {
   try {
     loadingCircles.value = true
-    const res = await getCircles({
+    const res = await getMyCircles({
       keyword,
-      page: 1,
-      page_size: 50
+      size: 50
     })
 
-    if (res.data && res.data.list) {
-      circleOptions.value = res.data.list.map(circle => ({
+    if (res.data && res.data.circles) {
+      circleOptions.value = res.data.circles.map(circle => ({
         label: circle.name,
         value: circle.id,
         avatar: circle.avatar_url,
-        description: circle.description,
         member_count: circle.member_count
       }))
     }
@@ -209,27 +207,39 @@ const loadCircles = async (keyword = '') => {
   }
 }
 
-// 搜索圈子
+// 搜索圈子（带防抖）
 const handleSearchCircle = (keyword) => {
-  if (keyword) {
-    loadCircles(keyword)
+  // 清除之前的定时器
+  if (searchTimer) {
+    clearTimeout(searchTimer)
   }
+
+  // 如果没有输入，加载所有圈子
+  if (!keyword) {
+    loadCircles('')
+    return
+  }
+
+  // 设置新的定时器，2秒后执行搜索
+  searchTimer = setTimeout(() => {
+    loadCircles(keyword)
+  }, 2000)
 }
 
 // 自定义圈子选项渲染
 const renderCircleLabel = (option) => {
-  return h('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } }, [
+  return h('div', { style: { display: 'flex', alignItems: 'center', gap: '12px', padding: '8px 0' } }, [
     h(NAvatar, {
-      size: 'small',
+      size: 48,
       src: option.avatar,
       round: true
     }),
     h('div', { style: { flex: 1 } }, [
-      h('div', { style: { fontWeight: 500 } }, option.label),
-      option.description ? h(NText, {
+      h('div', { style: { fontWeight: 500, fontSize: '21px' } }, option.label),
+      h(NText, {
         depth: 3,
-        style: { fontSize: '12px' }
-      }, { default: () => option.description }) : null
+        style: { fontSize: '16px' }
+      }, { default: () => `${option.member_count || 0} 成员` })
     ])
   ])
 }
@@ -318,8 +328,50 @@ onMounted(() => {
 
 :deep(.n-form-item-label) {
   font-weight: 500;
-  font-size: 15px;
-  padding-bottom: 8px;
+  font-size: 16px;
+  padding-bottom: 10px;
+}
+
+/* 圈子选择下拉框 */
+.circle-select {
+  max-width: 33.33%;
+}
+
+:deep(.circle-select .n-base-selection) {
+  min-height: 72px !important;
+}
+
+:deep(.circle-select .n-base-selection__border),
+:deep(.circle-select .n-base-selection__border--focused) {
+  box-shadow: none !important;
+}
+
+:deep(.circle-select .n-base-selection-label) {
+  min-height: 72px !important;
+  font-size: 21px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+:deep(.circle-select .n-base-selection-placeholder) {
+  font-size: 21px !important;
+  min-height: 72px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+:deep(.circle-select .n-base-selection-input) {
+  font-size: 21px !important;
+}
+
+/* 下拉列表选项样式 */
+:deep(.n-virtuoso__item) {
+  min-height: 64px !important;
+}
+
+:deep(.n-base-select-option__content) {
+  min-height: 64px !important;
+  padding: 12px 16px !important;
 }
 
 :deep(.n-input),
@@ -335,30 +387,62 @@ onMounted(() => {
 
 :deep(.n-input__input-el),
 :deep(.n-input__textarea-el) {
-  font-size: 15px;
+  font-size: 21px;
 }
 
 :deep(.n-input--large .n-input__input-el),
 :deep(.n-input--large .n-input__textarea-el) {
-  font-size: 16px;
+  font-size: 21px;
+}
+
+/* 标题输入框样式 */
+.title-input {
+  min-height: 72px;
+  font-size: 21px;
+}
+
+:deep(.title-input .n-input__input-el) {
+  height: 72px !important;
+  line-height: 72px !important;
+  font-size: 21px !important;
+}
+
+/* 摘要输入框样式 */
+.summary-input :deep(.n-input__textarea-el) {
+  font-size: 21px !important;
+  line-height: 1.6;
 }
 
 /* Markdown 编辑器样式 */
 :deep(.md-editor) {
-  border-radius: 16px !important;
+  font-size: 21px !important;
+  border-radius: 21px !important;
   overflow: hidden;
 }
 
-:deep(.md-editor-preview-wrapper) {
-  min-height: 400px;
+/* 强制覆盖所有内部文本:字体 */
+:deep(.md-editor *) {
+  font-family: 'Fira Code', 'Maple Mono SC NF', 'Consolas', '微软雅黑';
 }
 
+:deep(.cm-scroller *){
+  font-size: 21px;
+}
+
+/* 工具栏样式 */
 :deep(.md-editor-toolbar) {
-  border-radius: 16px 16px 0 0 !important;
+  font-size: 21px !important;
+  border-radius: 21px 21px 0 0 !important;
+  padding: 7px !important;
 }
 
-:deep(.md-editor-content) {
-  border-radius: 0 0 16px 16px !important;
+:deep(.md-editor-toolbar-item svg) {
+  width: 21px !important;
+  height: 21px !important;
+}
+
+:deep(.md-editor-footer){
+  height: 7% !important;
 }
 
 /* 底部按钮 */

@@ -17,6 +17,22 @@ export function getCircles(params) {
 }
 
 /**
+ * 获取用户已加入的圈子列表（用于发帖时选择圈子）
+ * @param {Object} params - 查询参数
+ * @param {string} params.keyword - 搜索关键词（可选）
+ * @param {number} params.size - 每页数量，默认20，最大100
+ * @param {string} params.search_after - 深度分页参数（JSON字符串，可选）
+ * @returns {Promise}
+ */
+export function getMyCircles(params) {
+  return request({
+    url: '/circle/my',
+    method: 'get',
+    params
+  })
+}
+
+/**
  * 创建帖子
  * @param {Object} data - 帖子数据
  * @param {number} data.circle_id - 所属圈子ID
