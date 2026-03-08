@@ -49,3 +49,15 @@ export function createPost(data) {
     data
   })
 }
+
+/**
+ * 获取帖子详情
+ * @param {number} id - 帖子ID
+ * @returns {Promise}
+ */
+export function getPostDetail(id) {
+  return request({
+    url: `/post/detail/${id}`,
+    method: 'get'
+  })
+}

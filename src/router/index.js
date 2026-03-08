@@ -54,6 +54,12 @@ const router = createRouter({
       name: 'circle-detail',
       component: () => import('../views/CircleDetail.vue'),
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/post/:id',
+      name: 'post-detail',
+      component: () => import('../views/PostDetail.vue'),
+      meta: { requiresAuth: true }
     }
   ]
 })

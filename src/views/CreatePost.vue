@@ -257,10 +257,21 @@ const handleSubmit = async () => {
     await formRef.value?.validate()
 
     submitting.value = true
-    await createPost(formData.value)
+    const res = await createPost(formData.value)
 
     message.success('发布成功')
-    router.push('/home')
+
+    // 跳转到帖子详情页
+    if (res.data) {
+      const postId = res.data
+      router.push({
+        name: 'post-detail',
+        params: { id: postId }
+      })
+    } else {
+      message.warning('未获取到帖子ID，返回首页')
+      router.push('/home')
+    }
   } catch (error) {
     console.error('发布失败:', error)
     if (error.errors) {
