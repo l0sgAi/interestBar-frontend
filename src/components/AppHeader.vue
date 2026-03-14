@@ -384,7 +384,7 @@ const handleSearch = () => {
   border-radius: 24px;
   cursor: pointer;
   transition: all 0.3s ease;
-  background: rgba(255, 255, 255, 0.05);
+  /* background: rgba(255, 255, 255, 0.05); */
 }
 
 .user-info-trigger:hover {

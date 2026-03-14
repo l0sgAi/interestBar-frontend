@@ -46,7 +46,7 @@
             </NFormItem>
 
             <!-- 摘要 -->
-            <NFormItem label="摘要（检索关键词，可选）" path="summary">
+            <!-- <NFormItem label="摘要（检索关键词，可选）" path="summary">
               <NInput
                 v-model:value="formData.summary"
                 type="textarea"
@@ -56,7 +56,7 @@
                 size="large"
                 class="title-input"
               />
-            </NFormItem>
+            </NFormItem> -->
 
             <!-- 正文（Markdown编辑器） -->
             <NFormItem label="正文" path="content">

@@ -26,7 +26,7 @@
     <!-- 帖子内容 -->
     <div class="post-content">
       <h3 class="post-title">{{ title }}</h3>
-      <!-- <p class="post-text">{{ content }}</p> -->
+      <p class="post-text">{{ content }}</p>
     </div>
 
     <!-- 帖子图片（只显示首图） -->

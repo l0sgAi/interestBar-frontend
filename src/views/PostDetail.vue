@@ -17,15 +17,25 @@
         <NCard :bordered="false" class="post-card">
           <!-- 帖子头部信息 -->
           <div class="post-header">
-            <!-- 置顶、精华标签 -->
+            <!-- 置顶、精华、状态标签 -->
             <div class="post-badges">
               <NTag v-if="post.is_pinned" type="warning" size="small" round>置顶</NTag>
               <NTag v-if="post.is_essence" type="success" size="small" round>精华</NTag>
               <NTag v-if="post.is_lock" type="error" size="small" round>锁定</NTag>
+              
             </div>
 
             <!-- 标题 -->
             <h1 class="post-title">{{ post.title }}</h1>
+            <!-- 状态标签 -->
+            <NTag
+                v-if="post.status !== 1"
+                :type="getStatusTagType(post.status)"
+                size="large"
+                round
+              >
+                {{ getStatusText(post.status) }}
+              </NTag>
 
             <!-- 摘要 -->
             <!--
@@ -222,6 +232,30 @@ const formatTime = (time) => {
     hour: '2-digit',
     minute: '2-digit'
   })
+}
+
+// 获取状态文本
+const getStatusText = (status) => {
+  const statusMap = {
+    0: '草稿',
+    1: '正常',
+    2: '审核中',
+    3: '驳回',
+    4: '屏蔽'
+  }
+  return statusMap[status] || '未知状态'
+}
+
+// 获取状态标签类型
+const getStatusTagType = (status) => {
+  const typeMap = {
+    0: 'default',
+    1: 'success',
+    2: 'info',
+    3: 'warning',
+    4: 'error'
+  }
+  return typeMap[status] || 'default'
 }
 
 // 加载帖子详情
