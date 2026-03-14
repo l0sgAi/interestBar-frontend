@@ -174,12 +174,14 @@
 
               <div class="description-section">
                 <h4 class="section-title">简介</h4>
-                <p class="description">{{ circleDetail.description || '暂无描述' }}</p>
-              </div>
-
-              <div v-if="circleDetail.rule" class="rules-section">
-                <h4 class="section-title">圈子规则</h4>
-                <p class="rules">{{ circleDetail.rule }}</p>
+                <p class="description">{{ getDisplayDescription(circleDetail.description) || '暂无描述' }}</p>
+                <div
+                  v-if="shouldShowMoreButton(circleDetail.description)"
+                  class="show-more-btn"
+                  @click="toggleDescription"
+                >
+                  {{ isDescriptionExpanded ? '收起' : '点击查看更多' }}
+                </div>
               </div>
 
               <div class="circle-info">
@@ -219,6 +221,11 @@
                   <span class="label">消息免打扰</span>
                   <span class="value">已开启</span>
                 </div>
+              </div>
+
+              <div v-if="circleDetail.rule" class="rules-section">
+                <h4 class="section-title">圈子规则</h4>
+                <p class="rules">{{ circleDetail.rule }}</p>
               </div>
             </div>
           </div>
@@ -291,6 +298,22 @@ const loading = ref(false)
 const joinLoading = ref(false)
 const activeTab = ref('hot')
 const isButtonHovered = ref(false)
+const isDescriptionExpanded = ref(false)
+
+// 简介折叠展开
+const toggleDescription = () => {
+  isDescriptionExpanded.value = !isDescriptionExpanded.value
+}
+
+const getDisplayDescription = (description) => {
+  if (!description) return ''
+  if (isDescriptionExpanded.value) return description
+  return description.length > 200 ? description.substring(0, 200) + ' ......' : description
+}
+
+const shouldShowMoreButton = (description) => {
+  return description && description.length > 200
+}
 
 // 示例帖子数据（待对接后端）
 const hotPosts = ref([])
@@ -671,6 +694,19 @@ onMounted(() => {
   margin-bottom: 16px;
 }
 
+.show-more-btn {
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: rgb(155, 255, 182);
+  cursor: pointer;
+  transition: color 0.2s ease;
+  user-select: none;
+}
+
+.show-more-btn:hover {
+  color: rgba(255, 255, 255, 0.9);
+}
+
 .description {
   color: rgba(255, 255, 255, 0.7);
   line-height: 1.6;
@@ -681,7 +717,6 @@ onMounted(() => {
 }
 
 .rules-section {
-  margin-bottom: 16px;
   padding-top: 16px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }

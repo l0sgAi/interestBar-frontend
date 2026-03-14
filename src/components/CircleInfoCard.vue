@@ -83,12 +83,14 @@
       <!-- 简介和规则 -->
       <div v-if="circleDetail.description" class="description-section">
         <h4 class="section-title">简介</h4>
-        <p class="description">{{ circleDetail.description }}</p>
-      </div>
-
-      <div v-if="circleDetail.rule" class="rules-section">
-        <h4 class="section-title">圈子规则</h4>
-        <p class="rules">{{ circleDetail.rule }}</p>
+        <p class="description">{{ getDisplayDescription(circleDetail.description) }}</p>
+        <div
+          v-if="shouldShowMoreButton(circleDetail.description)"
+          class="show-more-btn"
+          @click="toggleDescription"
+        >
+          {{ isDescriptionExpanded ? '收起' : '点击查看更多' }}
+        </div>
       </div>
 
       <!-- 圈子信息 -->
@@ -127,6 +129,13 @@
           <span class="value">已开启</span>
         </div>
       </div>
+
+      <!-- 圈子规则（放在最后） -->
+      <div v-if="circleDetail.rule" class="rules-section">
+        <h4 class="section-title">圈子规则</h4>
+        <p class="rules">{{ circleDetail.rule }}</p>
+      </div>
+
     </div>
   </div>
 </template>
@@ -179,6 +188,22 @@ const circleDetail = ref({
 const loading = ref(false)
 const joinLoading = ref(false)
 const isButtonHovered = ref(false)
+const isDescriptionExpanded = ref(false)
+
+// 简介折叠展开
+const toggleDescription = () => {
+  isDescriptionExpanded.value = !isDescriptionExpanded.value
+}
+
+const getDisplayDescription = (description) => {
+  if (!description) return ''
+  if (isDescriptionExpanded.value) return description
+  return description.length > 200 ? description.substring(0, 200) + ' ......' : description
+}
+
+const shouldShowMoreButton = (description) => {
+  return description && description.length > 200
+}
 
 // 格式化数字
 const formatNumber = (num) => {
@@ -454,6 +479,19 @@ defineExpose({
 .rules-section {
   padding: 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.show-more-btn {
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: rgb(155, 255, 182);
+  cursor: pointer;
+  transition: color 0.2s ease;
+  user-select: none;
+}
+
+.show-more-btn:hover {
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .rules-section {

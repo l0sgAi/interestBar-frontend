@@ -37,10 +37,10 @@
                 <NAvatar
                   round
                   :size="40"
-                  :src="post.user_avatar || '/default-avatar.png'"
+                  :src="post.author_avatar || '/default-avatar.png'"
                 />
                 <div class="author-text">
-                  <div class="author-name">{{ post.user_name || '匿名用户' }}</div>
+                  <div class="author-name">{{ post.author_name || '匿名用户' }}</div>
                   <div class="post-time">
                     {{ formatTime(post.create_time) }}
                   </div>
