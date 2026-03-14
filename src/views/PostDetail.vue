@@ -306,6 +306,13 @@ onMounted(() => {
   top: 88px;
   max-height: calc(100vh - 88px);
   overflow-y: auto;
+  /* 隐藏滚动条 */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.right-sidebar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 :deep(.n-card__header) {
@@ -394,11 +401,12 @@ onMounted(() => {
 :deep(.n-divider) {
   margin: 24px 0;
 }
-
+ 
 /* 帖子正文 */
 .post-content {
   margin: 14px 0;
   padding: 24px;
+  border-radius: 15px;
   background: black;
 }
 
