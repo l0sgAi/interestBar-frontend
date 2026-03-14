@@ -6,11 +6,10 @@
       <div class="circle-info">
         <NAvatar
           round
-          :size="32"
-          :style="{ background: circleColor }"
-        >
-          {{ circleName.charAt(0) }}
-        </NAvatar>
+          :size="48"
+          :src="circleAvatar"
+          :style="circleAvatar ? '' : { background: circleColor }"
+        />
         <span class="circle-name">{{ circleName }}</span>
       </div>
       <!-- 用户信息 -->
@@ -27,7 +26,7 @@
     <!-- 帖子内容 -->
     <div class="post-content">
       <h3 class="post-title">{{ title }}</h3>
-      <p class="post-text">{{ content }}</p>
+      <!-- <p class="post-text">{{ content }}</p> -->
     </div>
 
     <!-- 帖子图片（只显示首图） -->
@@ -37,6 +36,7 @@
         :alt="title"
         class="post-image"
         object-fit="cover"
+        :fallback-src="getDefaultImage()"
       />
       <div v-if="images.length > 1" class="more-images-badge">
         +{{ images.length - 1 }}
@@ -79,22 +79,18 @@
 
       <NButton
         text
-        type="default"
+        :type="isCollected ? 'warning' : 'default'"
         size="medium"
-        @click="handleShare"
+        @click="handleCollect"
       >
         <template #icon>
           <NIcon>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="18" cy="5" r="3"></circle>
-              <circle cx="6" cy="12" r="3"></circle>
-              <circle cx="18" cy="19" r="3"></circle>
-              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
             </svg>
           </NIcon>
         </template>
-        {{ shareCount }}
+        {{ collectCount }}
       </NButton>
     </div>
   </NCard>
@@ -109,9 +105,17 @@ const props = defineProps({
     type: String,
     required: true
   },
+  circleId: {
+    type: Number,
+    default: null
+  },
   circleName: {
     type: String,
     required: true
+  },
+  circleAvatar: {
+    type: String,
+    default: ''
   },
   circleColor: {
     type: String,
@@ -149,7 +153,7 @@ const props = defineProps({
     type: Number,
     default: 0
   },
-  shareCount: {
+  collectCount: {
     type: Number,
     default: 0
   }
@@ -157,6 +161,7 @@ const props = defineProps({
 
 const message = useMessage()
 const isLiked = ref(false)
+const isCollected = ref(false)
 
 const handleLike = () => {
   isLiked.value = !isLiked.value
@@ -169,9 +174,15 @@ const handleComment = () => {
   console.log('Comment post:', props.postId)
 }
 
-const handleShare = () => {
-  message.info('转发功能开发中...')
-  console.log('Share post:', props.postId)
+const handleCollect = () => {
+  isCollected.value = !isCollected.value
+  message.info(isCollected.value ? '已收藏' : '已取消收藏')
+  console.log('Collect post:', props.postId)
+}
+
+const getDefaultImage = () => {
+  // 返回一个默认占位图或空字符串
+  return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500"%3E%3Crect width="800" height="500" fill="%23333"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="%23666" font-size="24"%3E无图片%3C/text%3E%3C/svg%3E'
 }
 </script>
 
@@ -201,15 +212,13 @@ const handleShare = () => {
 .circle-info {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 15px;
   padding: 4px 10px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
   flex-shrink: 0;
 }
 
 .circle-name {
-  font-size: 0.75rem;
+  font-size: 18px;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.8);
 }
@@ -319,6 +328,14 @@ const handleShare = () => {
 
 :deep(.n-button.n-button--error-type:hover) {
   background: rgba(236, 72, 153, 0.15) !important;
+}
+
+:deep(.n-button.n-button--warning-type) {
+  color: #f59e0b !important;
+}
+
+:deep(.n-button.n-button--warning-type:hover) {
+  background: rgba(245, 158, 11, 0.15) !important;
 }
 
 /* 响应式 */

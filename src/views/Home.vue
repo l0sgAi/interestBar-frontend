@@ -51,7 +51,9 @@ const message = useMessage()
 const recommendPosts = ref([
   {
     postId: '1',
+    circleId: null,
     circleName: 'Vue.js 开发者',
+    circleAvatar: '',
     circleColor: '#42b883',
     userName: '张三',
     userColor: '#22c55e',
@@ -64,11 +66,13 @@ const recommendPosts = ref([
     postTime: new Date(Date.now() - 1000 * 60 * 30),
     likeCount: 234,
     commentCount: 45,
-    shareCount: 12
+    collectCount: 12
   },
   {
     postId: '2',
+    circleId: null,
     circleName: 'UI/UX 设计',
+    circleAvatar: '',
     circleColor: '#ec4899',
     userName: '李四',
     userColor: '#f97316',
@@ -82,11 +86,13 @@ const recommendPosts = ref([
     postTime: new Date(Date.now() - 1000 * 60 * 60 * 2),
     likeCount: 567,
     commentCount: 89,
-    shareCount: 34
+    collectCount: 34
   },
   {
     postId: '3',
+    circleId: null,
     circleName: '前端技术交流',
+    circleAvatar: '',
     circleColor: '#3b82f6',
     userName: '王五',
     userColor: '#8b5cf6',
@@ -96,14 +102,16 @@ const recommendPosts = ref([
     postTime: new Date(Date.now() - 1000 * 60 * 60 * 5),
     likeCount: 892,
     commentCount: 156,
-    shareCount: 67
+    collectCount: 67
   }
 ])
 
 const followingPosts = ref([
   {
     postId: '4',
+    circleId: null,
     circleName: '摄影爱好者',
+    circleAvatar: '',
     circleColor: '#f59e0b',
     userName: '赵六',
     userColor: '#06b6d4',
@@ -118,14 +126,16 @@ const followingPosts = ref([
     postTime: new Date(Date.now() - 1000 * 60 * 60 * 24),
     likeCount: 1234,
     commentCount: 234,
-    shareCount: 89
+    collectCount: 89
   }
 ])
 
 const hotPosts = ref([
   {
     postId: '5',
+    circleId: null,
     circleName: 'React 社区',
+    circleAvatar: '',
     circleColor: '#06b6d4',
     userName: '孙七',
     userColor: '#ec4899',
@@ -137,7 +147,7 @@ const hotPosts = ref([
     postTime: new Date(Date.now() - 1000 * 60 * 60 * 48),
     likeCount: 5678,
     commentCount: 890,
-    shareCount: 234
+    collectCount: 234
   }
 ])
 

@@ -51,6 +51,23 @@ export function createPost(data) {
 }
 
 /**
+ * 搜索帖子列表
+ * @param {Object} params - 查询参数
+ * @param {string} params.keyword - 搜索关键词（可选）
+ * @param {number} params.circle_id - 圈子ID（可选）
+ * @param {number} params.size - 每页数量，默认20
+ * @param {string} params.search_after - 深度分页参数（JSON字符串，可选）
+ * @returns {Promise}
+ */
+export function searchPosts(params) {
+  return request({
+    url: '/post/list',
+    method: 'get',
+    params
+  })
+}
+
+/**
  * 获取帖子详情
  * @param {number} id - 帖子ID
  * @returns {Promise}

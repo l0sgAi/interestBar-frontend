@@ -18,11 +18,24 @@
         <!-- 搜索类型 Tabs -->
         <NTabs animated v-model:value="activeTab" @update:value="handleTabChange">
           <NTabPane name="post" tab="帖子">
-            <div class="tab-placeholder">
+            <PostList
+              v-if="posts.length > 0"
+              :posts="posts"
+            />
+            <div v-else-if="!loadingPosts" class="tab-placeholder">
               <NIcon size="48" :color="'rgba(255,255,255,0.3)'">
                 <FileTextIcon />
               </NIcon>
-              <p>帖子搜索功能开发中...</p>
+              <p>暂无帖子结果</p>
+            </div>
+            <div v-if="loadingPosts" class="loading-placeholder">
+              <NSpin size="medium" />
+              <p>搜索中...</p>
+            </div>
+            <div v-if="hasMorePosts && !loadingPosts" class="load-more-container">
+              <NButton @click="loadMorePosts" :loading="loadingPosts">
+                加载更多
+              </NButton>
             </div>
           </NTabPane>
           <NTabPane name="circle" tab="兴趣圈">
@@ -53,14 +66,16 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { NTabs,NDivider, NTabPane, NIcon, useMessage } from 'naive-ui'
+import { NTabs,NDivider, NTabPane, NIcon, NSpin, NButton, useMessage } from 'naive-ui'
 import { FileText as FileTextIcon, User as UserIcon } from '@vicons/tabler'
 import AppHeader from '@/components/AppHeader.vue'
 import SideNav from '@/components/SideNav.vue'
 import RightSidebar from '@/components/RightSidebar.vue'
 import CircleList from '@/components/CircleList.vue'
 import { searchCircles } from '@/api/circle'
+import { searchPosts } from '@/api/post'
 import { auth } from '@/utils/auth'
+import PostList from '@/components/PostList.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -70,7 +85,7 @@ const message = useMessage()
 const keyword = ref('')
 
 // 当前激活的 tab
-const activeTab = ref('circle')
+const activeTab = ref('post')
 
 // 兴趣圈列表数据
 const circles = ref([])
@@ -78,6 +93,12 @@ const loading = ref(false)
 const hasMore = ref(false)
 const searchAfter = ref(null)
 const pageSize = 20
+
+// 帖子列表数据
+const posts = ref([])
+const loadingPosts = ref(false)
+const hasMorePosts = ref(false)
+const searchAfterPosts = ref(null)
 
 // 初始化
 onMounted(() => {
@@ -96,8 +117,8 @@ onMounted(() => {
     return
   }
 
-  // 执行搜索
-  searchCirclesData()
+  // 默认搜索帖子
+  searchPostsData()
 })
 
 // 监听路由变化
@@ -105,14 +126,28 @@ watch(() => route.query.q, (newKeyword) => {
   if (newKeyword && newKeyword !== keyword.value) {
     keyword.value = newKeyword
     resetSearch()
-    searchCirclesData()
+    // 根据当前tab执行对应的搜索
+    if (activeTab.value === 'post') {
+      searchPostsData()
+    } else if (activeTab.value === 'circle') {
+      searchCirclesData()
+    }
   }
 })
 
 // 切换 tab
 const handleTabChange = (value) => {
   activeTab.value = value
-  // 目前只有兴趣圈搜索，其他 tab 显示占位符
+  // 根据 tab 切换执行对应的搜索
+  if (value === 'post') {
+    if (posts.value.length === 0) {
+      searchPostsData()
+    }
+  } else if (value === 'circle') {
+    if (circles.value.length === 0) {
+      searchCirclesData()
+    }
+  }
 }
 
 // 重置搜索状态
@@ -120,6 +155,88 @@ const resetSearch = () => {
   circles.value = []
   searchAfter.value = null
   hasMore.value = false
+  posts.value = []
+  searchAfterPosts.value = null
+  hasMorePosts.value = false
+}
+
+// 转换帖子数据格式
+const transformPostData = (apiPosts) => {
+  return apiPosts.map(post => ({
+    postId: post.id,
+    circleId: post.circle_id || null,
+    circleName: post.circle_name || '未知圈子',
+    circleAvatar: post.circle_avatar || '',
+    circleColor: '#ec4899',
+    userName: post.author_name || '匿名用户',
+    userColor: '#a855f7',
+    title: post.title || '无标题',
+    content: post.summary || post.content || '',
+    images: post.images || [],
+    postTime: post.create_time || '',
+    likeCount: post.like_count || 0,
+    commentCount: post.comment_count || 0,
+    collectCount: post.collect_count || 0
+  }))
+}
+
+// 搜索帖子数据
+const searchPostsData = async () => {
+  if (loadingPosts.value) return
+
+  loadingPosts.value = true
+  try {
+    const params = {
+      keyword: keyword.value,
+      size: pageSize
+    }
+
+    if (searchAfterPosts.value) {
+      params.search_after = JSON.stringify(searchAfterPosts.value)
+    }
+
+    const response = await searchPosts(params)
+
+    if (response.code === 200 && response.data) {
+      const newPosts = response.data.posts || []
+      const transformedPosts = transformPostData(newPosts)
+
+      if (searchAfterPosts.value) {
+        // 加载更多，追加数据
+        posts.value = [...posts.value, ...transformedPosts]
+      } else {
+        // 首次加载或新搜索
+        posts.value = transformedPosts
+      }
+
+      // 更新 search_after
+      if (response.data.search_after) {
+        try {
+          searchAfterPosts.value = JSON.parse(response.data.search_after)
+          hasMorePosts.value = true
+        } catch (e) {
+          console.error('解析 search_after 失败:', e)
+          hasMorePosts.value = false
+        }
+      } else {
+        hasMorePosts.value = false
+      }
+    } else {
+      message.error(response.msg || '搜索失败')
+    }
+  } catch (error) {
+    console.error('搜索帖子失败:', error)
+    message.error('搜索失败，请稍后重试')
+  } finally {
+    loadingPosts.value = false
+  }
+}
+
+// 加载更多帖子
+const loadMorePosts = () => {
+  if (!loadingPosts.value && hasMorePosts.value) {
+    searchPostsData()
+  }
 }
 
 // 搜索兴趣圈数据
@@ -244,6 +361,25 @@ const loadMore = () => {
 
 .tab-placeholder p {
   margin-top: 16px;
+}
+
+.loading-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.loading-placeholder p {
+  margin-top: 16px;
+}
+
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
 }
 
 /* 响应式 */
