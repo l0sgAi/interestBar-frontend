@@ -13,6 +13,7 @@
       </div>
 
       <div v-else-if="post" class="post-detail-container">
+        <!-- 主帖子卡片 -->
         <NCard :bordered="false" class="post-card">
           <!-- 帖子头部信息 -->
           <div class="post-header">
@@ -27,8 +28,9 @@
             <h1 class="post-title">{{ post.title }}</h1>
 
             <!-- 摘要 -->
+            <!--
             <div v-if="post.summary" class="post-summary">{{ post.summary }}</div>
-
+            -->
             <!-- 作者信息 -->
             <div class="post-meta">
               <div class="author-info">
@@ -145,6 +147,14 @@
             </NButton>
           </div>
         </NCard>
+
+        <!-- 右侧圈子信息卡片 -->
+        <div class="right-sidebar">
+          <CircleInfoCard
+            v-if="post && post.circle_id"
+            :circleId="post.circle_id"
+          />
+        </div>
       </div>
 
       <NEmpty v-else description="帖子不存在" />
@@ -170,6 +180,7 @@ import { MdPreview } from 'md-editor-v3'
 import 'md-editor-v3/lib/preview.css'
 import AppHeader from '@/components/AppHeader.vue'
 import SideNav from '@/components/SideNav.vue'
+import CircleInfoCard from '@/components/CircleInfoCard.vue'
 import { getPostDetail } from '@/api/post'
 
 const route = useRoute()
@@ -272,14 +283,29 @@ onMounted(() => {
 }
 
 .post-detail-container {
+  display: flex;
+  gap: 24px;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
+  align-items: flex-start;
 }
 
 .post-card {
+  flex: 1;
+  min-width: 0;
   border-radius: 16px !important;
   overflow: hidden;
+}
+
+/* 右侧悬浮栏 */
+.right-sidebar {
+  width: 384px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 88px;
+  max-height: calc(100vh - 88px);
+  overflow-y: auto;
 }
 
 :deep(.n-card__header) {
@@ -399,6 +425,16 @@ onMounted(() => {
 @media (max-width: 1400px) {
   .main-content {
     margin-right: 24px;
+  }
+
+  .right-sidebar {
+    width: 320px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .right-sidebar {
+    display: none;
   }
 }
 
