@@ -1,5 +1,5 @@
 <template>
-  <NCard class="post-card" :bordered="false">
+  <NCard class="post-card" :bordered="false" @click="handleClick">
     <!-- 帖子头部 -->
     <div class="post-header">
       <!-- 兴趣圈信息 -->
@@ -44,7 +44,7 @@
     </div>
 
     <!-- 帖子底部操作栏 -->
-    <div class="post-actions">
+    <div class="post-actions" @click.stop>
       <NButton
         text
         :type="isLiked ? 'error' : 'default'"
@@ -98,9 +98,11 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { NCard, NAvatar, NButton, NIcon, NImage, NTime, useMessage } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 
+const router = useRouter()
 const { t } = useI18n()
 
 const props = defineProps({
@@ -183,6 +185,10 @@ const handleCollect = () => {
   console.log('Collect post:', props.postId)
 }
 
+const handleClick = () => {
+  router.push(`/post/${props.postId}`)
+}
+
 const getDefaultImage = () => {
   // 返回一个默认占位图或空字符串
   return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500"%3E%3Crect width="800" height="500" fill="%23333"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="%23666" font-size="24"%3ENo Image%3C/text%3E%3C/svg%3E'
@@ -201,6 +207,7 @@ const getDefaultImage = () => {
   background: rgba(255, 255, 255, 0.05) !important;
   border-color: rgba(255, 255, 255, 0.12) !important;
   transform: translateY(-2px);
+  cursor: pointer;
 }
 
 /* 帖子头部 */

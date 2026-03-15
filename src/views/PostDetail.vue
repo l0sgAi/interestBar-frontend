@@ -173,7 +173,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, inject } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   NCard,
@@ -193,6 +193,7 @@ import AppHeader from '@/components/AppHeader.vue'
 import SideNav from '@/components/SideNav.vue'
 import CircleInfoCard from '@/components/CircleInfoCard.vue'
 import { getPostDetail } from '@/api/post'
+import { getCircleDetail } from '@/api/circle'
 import { useFormatTime } from '@/utils/i18n'
 
 const route = useRoute()
@@ -200,6 +201,9 @@ const router = useRouter()
 const message = useMessage()
 const { t } = useI18n()
 const { formatTime } = useFormatTime()
+
+// 注入圈子搜索状态设置方法
+const setCircleSearch = inject('setCircleSearch', () => {})
 
 const loading = ref(true)
 const post = ref(null)
@@ -238,6 +242,22 @@ const loadPostDetail = async () => {
 
     if (res.data) {
       post.value = res.data
+
+      // 设置圈子搜索状态
+      if (post.value.circle_id) {
+        try {
+          const circleRes = await getCircleDetail(post.value.circle_id)
+          if (circleRes.data) {
+            setCircleSearch({
+              id: circleRes.data.id,
+              name: circleRes.data.name,
+              avatar_url: circleRes.data.avatar_url
+            })
+          }
+        } catch (error) {
+          console.error('获取圈子信息失败:', error)
+        }
+      }
     } else {
       message.error(t('post.postNotFound'))
     }

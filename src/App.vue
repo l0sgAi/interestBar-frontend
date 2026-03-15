@@ -10,11 +10,13 @@
 </template>
 
 <script setup>
-import { computed, ref, provide, readonly } from 'vue'
+import { computed, ref, provide, readonly, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { darkTheme, zhCN, enUS } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 import { NConfigProvider, NGlobalStyle, NMessageProvider, NDialogProvider } from 'naive-ui'
 
+const router = useRouter()
 const { locale } = useI18n()
 
 // 圈子搜索状态
@@ -46,6 +48,16 @@ const clearCircleSearch = () => {
 provide('circleSearchState', readonly(circleSearchState))
 provide('setCircleSearch', setCircleSearch)
 provide('clearCircleSearch', clearCircleSearch)
+
+// 监听路由变化，在跳转到主页、热门、发现等页面时清除圈子搜索状态
+watch(() => router.currentRoute.value.name, (newRouteName) => {
+  // 定义需要清除圈子搜索状态的页面
+  const pagesToClear = ['home', 'hot', 'discover']
+
+  if (pagesToClear.includes(newRouteName)) {
+    clearCircleSearch()
+  }
+}, { immediate: false })
 
 // Naive UI 组件国际化
 const naiveUILocale = computed(() => locale.value === 'zh-CN' ? zhCN : enUS)
