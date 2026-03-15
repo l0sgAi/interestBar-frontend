@@ -9,7 +9,12 @@
     <!-- 主内容区域 -->
     <div class="main-content">
       <div class="create-post-container">
-        <NCard :title="'➕ ' + t('post.createPost')" :bordered="false" class="post-card">
+        <NCard 
+        :title="t('post.createPost')" 
+        :bordered="false" 
+        class="post-card"
+        :header-style="{fontSize:'35px',marginLeft:'20px',marginTop:'20px'}"
+        >
           <NForm
             ref="formRef"
             :model="formData"

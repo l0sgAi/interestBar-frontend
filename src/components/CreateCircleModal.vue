@@ -3,11 +3,12 @@
     v-model:show="showModal"
     :mask-closable="false"
     preset="card"
-    :style="{ width: '800px' }"
-    :title="'✨' + t('circle.form.createButton')"
+    :style="{ width: '1200px', borderRadius: '12px' }"
+    :title="'✨ ' + t('circle.form.createButton')"
+    header-style = "font-size: 28px;"
+    :segmented="{ content: 'soft' }"
     :bordered="false"
     size="huge"
-    class="create-circle-modal"
   >
     <NScrollbar>
       <NForm
@@ -377,4 +378,5 @@ watch(showModal, (val) => {
   height: 65vh;
   padding: 17px;
 }
+
 </style>
