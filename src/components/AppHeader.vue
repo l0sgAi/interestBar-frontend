@@ -343,13 +343,14 @@ const handleClearCircleSearch = () => {
 
 /* 搜索栏 */
 .search-box {
-  width: 30dvw;
+  min-width: 40dvw;
   display: flex;
   align-items: center;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 24px;
-  padding: 10px 20px;
+  padding: 6px 16px;
+  min-height: 6dvh;
   transition: all 0.3s ease;
   gap: 8px;
 }
