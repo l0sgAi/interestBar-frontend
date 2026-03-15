@@ -5,8 +5,8 @@
       <NIcon size="64" :color="'rgba(255,255,255,0.2)'">
         <SearchIcon />
       </NIcon>
-      <p class="empty-text">没有找到相关兴趣圈</p>
-      <p class="empty-hint">换个关键词试试吧</p>
+      <p class="empty-text">{{ t('circle.noCircleResults') }}</p>
+      <p class="empty-hint">{{ t('common.search') }}</p>
     </div>
 
     <!-- 兴趣圈列表 -->
@@ -28,25 +28,25 @@
         </div>
         <div class="circle-info">
           <h3 class="circle-name">{{ circle.name }}</h3>
-          <p class="circle-desc">{{ circle.description || '暂无描述' }}</p>
+          <p class="circle-desc">{{ circle.description || t('circle.description') }}</p>
           <div class="circle-stats">
             <span class="stat-item">
               <NIcon size="14">
                 <UserIcon />
               </NIcon>
-              {{ formatNumber(circle.member_count) }} 成员
+              {{ formatNumber(circle.member_count) }} {{ t('circle.members').substring(0, 2) }}
             </span>
             <span class="stat-item">
               <NIcon size="14">
                 <FileTextIcon />
               </NIcon>
-              {{ formatNumber(circle.post_count) }} 帖子
+              {{ formatNumber(circle.post_count) }} {{ t('circle.posts').substring(0, 2) }}
             </span>
             <span class="stat-item hot" v-if="circle.hot > 0">
               <NIcon size="14">
                 <FireIcon />
               </NIcon>
-              热度 {{ circle.hot }}
+              Hot {{ circle.hot }}
             </span>
           </div>
         </div>
@@ -59,12 +59,12 @@
     <!-- 加载状态 -->
     <div v-if="loading" class="loading-state">
       <NSpin size="medium" />
-      <p class="loading-text">加载中...</p>
+      <p class="loading-text">{{ t('common.loading') }}</p>
     </div>
 
     <!-- 没有更多 -->
     <div v-if="!hasMore && circles.length > 0" class="no-more">
-      <p>没有更多了</p>
+      <p>{{ t('common.noMore') }}</p>
     </div>
   </div>
 </template>
@@ -73,7 +73,10 @@
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { NAvatar, NButton, NIcon, NSpin, useMessage } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 import { Search as SearchIcon, User as UserIcon, FileText as FileTextIcon, Flame as FireIcon } from '@vicons/tabler'
+
+const { t } = useI18n()
 
 const props = defineProps({
   circles: {
@@ -118,7 +121,7 @@ const handleCircleClick = (circle) => {
 
 // 加入兴趣圈
 const handleJoin = (circle) => {
-  message.info(`加入 ${circle.name} 功能开发中...`)
+  message.info(`${t('circle.joinCircle')}: ${circle.name} - ${t('common.featureInDevelopment')}`)
 }
 
 // 设置 Intersection Observer 实现无限滚动

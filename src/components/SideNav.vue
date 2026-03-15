@@ -39,9 +39,11 @@ import {
   NMenu,
   NIcon
 } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 import CreateCircleModal from './CreateCircleModal.vue'
 
 const router = useRouter()
+const { t } = useI18n()
 
 // 自定义 SVG 图标组件
 const createIcon = (svgPath) => {
@@ -124,22 +126,22 @@ const menuOptions = computed(() => {
   if (isCollapsed.value) {
     return [
       {
-        label: '主页',
+        label: t('nav.home'),
         key: 'home',
         icon: () => h(NIcon, null, { default: () => h(HomeIcon) })
       },
       {
-        label: '热点',
+        label: t('nav.hot'),
         key: 'hot',
         icon: () => h(NIcon, null, { default: () => h(FireIcon) })
       },
       {
-        label: '发现',
+        label: t('nav.discover'),
         key: 'explore',
         icon: () => h(NIcon, null, { default: () => h(ExploreIcon) })
       },
       {
-        label: '新建兴趣圈',
+        label: t('circle.createCircle'),
         key: 'create',
         icon: () => h(NIcon, null, { default: () => h(PlusIcon) })
       }
@@ -149,22 +151,22 @@ const menuOptions = computed(() => {
   // 展开时显示完整菜单
   return [
     {
-      label: '主页',
+      label: t('nav.home'),
       key: 'home',
       icon: () => h(NIcon, null, { default: () => h(HomeIcon) })
     },
     {
-      label: '热点',
+      label: t('nav.hot'),
       key: 'hot',
       icon: () => h(NIcon, null, { default: () => h(FireIcon) })
     },
     {
-      label: '发现',
+      label: t('nav.discover'),
       key: 'explore',
       icon: () => h(NIcon, null, { default: () => h(ExploreIcon) })
     },
     {
-      label: '新建兴趣圈',
+      label: t('circle.createCircle'),
       key: 'create',
       icon: () => h(NIcon, null, { default: () => h(PlusIcon) })
     },
@@ -174,7 +176,7 @@ const menuOptions = computed(() => {
     },
     {
       type: 'group',
-      label: '我加入的',
+      label: t('circle.myCircles'),
       key: 'joined-group',
       children: joinedCircles.value.map(circle => ({
         label: circle.name,
@@ -188,7 +190,7 @@ const menuOptions = computed(() => {
     },
     {
       type: 'group',
-      label: '近期活跃',
+      label: 'Active',
       key: 'active-group',
       children: activeCircles.value.map(circle => ({
         label: circle.name,

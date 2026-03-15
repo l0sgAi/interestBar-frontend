@@ -1,11 +1,11 @@
 <template>
   <div class="browse-history-tab">
     <div class="tab-header">
-      <h2 class="tab-title">浏览历史</h2>
+      <h2 class="tab-title">{{ t('user.browseHistory') }}</h2>
       <div class="header-actions">
         <NInput
           v-model:value="searchKey"
-          placeholder="搜索历史..."
+          :placeholder="t('common.search')"
           clearable
           style="width: 280px;">
           <template #prefix>
@@ -26,7 +26,7 @@
               </svg>
             </NIcon>
           </template>
-          清空历史
+          {{ t('common.delete') }}
         </NButton>
       </div>
     </div>
@@ -40,8 +40,8 @@
               <polyline points="12 6 12 12 16 14"></polyline>
             </svg>
           </NIcon>
-          <p class="empty-text">暂无浏览历史</p>
-          <p class="empty-hint">开始探索感兴趣的内容吧！</p>
+          <p class="empty-text">{{ t('common.noData') }}</p>
+          <p class="empty-hint">{{ t('post.noPosts') }}</p>
         </div>
         <NTimeline v-else>
           <NTimelineItem
@@ -89,8 +89,10 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { NCard, NIcon, NInput, NButton, NSpin, NTimeline, NTimelineItem, useMessage } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 
 const message = useMessage()
+const { t } = useI18n()
 
 const props = defineProps({
   history: {
@@ -117,7 +119,7 @@ const groupedHistory = computed(() => {
     if (!groups[item.date]) {
       groups[item.date] = {
         date: item.date,
-        type: item.date === '今天' ? 'success' : 'info',
+        type: item.date === 'Today' ? 'success' : 'info',
         items: []
       }
     }
@@ -127,12 +129,12 @@ const groupedHistory = computed(() => {
 })
 
 const handleClear = () => {
-  message.info('清空浏览历史')
+  message.info(t('common.delete'))
   emit('clear')
 }
 
 const handleClick = (item) => {
-  message.info(`跳转到: ${item.title}`)
+  message.info(`${t('post.detail')}: ${item.title}`)
   emit('click', item)
 }
 </script>

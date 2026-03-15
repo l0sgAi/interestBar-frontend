@@ -4,7 +4,7 @@
     :mask-closable="false"
     preset="card"
     :style="{ width: '800px' }"
-    title="✨新建兴趣圈"
+    :title="'✨' + t('circle.form.createButton')"
     :bordered="false"
     size="huge"
     class="create-circle-modal"
@@ -20,29 +20,29 @@
         size="large"
       >
         <!-- 基本信息 -->
-        <NFormItem label="圈子名称" path="name">
+        <NFormItem :label="t('circle.form.name')" path="name">
           <NInput
             v-model:value="formData.name"
-            placeholder="请输入兴趣圈名称"
+            :placeholder="t('circle.form.namePlaceholder')"
             maxlength="50"
             show-count
             @input="handleNameInput"
           />
         </NFormItem>
 
-        <NFormItem label="唯一标识" path="slug">
+        <NFormItem :label="t('circle.form.slug')" path="slug">
           <NInput
             v-model:value="formData.slug"
-            placeholder="留空自动生成，或手动输入（仅限小写字母、数字、连字符）"
+            :placeholder="t('circle.form.slugPlaceholder')"
             maxlength="60"
           />
         </NFormItem>
 
-        <NFormItem label="简介描述" path="description">
+        <NFormItem :label="t('circle.form.description')" path="description">
           <NInput
             v-model:value="formData.description"
             type="textarea"
-            placeholder="简单介绍一下这个兴趣圈..."
+            :placeholder="t('circle.form.descriptionPlaceholder')"
             :autosize="{ minRows: 4, maxRows: 6 }"
             maxlength="2000"
             show-count
@@ -52,7 +52,7 @@
         <NDivider />
 
         <!-- 图片上传 -->
-        <NFormItem label="圈子头像" path="avatar_url">
+        <NFormItem :label="t('circle.form.avatar')" path="avatar_url">
           <NUpload
             :max="1"
             :file-list="avatarFileList"
@@ -61,14 +61,14 @@
             list-type="image-card"
             accept="image/*"
           >
-            点击上传
+            {{ t('circle.form.avatarUpload') }}
           </NUpload>
           <template #feedback>
-            <NText depth="3" style="font-size: 12px">建议尺寸 200x200px</NText>
+            <NText depth="3" style="font-size: 12px">{{ t('circle.form.avatarTip') }}</NText>
           </template>
         </NFormItem>
 
-        <NFormItem label="背景封面" path="cover_url">
+        <NFormItem :label="t('circle.form.cover')" path="cover_url">
           <NUpload
             :max="1"
             :file-list="coverFileList"
@@ -77,21 +77,21 @@
             list-type="image-card"
             accept="image/*"
           >
-            点击上传
+            {{ t('circle.form.avatarUpload') }}
           </NUpload>
           <template #feedback>
-            <NText depth="3" style="font-size: 12px">建议尺寸 1200x300px</NText>
+            <NText depth="3" style="font-size: 12px">{{ t('circle.form.coverTip') }}</NText>
           </template>
         </NFormItem>
 
         <NDivider />
 
         <!-- 圈内规则 -->
-        <NFormItem label="圈内规则" path="rule">
+        <NFormItem :label="t('circle.form.rules')" path="rule">
           <NInput
             v-model:value="formData.rule"
             type="textarea"
-            placeholder="请输入圈子内的行为规范..."
+            :placeholder="t('circle.form.rulesPlaceholder')"
             :autosize="{ minRows: 5, maxRows: 8 }"
             maxlength="2000"
             show-count
@@ -101,30 +101,30 @@
         <NDivider />
 
         <!-- 分类与权限 -->
-        <NFormItem label="圈子分类" path="category_id">
+        <NFormItem :label="t('circle.form.category')" path="category_id">
           <NSelect
             v-model:value="formData.category_id"
             :options="categoryOptions"
             :loading="loadingCategories"
-            placeholder="请选择分类"
+            :placeholder="t('circle.form.categoryPlaceholder')"
             filterable
           />
         </NFormItem>
 
-        <NFormItem label="加入方式" path="join_type">
+        <NFormItem :label="t('circle.form.joinType')" path="join_type">
           <NRadioGroup v-model:value="formData.join_type" name="join_type">
             <NSpace vertical :size="12">
               <NRadio :value="0">
-                <NText strong>直接加入</NText>
-                <NText depth="3" style="margin-left: 8px">任何人都可以直接加入</NText>
+                <NText strong>{{ t('circle.form.joinTypeDirect') }}</NText>
+                <NText depth="3" style="margin-left: 8px">{{ t('circle.form.joinTypeDirectDesc') }}</NText>
               </NRadio>
               <NRadio :value="1">
-                <NText strong>需要审核</NText>
-                <NText depth="3" style="margin-left: 8px">申请需要管理员审核</NText>
+                <NText strong>{{ t('circle.form.joinTypeReview') }}</NText>
+                <NText depth="3" style="margin-left: 8px">{{ t('circle.form.joinTypeReviewDesc') }}</NText>
               </NRadio>
               <NRadio :value="2">
-                <NText strong>私密圈子</NText>
-                <NText depth="3" style="margin-left: 8px">仅限邀请加入</NText>
+                <NText strong>{{ t('circle.form.joinTypePrivate') }}</NText>
+                <NText depth="3" style="margin-left: 8px">{{ t('circle.form.joinTypePrivateDesc') }}</NText>
               </NRadio>
             </NSpace>
           </NRadioGroup>
@@ -134,9 +134,9 @@
 
     <template #footer>
       <NSpace justify="end" :size="16">
-        <NButton size="large" @click="handleCancel">取消</NButton>
+        <NButton size="large" @click="handleCancel">{{ t('common.cancel') }}</NButton>
         <NButton type="primary" size="large" :loading="loading" @click="handleSubmit">
-          创建兴趣圈
+          {{ t('circle.form.createButton') }}
         </NButton>
       </NSpace>
     </template>
@@ -161,8 +161,11 @@ import {
   NText,
   useMessage
 } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 import { getCategories, createCircle } from '@/api/circle'
 import { uploadImage } from '@/api/user'
+
+const { t } = useI18n()
 
 const props = defineProps({
   show: {
@@ -216,38 +219,38 @@ const loadCategories = async () => {
     }
   } catch (error) {
     console.error('加载分类失败:', error)
-    message.error('加载分类列表失败')
+    message.error(t('circle.form.messages.loadCategoriesFailed'))
   } finally {
     loadingCategories.value = false
   }
 }
 
 // 表单验证规则
-const rules = {
+const rules = computed(() => ({
   name: [
-    { required: true, message: '请输入圈子名称', trigger: 'blur' },
-    { min: 2, max: 50, message: '名称长度应在 2-50 个字符之间', trigger: 'blur' }
+    { required: true, message: t('circle.form.validation.nameRequired'), trigger: 'blur' },
+    { min: 2, max: 50, message: t('circle.form.validation.nameLength'), trigger: 'blur' }
   ],
   slug: [
     {
       pattern: /^[a-z0-9-]*$/,
-      message: '只能包含小写字母、数字和连字符',
+      message: t('circle.form.validation.slugPattern'),
       trigger: 'blur'
     },
-    { max: 60, message: '最多 60 个字符', trigger: 'blur' }
+    { max: 60, message: t('circle.form.validation.slugMaxLength'), trigger: 'blur' }
   ],
   description: [
-    { required: true, message: '请输入简介描述', trigger: 'blur' },
-    { min: 10, max: 2000, message: '描述长度应在 10-2000 个字符之间', trigger: 'blur' }
+    { required: true, message: t('circle.form.validation.descriptionRequired'), trigger: 'blur' },
+    { min: 10, max: 2000, message: t('circle.form.validation.descriptionLength'), trigger: 'blur' }
   ],
   rule: [
-    { required: true, message: '请输入圈内规则', trigger: 'blur' },
-    { min: 10, max: 2000, message: '规则长度应在 10-2000 个字符之间', trigger: 'blur' }
+    { required: true, message: t('circle.form.validation.rulesRequired'), trigger: 'blur' },
+    { min: 10, max: 2000, message: t('circle.form.validation.rulesLength'), trigger: 'blur' }
   ],
   category_id: [
-    { required: true, message: '请选择圈子分类', trigger: 'change', type: 'number' }
+    { required: true, message: t('circle.form.validation.categoryRequired'), trigger: 'change', type: 'number' }
   ]
-}
+}))
 
 // 名称输入处理，自动生成 slug
 const handleNameInput = () => {
@@ -270,15 +273,15 @@ const handleUploadAvatar = async ({ file, onFinish, onError }) => {
     const res = await uploadImage(file.file)
     if (res.code === 200 && res.data) {
       formData.value.avatar_url = res.data.url
-      message.success('头像上传成功')
+      message.success(t('circle.form.messages.avatarUploadSuccess'))
       onFinish()
     } else {
-      message.error(res.message || '头像上传失败')
+      message.error(res.message || t('circle.form.messages.avatarUploadFailed'))
       onError()
     }
   } catch (error) {
     console.error('头像上传失败:', error)
-    message.error('头像上传失败，请重试')
+    message.error(t('circle.form.messages.uploadFailedRetry'))
     onError()
   }
 }
@@ -293,15 +296,15 @@ const handleUploadCover = async ({ file, onFinish, onError }) => {
     const res = await uploadImage(file.file)
     if (res.code === 200 && res.data) {
       formData.value.cover_url = res.data.url
-      message.success('封面上传成功')
+      message.success(t('circle.form.messages.coverUploadSuccess'))
       onFinish()
     } else {
-      message.error(res.message || '封面上传失败')
+      message.error(res.message || t('circle.form.messages.coverUploadFailed'))
       onError()
     }
   } catch (error) {
     console.error('封面上传失败:', error)
-    message.error('封面上传失败，请重试')
+    message.error(t('circle.form.messages.uploadFailedRetry'))
     onError()
   }
 }
@@ -316,17 +319,17 @@ const handleSubmit = async () => {
     const res = await createCircle(formData.value)
     console.log('创建结果:'+res)
     if (res.code === 200) {
-      message.success('兴趣圈创建成功！')
+      message.success(t('circle.form.messages.createSuccess'))
       emit('success', res.data)
       handleReset()
       showModal.value = false
     } else {
-      message.error(res.message || '创建失败，请重试')
+      message.error(res.message || t('circle.form.messages.createFailed'))
     }
   } catch (error) {
     console.error('创建兴趣圈失败:', error)
     // 优先显示接口返回的错误消息
-    const errorMsg = error.message || '创建失败，请检查网络连接'
+    const errorMsg = error.message || t('circle.form.messages.createNetworkError')
     message.error(errorMsg)
   } finally {
     loading.value = false

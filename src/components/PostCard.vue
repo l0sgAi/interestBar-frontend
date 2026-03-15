@@ -99,6 +99,9 @@
 <script setup>
 import { ref } from 'vue'
 import { NCard, NAvatar, NButton, NIcon, NImage, NTime, useMessage } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   postId: {
@@ -165,24 +168,24 @@ const isCollected = ref(false)
 
 const handleLike = () => {
   isLiked.value = !isLiked.value
-  message.info(isLiked.value ? '已点赞' : '已取消点赞')
+  message.info(isLiked.value ? t('post.actions.liked') : t('common.cancel'))
   console.log('Like post:', props.postId)
 }
 
 const handleComment = () => {
-  message.info('评论功能开发中...')
+  message.info(t('common.featureInDevelopment'))
   console.log('Comment post:', props.postId)
 }
 
 const handleCollect = () => {
   isCollected.value = !isCollected.value
-  message.info(isCollected.value ? '已收藏' : '已取消收藏')
+  message.info(isCollected.value ? t('post.actions.favorite') : t('common.cancel'))
   console.log('Collect post:', props.postId)
 }
 
 const getDefaultImage = () => {
   // 返回一个默认占位图或空字符串
-  return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500"%3E%3Crect width="800" height="500" fill="%23333"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="%23666" font-size="24"%3E无图片%3C/text%3E%3C/svg%3E'
+  return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500"%3E%3Crect width="800" height="500" fill="%23333"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="%23666" font-size="24"%3ENo Image%3C/text%3E%3C/svg%3E'
 }
 </script>
 

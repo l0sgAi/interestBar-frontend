@@ -1,10 +1,10 @@
 <template>
   <div class="my-groups-tab">
     <div class="tab-header">
-      <h2 class="tab-title">我的兴趣圈</h2>
+      <h2 class="tab-title">{{ t('user.myGroups') }}</h2>
       <NInput
         v-model:value="searchKey"
-        placeholder="搜索兴趣圈..."
+        :placeholder="t('circle.interestCircle')"
         clearable
         style="width: 280px;">
         <template #prefix>
@@ -29,8 +29,8 @@
               <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
             </svg>
           </NIcon>
-          <p class="empty-text">暂未加入任何兴趣圈</p>
-          <p class="empty-hint">去发现你感兴趣的圈子吧！</p>
+          <p class="empty-text">{{ t('circle.noCircles') }}</p>
+          <p class="empty-hint">{{ t('circle.createCircle') }}</p>
         </div>
         <NCard
           v-for="group in filteredGroups"
@@ -69,7 +69,7 @@
               </span>
             </div>
             <NTag :type="group.role === 'admin' ? 'warning' : 'default'" size="small" round>
-              {{ group.role === 'admin' ? '管理员' : '成员' }}
+              {{ group.role === 'admin' ? 'Admin' : t('circle.members') }}
             </NTag>
           </div>
         </NCard>
@@ -81,6 +81,9 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { NCard, NAvatar, NIcon, NTag, NInput, NSpin } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   groups: {

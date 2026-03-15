@@ -1,10 +1,10 @@
 <template>
   <div class="my-posts-tab">
     <div class="tab-header">
-      <h2 class="tab-title">我的帖子</h2>
+      <h2 class="tab-title">{{ t('user.myPosts') }}</h2>
       <NInput
         v-model:value="searchKey"
-        placeholder="搜索帖子..."
+        :placeholder="t('common.search')"
         clearable
         style="width: 280px;">
         <template #prefix>
@@ -26,8 +26,8 @@
               <path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1m2 13a2 2 0 0 1-2-2V7m2 13a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
             </svg>
           </NIcon>
-          <p class="empty-text">暂无帖子</p>
-          <p class="empty-hint">发布你的第一个帖子吧！</p>
+          <p class="empty-text">{{ t('post.noPosts') }}</p>
+          <p class="empty-hint">{{ t('post.createPost') }}</p>
         </div>
         <div v-else class="post-cards">
           <NCard
@@ -114,8 +114,10 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { NCard, NAvatar, NIcon, NTag, NInput, NButton, NSpin, NDropdown, useMessage } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 
 const message = useMessage()
+const { t } = useI18n()
 
 const props = defineProps({
   posts: {
@@ -139,19 +141,19 @@ const filteredPosts = computed(() => {
 
 const getPostMenuOptions = () => {
   return [
-    { label: '编辑', key: 'edit' },
-    { label: '删除', key: 'delete' }
+    { label: t('common.edit'), key: 'edit' },
+    { label: t('common.delete'), key: 'delete' }
   ]
 }
 
 const handleAction = (key, post) => {
   switch (key) {
     case 'edit':
-      message.info(`编辑帖子: ${post.title}`)
+      message.info(`${t('common.edit')}: ${post.title}`)
       emit('edit', post)
       break
     case 'delete':
-      message.warning(`删除帖子: ${post.title}`)
+      message.warning(`${t('common.delete')}: ${post.title}`)
       emit('delete', post)
       break
   }

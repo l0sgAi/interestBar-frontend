@@ -1,10 +1,10 @@
 <template>
   <div class="my-favorites-tab">
     <div class="tab-header">
-      <h2 class="tab-title">我的收藏</h2>
+      <h2 class="tab-title">{{ t('user.myFavorites') }}</h2>
       <NInput
         v-model:value="searchKey"
-        placeholder="搜索收藏..."
+        :placeholder="t('common.search')"
         clearable
         style="width: 280px;">
         <template #prefix>
@@ -26,8 +26,8 @@
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
             </svg>
           </NIcon>
-          <p class="empty-text">暂无收藏</p>
-          <p class="empty-hint">收藏你喜欢的内容吧！</p>
+          <p class="empty-text">{{ t('post.noFavorites') }}</p>
+          <p class="empty-hint">{{ t('post.actions.favorite') }}</p>
         </div>
         <NCard
           v-for="item in filteredFavorites"
@@ -55,7 +55,7 @@
               <div class="favorite-meta">
                 <span class="favorite-type">
                   <NTag :type="item.type === 'post' ? 'primary' : 'info'" size="tiny">
-                    {{ item.type === 'post' ? '帖子' : '兴趣圈' }}
+                    {{ item.type === 'post' ? t('post.post') : t('circle.interestCircle') }}
                   </NTag>
                 </span>
                 <span class="favorite-time">{{ item.time }}</span>
@@ -84,8 +84,10 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { NCard, NIcon, NTag, NInput, NButton, NSpin, useMessage } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 
 const message = useMessage()
+const { t } = useI18n()
 
 const props = defineProps({
   favorites: {
@@ -108,7 +110,7 @@ const filteredFavorites = computed(() => {
 })
 
 const handleRemove = (item) => {
-  message.info(`移除收藏: ${item.title}`)
+  message.info(`${t('common.delete')}: ${item.title}`)
   emit('remove', item)
 }
 
