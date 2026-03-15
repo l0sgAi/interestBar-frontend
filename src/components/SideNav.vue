@@ -190,7 +190,7 @@ const menuOptions = computed(() => {
     },
     {
       type: 'group',
-      label: 'Active',
+      label: t('circle.active'),
       key: 'active-group',
       children: activeCircles.value.map(circle => ({
         label: circle.name,

@@ -9,9 +9,9 @@
               <circle cx="12" cy="12" r="10"></circle>
               <polyline points="12 6 12 12 16 14"></polyline>
             </svg>
-            近期发布
+            {{ t('post.recent.title') }}
           </h3>
-          <p class="sidebar-subtitle">最新发布的帖子</p>
+          <p class="sidebar-subtitle">{{ t('post.recent.subtitle') }}</p>
         </div>
 
         <!-- 帖子列表 -->
@@ -41,7 +41,7 @@
                 </svg>
               </NIcon>
             </template>
-            加载更多
+            {{ t('post.recent.loadMore') }}
           </NButton>
         </div>
 
@@ -50,7 +50,7 @@
           <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
           </svg>
-          <p class="empty-text">暂无近期帖子</p>
+          <p class="empty-text">{{ t('post.recent.empty') }}</p>
         </div>
       </div>
     </div>
@@ -60,9 +60,11 @@
 <script setup>
 import { ref } from 'vue'
 import { NConfigProvider, NButton, NIcon, darkTheme, useMessage } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 import RecentPostCard from './RecentPostCard.vue'
 
 const message = useMessage()
+const { t } = useI18n()
 
 // NaiveUI 深色主题覆盖
 const themeOverrides = {

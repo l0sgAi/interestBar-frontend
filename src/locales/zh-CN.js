@@ -79,6 +79,12 @@ export default {
       share: '分享',
       comment: '评论'
     },
+    recent: {
+      title: '近期发布',
+      subtitle: '最新发布的帖子',
+      loadMore: '加载更多',
+      empty: '暂无近期帖子'
+    },
     noPosts: '暂无帖子',
     noPostResults: '暂无帖子结果',
     noFavorites: '暂无收藏',
@@ -95,6 +101,8 @@ export default {
     joinCircle: '加入圈子',
     leaveCircle: '退出圈子',
     joined: '已加入',
+    active: '近期活跃',
+    myCircles: '我加入的',
     createCircle: '创建圈子',
     createCircleSuccess: '创建成功',
     joinSuccess: '加入成功',

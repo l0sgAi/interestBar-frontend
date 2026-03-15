@@ -79,6 +79,12 @@ export default {
       share: 'Share',
       comment: 'Comment'
     },
+    recent: {
+      title: 'Recent Posts',
+      subtitle: 'Latest published posts',
+      loadMore: 'Load More',
+      empty: 'No recent posts yet'
+    },
     noPosts: 'No posts yet',
     noPostResults: 'No post results',
     noFavorites: 'No favorites yet',
@@ -95,6 +101,8 @@ export default {
     joinCircle: 'Join Circle',
     leaveCircle: 'Leave Circle',
     joined: 'Joined',
+    active: 'Active',
+    myCircles: 'My Circles',
     createCircle: 'Create Circle',
     createCircleSuccess: 'Created successfully',
     joinSuccess: 'Joined successfully',
