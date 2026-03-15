@@ -115,6 +115,7 @@ import 'md-editor-v3/lib/style.css'
 import AppHeader from '@/components/AppHeader.vue'
 import SideNav from '@/components/SideNav.vue'
 import { getMyCircles, createPost } from '@/api/post'
+import { uploadImage } from '@/api/user'
 
 const router = useRouter()
 const message = useMessage()
@@ -251,11 +252,26 @@ const renderCircleLabel = (option) => {
   ])
 }
 
-// 上传图片（需要根据实际后端接口调整）
+// 上传图片
 const handleUploadImg = async (files, callback) => {
-  // TODO: 实现图片上传逻辑
-  console.log('上传图片:', files)
-  message.info('图片上传功能待实现')
+  try {
+    const urls = []
+
+    for (const file of files) {
+      const res = await uploadImage(file)
+      if (res.data && res.data.url) {
+        urls.push(res.data.url)
+      } else if (res.data) {
+        urls.push(res.data)
+      }
+    }
+
+    callback(urls)
+    message.success('图片上传成功')
+  } catch (error) {
+    console.error('图片上传失败:', error)
+    message.error('图片上传失败，请重试')
+  }
 }
 
 // 提交表单
