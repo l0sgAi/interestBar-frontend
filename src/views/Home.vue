@@ -188,8 +188,8 @@ const handleLogout = async () => {
 
 .content-wrapper {
   display: flex;
-  margin-left: 260px;
-  margin-top: 64px;
+  margin-left: 15dvw;
+  margin-top: 4%;
   min-height: calc(100vh - 64px);
   transition: margin-left 0.3s ease;
 }
