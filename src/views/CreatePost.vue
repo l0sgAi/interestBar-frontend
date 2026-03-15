@@ -9,7 +9,7 @@
     <!-- 主内容区域 -->
     <div class="main-content">
       <div class="create-post-container">
-        <NCard title="➕ 创建帖子" :bordered="false" class="post-card">
+        <NCard :title="'➕ ' + t('post.createPost')" :bordered="false" class="post-card">
           <NForm
             ref="formRef"
             :model="formData"
@@ -18,13 +18,13 @@
             require-mark-placement="right-hanging"
           >
             <!-- 圈子选择 -->
-            <NFormItem label="所属圈子" path="circle_id">
+            <NFormItem :label="t('post.belongToCircle')" path="circle_id">
               <NSelect
                 v-model:value="formData.circle_id"
                 :options="circleOptions"
                 :loading="loadingCircles"
                 filterable
-                placeholder="搜索并选择圈子"
+                :placeholder="t('post.selectCircle')"
                 clearable
                 @search="handleSearchCircle"
                 :render-label="renderCircleLabel"
@@ -34,10 +34,10 @@
             </NFormItem>
 
             <!-- 标题 -->
-            <NFormItem label="标题" path="title">
+            <NFormItem :label="t('post.title')" path="title">
               <NInput
                 v-model:value="formData.title"
-                placeholder="请输入帖子标题"
+                :placeholder="t('post.titlePlaceholder')"
                 maxlength="200"
                 show-count
                 size="large"
@@ -59,28 +59,28 @@
             </NFormItem> -->
 
             <!-- 正文（Markdown编辑器） -->
-            <NFormItem label="正文" path="content">
+            <NFormItem :label="t('post.content')" path="content">
               <MdEditor
                 v-model="formData.content"
                 :language="language"
                 :preview="true"
                 :toolbars="toolbars"
                 theme="dark"
-                placeholder="请输入帖子正文内容（支持 Markdown 格式）"
+                :placeholder="t('post.contentPlaceholder')"
                 :max-length="50000"
                 :rows="25"
                 @onUploadImg="handleUploadImg"
               />
             </NFormItem>
             <div class="footer-actions">
-              <NButton size="large" @click="handleCancel">取消</NButton>
+              <NButton size="large" @click="handleCancel">{{ t('common.cancel') }}</NButton>
               <NButton
                 size="large"
                 type="primary"
                 :loading="submitting"
                 @click="handleSubmit"
               >
-                发布帖子
+                {{ t('common.submit') }}
               </NButton>
             </div>
           </NForm>
@@ -104,6 +104,7 @@ import {
   NText,
   useMessage
 } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 import AppHeader from '@/components/AppHeader.vue'
@@ -112,6 +113,7 @@ import { getMyCircles, createPost } from '@/api/post'
 
 const router = useRouter()
 const message = useMessage()
+const { t } = useI18n()
 const formRef = ref(null)
 const submitting = ref(false)
 const loadingCircles = ref(false)

@@ -10,14 +10,14 @@
     <div class="main-content">
       <div class="search-container">
           <div class="search-info">
-            <h2 class="search-title">搜索结果</h2>
-            <p class="search-keyword">关键词: {{ keyword }}</p>
+            <h2 class="search-title">{{ t('nav.searchResults') }}</h2>
+            <p class="search-keyword">{{ t('nav.keyword') }}: {{ keyword }}</p>
           </div>
           <NDivider/>
 
         <!-- 搜索类型 Tabs -->
         <NTabs animated v-model:value="activeTab" @update:value="handleTabChange">
-          <NTabPane name="post" tab="帖子">
+          <NTabPane name="post" :tab="t('post.post')">
             <PostList
               v-if="posts.length > 0"
               :posts="posts"
@@ -26,19 +26,19 @@
               <NIcon size="48" :color="'rgba(255,255,255,0.3)'">
                 <FileTextIcon />
               </NIcon>
-              <p>暂无帖子结果</p>
+              <p>{{ t('post.noPostResults') }}</p>
             </div>
             <div v-if="loadingPosts" class="loading-placeholder">
               <NSpin size="medium" />
-              <p>搜索中...</p>
+              <p>{{ t('post.searching') }}</p>
             </div>
             <div v-if="hasMorePosts && !loadingPosts" class="load-more-container">
               <NButton @click="loadMorePosts" :loading="loadingPosts">
-                加载更多
+                {{ t('common.loadMore') }}
               </NButton>
             </div>
           </NTabPane>
-          <NTabPane name="circle" tab="兴趣圈">
+          <NTabPane name="circle" :tab="t('circle.interestCircle')">
             <CircleList
               :circles="circles"
               :loading="loading"
@@ -46,12 +46,12 @@
               @load-more="loadMore"
             />
           </NTabPane>
-          <NTabPane name="user" tab="用户">
+          <NTabPane name="user" :tab="t('user.user')">
             <div class="tab-placeholder">
               <NIcon size="48" :color="'rgba(255,255,255,0.3)'">
                 <UserIcon />
               </NIcon>
-              <p>用户搜索功能开发中...</p>
+              <p>{{ t('user.userSearchInDevelopment') }}</p>
             </div>
           </NTabPane>
         </NTabs>
@@ -67,6 +67,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { NTabs,NDivider, NTabPane, NIcon, NSpin, NButton, useMessage } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 import { FileText as FileTextIcon, User as UserIcon } from '@vicons/tabler'
 import AppHeader from '@/components/AppHeader.vue'
 import SideNav from '@/components/SideNav.vue'
@@ -80,6 +81,7 @@ import PostList from '@/components/PostList.vue'
 const route = useRoute()
 const router = useRouter()
 const message = useMessage()
+const { t } = useI18n()
 
 // 搜索关键词
 const keyword = ref('')

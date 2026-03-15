@@ -5,8 +5,8 @@
 
     <NCard class="login-container" :bordered="false">
       <div class="logo-area">
-        <div class="logo-text">趣吧 Quba</div>
-        <p class="tagline">连接多元兴趣，发现无限可能</p>
+        <div class="logo-text">{{ t('common.appName') }}</div>
+        <p class="tagline">{{ t('login.tagline') }}</p>
       </div>
 
       <!-- 装饰性标签，体现社区氛围 -->
@@ -61,10 +61,10 @@
       </div>
 
       <p class="footer">
-        登录即代表您同意
-        <router-link to="/terms" class="footer-link">《用户协议》</router-link>
-        与
-        <router-link to="/privacy" class="footer-link">《隐私政策》</router-link>
+        {{ t('login.loginAgreement') }}
+        <router-link to="/terms" class="footer-link">{{ t('login.userAgreement') }}</router-link>
+        {{ t('login.and') }}
+        <router-link to="/privacy" class="footer-link">{{ t('login.privacyPolicy') }}</router-link>
       </p>
     </NCard>
   </div>
@@ -73,9 +73,11 @@
 <script setup>
 import { ref } from 'vue'
 import { NCard, NButton, NSpace, NTag, useMessage } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 import AnimatedBackground from '@/components/AnimatedBackground.vue'
 
 const message = useMessage()
+const { t } = useI18n()
 const loading = ref(false)
 
 const interestTags = [

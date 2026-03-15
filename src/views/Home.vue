@@ -13,13 +13,13 @@
         <div class="home-container">
           <div class="content-header">
             <NTabs animated>
-              <NTabPane name="recommend" tab="推荐">
+              <NTabPane name="recommend" :tab="t('nav.recommend')">
                 <PostList :posts="recommendPosts" />
               </NTabPane>
-              <NTabPane name="following" tab="关注">
+              <NTabPane name="following" :tab="t('nav.following')">
                 <PostList :posts="followingPosts" />
               </NTabPane>
-              <NTabPane name="hot" tab="热门">
+              <NTabPane name="hot" :tab="t('nav.hot')">
                 <PostList :posts="hotPosts" />
               </NTabPane>
             </NTabs>
@@ -36,6 +36,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { NTabs, NTabPane, useMessage } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import AppHeader from '@/components/AppHeader.vue'
 import SideNav from '@/components/SideNav.vue'
@@ -46,6 +47,7 @@ import request from '@/utils/request'
 
 const router = useRouter()
 const message = useMessage()
+const { t } = useI18n()
 
 // 示例帖子数据
 const recommendPosts = ref([
@@ -154,7 +156,7 @@ const hotPosts = ref([
 onMounted(() => {
   // 检查登录状态
   if (!auth.isAuthenticated()) {
-    message.warning('请先登录')
+    message.warning(t('messages.loginRequired'))
     router.push('/')
     return
   }
@@ -167,12 +169,12 @@ const handleLogout = async () => {
 
     // 清除本地 token
     auth.clearToken()
-    message.success('已退出登录')
+    message.success(t('common.logoutSuccess'))
     router.push('/')
   } catch (error) {
     // 即使接口调用失败，也清除本地 token
     auth.clearToken()
-    message.warning('退出登录')
+    message.warning(t('common.logout'))
     router.push('/')
   }
 }

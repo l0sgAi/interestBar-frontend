@@ -1,5 +1,5 @@
 <template>
-  <NConfigProvider :theme="darkTheme">
+  <NConfigProvider :theme="darkTheme" :locale="naiveUILocale">
     <NGlobalStyle />
     <NMessageProvider>
       <NDialogProvider>
@@ -10,8 +10,15 @@
 </template>
 
 <script setup>
-import { darkTheme } from 'naive-ui'
+import { computed } from 'vue'
+import { darkTheme, zhCN, enUS } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 import { NConfigProvider, NGlobalStyle, NMessageProvider, NDialogProvider } from 'naive-ui'
+
+const { locale } = useI18n()
+
+// Naive UI 组件国际化
+const naiveUILocale = computed(() => locale.value === 'zh-CN' ? zhCN : enUS)
 </script>
 
 <style>

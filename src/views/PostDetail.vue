@@ -19,10 +19,10 @@
           <div class="post-header">
             <!-- 置顶、精华、状态标签 -->
             <div class="post-badges">
-              <NTag v-if="post.is_pinned" type="warning" size="small" round>置顶</NTag>
-              <NTag v-if="post.is_essence" type="success" size="small" round>精华</NTag>
-              <NTag v-if="post.is_lock" type="error" size="small" round>锁定</NTag>
-              
+              <NTag v-if="post.is_pinned" type="warning" size="small" round>{{ t('post.badges.pinned') }}</NTag>
+              <NTag v-if="post.is_essence" type="success" size="small" round>{{ t('post.badges.essence') }}</NTag>
+              <NTag v-if="post.is_lock" type="error" size="small" round>{{ t('post.badges.locked') }}</NTag>
+
             </div>
 
             <!-- 标题 -->
@@ -50,7 +50,7 @@
                   :src="post.author_avatar || '/default-avatar.png'"
                 />
                 <div class="author-text">
-                  <div class="author-name">{{ post.author_name || '匿名用户' }}</div>
+                  <div class="author-name">{{ post.author_name || t('user.anonymous') }}</div>
                   <div class="post-time">
                     {{ formatTime(post.create_time) }}
                   </div>
@@ -127,7 +127,7 @@
                   </svg>
                 </NIcon>
               </template>
-              {{ post.is_liked ? '已赞' : '点赞' }}
+              {{ post.is_liked ? t('post.actions.liked') : t('post.actions.like') }}
             </NButton>
 
             <NButton size="large" @click="handleCollect">
@@ -167,7 +167,7 @@
         </div>
       </div>
 
-      <NEmpty v-else description="帖子不存在" />
+      <NEmpty v-else :description="t('post.postNotFound')" />
     </div>
   </div>
 </template>
@@ -186,64 +186,35 @@ import {
   NIcon,
   useMessage
 } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 import { MdPreview } from 'md-editor-v3'
 import 'md-editor-v3/lib/preview.css'
 import AppHeader from '@/components/AppHeader.vue'
 import SideNav from '@/components/SideNav.vue'
 import CircleInfoCard from '@/components/CircleInfoCard.vue'
 import { getPostDetail } from '@/api/post'
+import { useFormatTime } from '@/utils/i18n'
 
 const route = useRoute()
 const router = useRouter()
 const message = useMessage()
+const { t } = useI18n()
+const { formatTime } = useFormatTime()
 
 const loading = ref(true)
 const post = ref(null)
 const language = ref('zh-CN')
 
-// 格式化时间
-const formatTime = (time) => {
-  if (!time) return ''
-  const date = new Date(time)
-  const now = new Date()
-  const diff = now - date
-
-  // 小于1分钟
-  if (diff < 60000) {
-    return '刚刚'
-  }
-  // 小于1小时
-  if (diff < 3600000) {
-    return `${Math.floor(diff / 60000)} 分钟前`
-  }
-  // 小于1天
-  if (diff < 86400000) {
-    return `${Math.floor(diff / 3600000)} 小时前`
-  }
-  // 小于30天
-  if (diff < 2592000000) {
-    return `${Math.floor(diff / 86400000)} 天前`
-  }
-  // 其他情况显示完整日期
-  return date.toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
-
 // 获取状态文本
 const getStatusText = (status) => {
   const statusMap = {
-    0: '草稿',
-    1: '正常',
-    2: '审核中',
-    3: '驳回',
-    4: '屏蔽'
+    0: t('post.status.draft'),
+    1: t('post.status.normal'),
+    2: t('post.status.reviewing'),
+    3: t('post.status.rejected'),
+    4: t('post.status.blocked')
   }
-  return statusMap[status] || '未知状态'
+  return statusMap[status] || t('post.status.normal')
 }
 
 // 获取状态标签类型
@@ -268,11 +239,11 @@ const loadPostDetail = async () => {
     if (res.data) {
       post.value = res.data
     } else {
-      message.error('帖子不存在')
+      message.error(t('post.postNotFound'))
     }
   } catch (error) {
     console.error('加载帖子详情失败:', error)
-    message.error('加载帖子详情失败')
+    message.error(t('messages.getDetailFailed', { error: error.message }))
   } finally {
     loading.value = false
   }
@@ -281,13 +252,13 @@ const loadPostDetail = async () => {
 // 点赞
 const handleLike = () => {
   // TODO: 实现点赞功能
-  message.info('点赞功能待实现')
+  message.info(t('messages.likeFeaturePending'))
 }
 
 // 收藏
 const handleCollect = () => {
   // TODO: 实现收藏功能
-  message.info('收藏功能待实现')
+  message.info(t('messages.favoriteFeaturePending'))
 }
 
 onMounted(() => {

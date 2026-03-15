@@ -24,7 +24,7 @@
             <NTabPane name="posts">
               <template #tab>
                 <NSpace align="center" :size="6">
-                  <span>我的帖子</span>
+                  <span>{{ t('user.myPosts') }}</span>
                   <NTag size="small" :bordered="false" round>{{ mockData.posts.length }}</NTag>
                 </NSpace>
               </template>
@@ -38,7 +38,7 @@
             <NTabPane name="groups">
               <template #tab>
                 <NSpace align="center" :size="6">
-                  <span>兴趣圈</span>
+                  <span>{{ t('user.myGroups') }}</span>
                   <NTag size="small" :bordered="false" round>{{ mockData.groups.length }}</NTag>
                 </NSpace>
               </template>
@@ -49,7 +49,7 @@
             <NTabPane name="favorites">
               <template #tab>
                 <NSpace align="center" :size="6">
-                  <span>我的收藏</span>
+                  <span>{{ t('user.myFavorites') }}</span>
                   <NTag size="small" :bordered="false" round>{{ mockData.favorites.length }}</NTag>
                 </NSpace>
               </template>
@@ -63,7 +63,7 @@
             <NTabPane name="history">
               <template #tab>
                 <NSpace align="center" :size="6">
-                  <span>浏览历史</span>
+                  <span>{{ t('user.browseHistory') }}</span>
                   <NTag size="small" :bordered="false" round>{{ mockData.history.length }}</NTag>
                 </NSpace>
               </template>
@@ -87,7 +87,7 @@
                 fallback-src="https://img.icons8.com/ios-glyphs/64/user-male-circle.png"
                 round
                 class="sidebar-avatar"/>
-              <h2 class="sidebar-username">{{ userInfo.username || '未设置' }}</h2>
+              <h2 class="sidebar-username">{{ userInfo.username || t('user.notSet') }}</h2>
               <NButton type="primary" size="small" @click="handleEditClick" style="width: 100%; margin-top: 12px;">
                 <template #icon>
                   <NIcon :size="14">
@@ -97,40 +97,40 @@
                     </svg>
                   </NIcon>
                 </template>
-                编辑资料
+                {{ t('user.editProfile') }}
               </NButton>
             </div>
 
             <!-- 用户基本信息 -->
             <div class="sidebar-section">
-              <NText depth="3" style="font-size: 12px; margin-bottom: 8px; display: block;">基本信息</NText>
+              <NText depth="3" style="font-size: 12px; margin-bottom: 8px; display: block;">{{ t('user.basicInfo') }}</NText>
               <div class="info-list">
                 <div class="info-row">
-                  <NText depth="3" style="font-size: 13px; margin-right: 1dvw;">邮箱</NText>
+                  <NText depth="3" style="font-size: 13px; margin-right: 1dvw;">{{ t('user.email') }}</NText>
                   <NText style="font-size: 13px;">{{ userInfo.email || '未设置' }}</NText>
                 </div>
                 <div class="info-row">
-                  <NText depth="3" style="font-size: 13px; margin-right: 1dvw;">手机号</NText>
+                  <NText depth="3" style="font-size: 13px; margin-right: 1dvw;">{{ t('user.phone') }}</NText>
                   <NText style="font-size: 13px;">{{ userInfo.phone || '未绑定' }}</NText>
                 </div>
                 <div class="info-row">
-                  <NText depth="3" style="font-size: 13px; margin-right: 1dvw;">性别</NText>
+                  <NText depth="3" style="font-size: 13px; margin-right: 1dvw;">{{ t('user.gender') }}</NText>
                   <NTag :type="getGenderType(userInfo.gender)" size="small" round>
                     {{ getGenderText(userInfo.gender) }}
                   </NTag>
                 </div>
                 <div class="info-row">
-                  <NText depth="3" style="font-size: 13px; margin-right: 1dvw;">生日</NText>
+                  <NText depth="3" style="font-size: 13px; margin-right: 1dvw;">{{ t('user.birthday') }}</NText>
                   <NText style="font-size: 13px;">{{ formatDate(userInfo.birthdate) }}</NText>
                 </div>
                 <div class="info-row">
-                  <NText depth="3" style="font-size: 13px; margin-right: 1dvw;">角色</NText>
+                  <NText depth="3" style="font-size: 13px; margin-right: 1dvw;">{{ t('user.role') }}</NText>
                   <NTag :type="getRoleType(userInfo.role)" size="small" round>
                     {{ getRoleText(userInfo.role) }}
                   </NTag>
                 </div>
                 <div class="info-row">
-                  <NText depth="3" style="font-size: 13px; margin-right: 1dvw;">状态</NText>
+                  <NText depth="3" style="font-size: 13px; margin-right: 1dvw;">{{ t('user.status') }}</NText>
                   <NTag :type="userInfo.status === 1 ? 'success' : 'error'" size="small" round>
                     {{ userInfo.status === 1 ? '正常' : '禁用' }}
                   </NTag>
@@ -299,9 +299,11 @@ import BrowseHistory from '@/components/user-profile/BrowseHistory.vue'
 import { auth } from '@/utils/auth'
 import request from '@/utils/request'
 import { updateUserInfo, uploadImage } from '@/api/user'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
 const message = useMessage()
+const { t } = useI18n()
 
 // 当前激活的标签页
 const activeTab = ref('posts')

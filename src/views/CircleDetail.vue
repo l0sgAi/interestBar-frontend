@@ -41,7 +41,7 @@
                     <BellIcon v-else />
                   </NIcon>
                 </template>
-                {{ circleDetail.member_is_disturb ? '免打扰已开启' : '免打扰' }}
+                {{ circleDetail.member_is_disturb ? t('circle.disturbOn') : t('circle.disturbOff') }}
               </NButton>
 
               <!-- 创建帖子按钮 -->
@@ -80,7 +80,7 @@
                 @mouseleave="isButtonHovered = false"
                 :type="isButtonHovered ? 'error' : 'primary'"
               >
-                {{ isButtonHovered ? '退出圈子' : '已加入' }}
+                {{ isButtonHovered ? t('circle.leaveCircle') : t('circle.joined') }}
               </NButton>
 
               <!-- 更多选项下拉菜单 -->
@@ -240,6 +240,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { NTabs, NTabPane, NButton, NIcon, NDropdown, NTag, useMessage } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 import AppHeader from '@/components/AppHeader.vue'
 import SideNav from '@/components/SideNav.vue'
 import PostList from '@/components/PostList.vue'
@@ -250,6 +251,7 @@ import { User as UserIcon, FileText as FileTextIcon, Flame as FlameIcon } from '
 const route = useRoute()
 const router = useRouter()
 const message = useMessage()
+const { t } = useI18n()
 
 // 更多选项下拉菜单
 const moreOptions = computed(() => {

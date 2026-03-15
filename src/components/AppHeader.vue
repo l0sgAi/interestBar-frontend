@@ -1,7 +1,7 @@
 <template>
   <div class="app-header">
     <div class="header-left">
-      <div class="logo" @click="goHome">趣吧 Quba</div>
+      <div class="logo" @click="goHome">{{ t('common.appName') }}</div>
     </div>
 
     <div class="header-center">
@@ -16,7 +16,7 @@
         <input
           type="text"
           class="search-input"
-          placeholder="搜索兴趣圈、帖子..."
+          :placeholder="t('common.searchPlaceholder')"
           v-model="searchKeyword"
           @keyup.enter="handleSearch"
         />
@@ -24,20 +24,23 @@
     </div>
 
     <div class="header-right">
+      <!-- 语言切换器 -->
+      <LanguageSwitcher />
+
       <!-- 消息中心铃铛 -->
       <div class="notification-wrapper">
         <!-- 发帖按钮 -->
-      <NButton 
-      size="large" 
+      <NButton
+      size="large"
       quaternary
-      class="notification-btn" 
+      class="notification-btn"
       @click="handleCreatePost">
             <NIcon size="20">
             <AddIcon />
             </NIcon>
-        <div style="margin-left: 5px;">发帖</div>
+        <div style="margin-left: 5px;">{{ t('post.createPost') }}</div>
       </NButton>
-      
+
         <NButton
           quaternary
           circle
@@ -76,15 +79,18 @@
 import { ref, computed, h, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { NButton, NIcon, NDropdown, NAvatar, NBadge, useMessage, useDialog } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 import { auth } from '@/utils/auth'
 import { AddCircleOutlineFilled as AddIcon } from '@vicons/material'
 import { Bell } from '@vicons/tabler'
 import request from '@/utils/request'
+import LanguageSwitcher from './LanguageSwitcher.vue'
 
 const router = useRouter()
 const route = useRoute()
 const message = useMessage()
 const dialog = useDialog()
+const { t } = useI18n()
 
 // 用户信息
 const username = ref('User')
@@ -128,9 +134,9 @@ watch(() => route.query.q, (newQ) => {
 })
 
 // 用户下拉菜单选项
-const userMenuOptions = [
+const userMenuOptions = computed(() => [
   {
-    label: '个人中心',
+    label: t('user.profile'),
     key: 'profile',
     icon: () => h('svg', {
       viewBox: '0 0 24 24',
@@ -148,7 +154,7 @@ const userMenuOptions = [
     key: 'd1'
   },
   {
-    label: '退出登录',
+    label: t('common.logout'),
     key: 'logout',
     icon: () => h('svg', {
       viewBox: '0 0 24 24',
@@ -162,7 +168,7 @@ const userMenuOptions = [
       h('line', { x1: '21', y1: '12', x2: '9', y2: '12' })
     ])
   }
-]
+])
 
 // 处理菜单选择
 const handleMenuSelect = (key) => {
@@ -184,10 +190,10 @@ const handleProfile = () => {
 // 退出登录
 const handleLogout = () => {
   dialog.warning({
-    title: '退出登录',
-    content: '确定要退出登录吗?',
-    positiveText: '确定',
-    negativeText: '取消',
+    title: t('common.logout'),
+    content: t('common.logoutConfirm'),
+    positiveText: t('common.confirm'),
+    negativeText: t('common.cancel'),
     onPositiveClick: async () => {
       try {
         // 调用后端登出接口
@@ -195,12 +201,12 @@ const handleLogout = () => {
 
         // 清除本地 token
         auth.clearToken()
-        message.success('已退出登录')
+        message.success(t('common.logoutSuccess'))
         router.push('/')
       } catch (error) {
         // 即使接口调用失败，也清除本地 token
         auth.clearToken()
-        message.warning('退出登录')
+        message.warning(t('common.logout'))
         router.push('/')
       }
     }
@@ -214,7 +220,7 @@ const handleCreatePost = () => {
 
 // 消息中心
 const handleNotification = () => {
-  message.info('消息中心功能开发中...')
+  message.info(t('common.featureInDevelopment'))
   // TODO: 打开消息中心
 }
 
