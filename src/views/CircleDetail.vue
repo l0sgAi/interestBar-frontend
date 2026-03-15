@@ -237,7 +237,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, inject } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { NTabs, NTabPane, NButton, NIcon, NDropdown, NTag, useMessage } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
@@ -252,6 +252,9 @@ const route = useRoute()
 const router = useRouter()
 const message = useMessage()
 const { t } = useI18n()
+
+// 注入圈子搜索状态设置方法
+const setCircleSearch = inject('setCircleSearch', () => {})
 
 // 更多选项下拉菜单
 const moreOptions = computed(() => {
@@ -401,6 +404,14 @@ const fetchCircleDetail = async () => {
       if (circleDetail.value.member_status === 4) {
         circleDetail.value.is_joined = false
       }
+
+      // 设置圈子搜索状态
+      setCircleSearch({
+        id: circleDetail.value.id,
+        name: circleDetail.value.name,
+        avatar_url: circleDetail.value.avatar_url
+      })
+
       // TODO: 根据category_id获取分类名称
       // TODO: 获取帖子列表数据
     }

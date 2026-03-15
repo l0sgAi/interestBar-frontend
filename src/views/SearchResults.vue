@@ -11,7 +11,10 @@
       <div class="search-container">
           <div class="search-info">
             <h2 class="search-title">{{ t('nav.searchResults') }}</h2>
-            <p class="search-keyword">{{ t('nav.keyword') }}: {{ keyword }}</p>
+            <p class="search-keyword">
+              {{ t('nav.keyword') }}: {{ keyword }}
+              <span v-if="circleId" class="circle-search-info"> | 圈子: {{ circleName }}</span>
+            </p>
           </div>
           <NDivider/>
 
@@ -64,16 +67,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, inject } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { NTabs,NDivider, NTabPane, NIcon, NSpin, NButton, useMessage } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 import { FileText as FileTextIcon, User as UserIcon } from '@vicons/tabler'
 import AppHeader from '@/components/AppHeader.vue'
 import SideNav from '@/components/SideNav.vue'
-import RightSidebar from '@/components/RightSidebar.vue'
 import CircleList from '@/components/CircleList.vue'
-import { searchCircles } from '@/api/circle'
+import { searchCircles, getCircleDetail } from '@/api/circle'
 import { searchPosts } from '@/api/post'
 import { auth } from '@/utils/auth'
 import PostList from '@/components/PostList.vue'
@@ -83,8 +85,14 @@ const router = useRouter()
 const message = useMessage()
 const { t } = useI18n()
 
+// 注入圈子搜索状态
+const circleSearchState = inject('circleSearchState', ref({ id: null, name: '', avatarUrl: '' }))
+
 // 搜索关键词
 const keyword = ref('')
+// 圈子ID（圈内搜索）
+const circleId = ref(null)
+const circleName = ref('')
 
 // 当前激活的 tab
 const activeTab = ref('post')
@@ -103,7 +111,7 @@ const hasMorePosts = ref(false)
 const searchAfterPosts = ref(null)
 
 // 初始化
-onMounted(() => {
+onMounted(async () => {
   // 检查登录状态
   if (!auth.isAuthenticated()) {
     message.warning('请先登录')
@@ -119,14 +127,60 @@ onMounted(() => {
     return
   }
 
+  // 获取圈子ID（如果有）
+  circleId.value = route.query.circle_id ? Number(route.query.circle_id) : null
+
+  // 如果有圈子ID，获取圈子信息
+  if (circleId.value) {
+    // 优先使用注入的圈子搜索状态
+    if (circleSearchState.value.id === circleId.value && circleSearchState.value.name) {
+      circleName.value = circleSearchState.value.name
+    } else {
+      // 如果注入的状态不匹配，从API获取
+      try {
+        const response = await getCircleDetail(circleId.value)
+        if (response.data) {
+          circleName.value = response.data.name
+        }
+      } catch (error) {
+        console.error('获取圈子信息失败:', error)
+      }
+    }
+  }
+
   // 默认搜索帖子
   searchPostsData()
 })
 
 // 监听路由变化
-watch(() => route.query.q, (newKeyword) => {
-  if (newKeyword && newKeyword !== keyword.value) {
+watch(() => route.query, async (newQuery) => {
+  const newKeyword = newQuery.q
+  const newCircleId = newQuery.circle_id ? Number(newQuery.circle_id) : null
+
+  if ((newKeyword && newKeyword !== keyword.value) || newCircleId !== circleId.value) {
     keyword.value = newKeyword
+    circleId.value = newCircleId
+
+    // 如果有新的圈子ID，获取圈子信息
+    if (circleId.value) {
+      // 优先使用注入的圈子搜索状态
+      if (circleSearchState.value.id === circleId.value && circleSearchState.value.name) {
+        circleName.value = circleSearchState.value.name
+      } else {
+        // 如果注入的状态不匹配，从API获取
+        try {
+          const response = await getCircleDetail(circleId.value)
+          if (response.data) {
+            circleName.value = response.data.name
+          }
+        } catch (error) {
+          console.error('获取圈子信息失败:', error)
+        }
+      }
+    } else {
+      circleName.value = ''
+    }
+
     resetSearch()
     // 根据当前tab执行对应的搜索
     if (activeTab.value === 'post') {
@@ -191,6 +245,11 @@ const searchPostsData = async () => {
     const params = {
       keyword: keyword.value,
       size: pageSize
+    }
+
+    // 如果有圈子ID，添加到参数中
+    if (circleId.value) {
+      params.circle_id = circleId.value
     }
 
     if (searchAfterPosts.value) {
@@ -349,6 +408,11 @@ const loadMore = () => {
   color: rgba(255, 255, 255, 0.6);
   font-size: 0.95rem;
   margin: 0;
+}
+
+.circle-search-info {
+  color: rgb(236, 72, 153);
+  font-weight: 500;
 }
 
 .tab-placeholder {

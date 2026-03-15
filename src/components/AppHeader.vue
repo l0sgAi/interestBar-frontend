@@ -7,6 +7,20 @@
     <div class="header-center">
       <!-- 搜索栏 -->
       <div class="search-box">
+        <!-- 圈子标签 -->
+        <div v-if="circleSearch.id" class="circle-tag">
+          <img v-if="circleSearch.avatarUrl" :src="circleSearch.avatarUrl" class="circle-tag-avatar" />
+          <div v-else class="circle-tag-avatar-placeholder">
+            {{ circleSearch.name?.charAt(0)?.toUpperCase() || '?' }}
+          </div>
+          <span class="circle-tag-name">{{ circleSearch.name }}</span>
+          <button class="circle-tag-close" @click="handleClearCircleSearch" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
         <span class="search-icon" @click="handleSearch" style="cursor: pointer;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8"></circle>
@@ -76,7 +90,7 @@
 </template>
 
 <script setup>
-import { ref, computed, h, onMounted, watch } from 'vue'
+import { ref, computed, h, onMounted, watch, inject } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { NButton, NIcon, NDropdown, NAvatar, NBadge, useMessage, useDialog } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
@@ -91,6 +105,10 @@ const route = useRoute()
 const message = useMessage()
 const dialog = useDialog()
 const { t } = useI18n()
+
+// 注入圈子搜索状态
+const circleSearch = inject('circleSearchState', ref({ id: null, name: '', avatarUrl: '' }))
+const clearCircleSearch = inject('clearCircleSearch', () => {})
 
 // 用户信息
 const username = ref('User')
@@ -233,18 +251,50 @@ const goHome = () => {
 const handleSearch = () => {
   const keyword = searchKeyword.value.trim()
   if (keyword) {
+    // 构建查询参数
+    const query = { q: keyword }
+
+    // 如果有圈子搜索状态，添加 circle_id 参数
+    if (circleSearch.value.id) {
+      query.circle_id = circleSearch.value.id
+    }
+
     // 如果已经在搜索页面且搜索相同关键词，需要强制刷新
     if (route.name === 'search' && route.query.q === keyword) {
       // 使用时间戳确保路由变化触发重新搜索
       router.replace({
         path: '/search',
-        query: { q: keyword, t: Date.now() }
+        query: { ...query, t: Date.now() }
       })
     } else {
       router.push({
         path: '/search',
-        query: { q: keyword }
+        query
       })
+    }
+  }
+}
+
+// 清除圈子搜索
+const handleClearCircleSearch = () => {
+  clearCircleSearch()
+  // 如果当前在搜索页面，重新搜索（不带circle_id）
+  if (route.name === 'search' && searchKeyword.value) {
+    const keyword = searchKeyword.value.trim()
+    if (keyword) {
+      // 如果已经在搜索页面且搜索相同关键词，需要强制刷新
+      if (route.query.q === keyword) {
+        // 使用时间戳确保路由变化触发重新搜索
+        router.replace({
+          path: '/search',
+          query: { q: keyword, t: Date.now() }
+        })
+      } else {
+        router.push({
+          path: '/search',
+          query: { q: keyword }
+        })
+      }
     }
   }
 }
@@ -289,32 +339,100 @@ const handleSearch = () => {
   flex: 1;
   display: flex;
   justify-content: center;
-  padding: 0 20px;
 }
 
 /* 搜索栏 */
 .search-box {
-  position: relative;
-  width: 100%;
-  max-width: 500px;
+  width: 30dvw;
   display: flex;
   align-items: center;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 24px;
-  padding: 8px 16px;
+  padding: 10px 20px;
   transition: all 0.3s ease;
+  gap: 8px;
 }
 
 .search-box:hover {
   background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(236, 72, 153, 0.3);
+  border-color: rgb(52, 127, 180);
 }
 
 .search-box:focus-within {
   background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(236, 72, 153, 0.5);
+  border-color: rgb(161, 52, 106);
   box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
+}
+
+/* 圈子标签 */
+.circle-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(236, 72, 153, 0.15);
+  border: 1px solid rgba(236, 72, 153, 0.3);
+  border-radius: 16px;
+  padding: 4px 8px 4px 4px;
+  flex-shrink: 0;
+}
+
+.circle-tag-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.circle-tag-avatar-placeholder {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ec4899 0%, #a855f7 50%, #3b82f6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: white;
+  flex-shrink: 0;
+}
+
+.circle-tag-name {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.85rem;
+  font-weight: 500;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.circle-tag-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.6);
+  transition: all 0.2s ease;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.circle-tag-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.circle-tag-close svg {
+  width: 10px;
+  height: 10px;
 }
 
 .search-icon {
@@ -324,7 +442,6 @@ const handleSearch = () => {
   width: 18px;
   height: 18px;
   color: rgba(255, 255, 255, 0.5);
-  margin-right: 10px;
   flex-shrink: 0;
 }
 
@@ -336,6 +453,7 @@ const handleSearch = () => {
   color: rgba(255, 255, 255, 0.9);
   font-size: 0.95rem;
   padding: 0;
+  min-width: 0;
 }
 
 .search-input::placeholder {
