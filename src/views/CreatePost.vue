@@ -277,13 +277,32 @@ const handleUploadImg = async (files, callback) => {
   }
 }
 
+// 从 Markdown 内容中提取所有图片 URL
+const extractImageUrls = (content) => {
+  const imageRegex = /!\[.*?\]\((.*?)\)/g
+  const urls = []
+  let match
+  while ((match = imageRegex.exec(content)) !== null) {
+    urls.push(match[1])
+  }
+  return urls
+}
+
 // 提交表单
 const handleSubmit = async () => {
   try {
     await formRef.value?.validate()
 
     submitting.value = true
-    const res = await createPost(formData.value)
+
+    // 从内容中提取实际的图片 URL，更新 media_extra
+    const actualUrls = extractImageUrls(formData.value.content)
+    const submitData = {
+      ...formData.value,
+      media_extra: actualUrls
+    }
+
+    const res = await createPost(submitData)
 
     message.success('发布成功')
 
