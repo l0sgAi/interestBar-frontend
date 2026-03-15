@@ -132,7 +132,7 @@ const formData = ref({
   title: '',
   summary: '',
   content: '',
-  media_extra: {}
+  media_extra: []
 })
 
 // 圈子选项
@@ -265,6 +265,9 @@ const handleUploadImg = async (files, callback) => {
         urls.push(res.data)
       }
     }
+
+    // 回填到 media_extra 字段
+    formData.value.media_extra = [...formData.value.media_extra, ...urls]
 
     callback(urls)
     message.success('图片上传成功')
