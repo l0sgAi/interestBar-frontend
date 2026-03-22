@@ -158,6 +158,8 @@ const toolbars = [
   'link',
   'image',
   'table',
+  'katex',
+  'mermaid',
   '-',
   'revoke',
   'next',
@@ -166,7 +168,6 @@ const toolbars = [
   'pageFullscreen',
   'fullscreen',
   'preview',
-  'htmlPreview',
   'catalog'
 ]
 
