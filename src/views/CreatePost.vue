@@ -168,6 +168,7 @@ const toolbars = [
   'pageFullscreen',
   'fullscreen',
   'preview',
+  'previewOnly',
   'catalog'
 ]
 
