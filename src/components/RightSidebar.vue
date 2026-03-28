@@ -188,23 +188,14 @@ const handleLoadMore = () => {
   animation: slideInRight 0.5s ease;
 }
 
-/* 自定义滚动条 */
+/* 隐藏滚动条 */
+.sidebar-content {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
 .sidebar-content::-webkit-scrollbar {
-  width: 6px;
-}
-
-.sidebar-content::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 3px;
-}
-
-.sidebar-content::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 3px;
-}
-
-.sidebar-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
+  display: none; /* Chrome, Safari, Opera */
 }
 
 /* 标题区域 */
