@@ -429,8 +429,8 @@ const handleJoinCircle = async () => {
   try {
     await joinCircle({ circle_id: circleDetail.value.id })
     message.success('加入成功')
-    circleDetail.value.is_joined = true
-    circleDetail.value.member_count += 1
+    // 重新获取圈子详情，同步刷新侧栏统计数据
+    await fetchCircleDetail()
   } catch (error) {
     message.error('加入失败：' + (error.message || '未知错误'))
   } finally {
@@ -445,8 +445,8 @@ const handleLeaveCircle = async () => {
   try {
     await leaveCircle({ circle_id: circleDetail.value.id })
     message.success('已退出圈子')
-    circleDetail.value.is_joined = false
-    circleDetail.value.member_count -= 1
+    // 重新获取圈子详情，同步刷新侧栏统计数据
+    await fetchCircleDetail()
   } catch (error) {
     message.error('退出失败：' + (error.message || '未知错误'))
   } finally {

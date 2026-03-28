@@ -96,8 +96,6 @@
             </div>
           </div>
 
-          <NDivider />
-
           <!-- 帖子正文（Markdown渲染） -->
           <div class="post-content">
             <MdPreview
@@ -107,8 +105,6 @@
               preview-theme="default"
             />
           </div>
-
-          <NDivider />
 
           <!-- 底部操作栏 -->
           <div class="post-actions">
