@@ -49,3 +49,15 @@ export function searchUsers(params) {
     params
   })
 }
+
+/**
+ * 获取用户详情
+ * @param {number} userId - 用户ID
+ * @returns {Promise}
+ */
+export function getUserDetail(userId) {
+  return request({
+    url: `/user/detail/${userId}`,
+    method: 'get'
+  })
+}

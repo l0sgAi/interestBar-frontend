@@ -35,7 +35,8 @@
             :key="post.id"
             class="post-card"
             :bordered="false"
-            hoverable>
+            hoverable
+            @click="handleCardClick(post)">
             <div class="post-header">
               <div class="post-author">
                 <NAvatar
@@ -47,7 +48,7 @@
                   <span class="post-time">{{ post.time }}</span>
                 </div>
               </div>
-              <NDropdown :options="getPostMenuOptions()" @select="(key) => handleAction(key, post)">
+              <NDropdown v-if="!readonly" :options="getPostMenuOptions()" @select="(key) => handleAction(key, post)">
                 <NButton quaternary circle size="small">
                   <template #icon>
                     <NIcon>
@@ -113,9 +114,11 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { NCard, NAvatar, NIcon, NTag, NInput, NButton, NSpin, NDropdown, useMessage } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 
+const router = useRouter()
 const message = useMessage()
 const { t } = useI18n()
 
@@ -123,6 +126,10 @@ const props = defineProps({
   posts: {
     type: Array,
     default: () => []
+  },
+  readonly: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -157,6 +164,10 @@ const handleAction = (key, post) => {
       emit('delete', post)
       break
   }
+}
+
+const handleCardClick = (post) => {
+  router.push(`/post/${post.id}`)
 }
 </script>
 
@@ -196,6 +207,7 @@ const handleAction = (key, post) => {
   background: rgba(255, 255, 255, 0.02) !important;
   border: 1px solid rgba(255, 255, 255, 0.05) !important;
   transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .post-card:hover {

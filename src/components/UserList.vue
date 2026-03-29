@@ -124,9 +124,7 @@ const formatDate = (dateString) => {
 
 // 点击用户
 const handleUserClick = (user) => {
-  // 跳转到用户主页（如果有这个功能的话）
-  // router.push(`/user/${user.id}`)
-  console.log('点击用户:', user)
+  router.push(`/user/${user.id}`)
 }
 
 // 设置 Intersection Observer 实现无限滚动
