@@ -205,7 +205,14 @@ export default {
     normal: '正常',
     disabled: '禁用',
     userSearchInDevelopment: '用户搜索功能开发中...',
-    anonymous: '匿名用户'
+    anonymous: '匿名用户',
+    admin: '管理员',
+    noUserResults: '暂无用户结果',
+    today: '今天',
+    yesterday: '昨天',
+    daysAgo: '{days} 天前',
+    monthsAgo: '{months} 个月前',
+    yearsAgo: '{years} 年前'
   },
 
   // 导航和菜单

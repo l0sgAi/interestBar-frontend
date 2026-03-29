@@ -50,12 +50,12 @@
             />
           </NTabPane>
           <NTabPane name="user" :tab="t('user.user')">
-            <div class="tab-placeholder">
-              <NIcon size="48" :color="'rgba(255,255,255,0.3)'">
-                <UserIcon />
-              </NIcon>
-              <p>{{ t('user.userSearchInDevelopment') }}</p>
-            </div>
+            <UserList
+              :users="users"
+              :loading="loadingUsers"
+              :has-more="hasMoreUsers"
+              @load-more="loadMoreUsers"
+            />
           </NTabPane>
         </NTabs>
       </div>
@@ -71,12 +71,14 @@ import { ref, onMounted, watch, inject } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { NTabs,NDivider, NTabPane, NIcon, NSpin, NButton, useMessage } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
-import { FileText as FileTextIcon, User as UserIcon } from '@vicons/tabler'
+import { FileText as FileTextIcon } from '@vicons/tabler'
 import AppHeader from '@/components/AppHeader.vue'
 import SideNav from '@/components/SideNav.vue'
 import CircleList from '@/components/CircleList.vue'
+import UserList from '@/components/UserList.vue'
 import { searchCircles, getCircleDetail } from '@/api/circle'
 import { searchPosts } from '@/api/post'
+import { searchUsers } from '@/api/user'
 import { auth } from '@/utils/auth'
 import PostList from '@/components/PostList.vue'
 
@@ -109,6 +111,12 @@ const posts = ref([])
 const loadingPosts = ref(false)
 const hasMorePosts = ref(false)
 const searchAfterPosts = ref(null)
+
+// 用户列表数据
+const users = ref([])
+const loadingUsers = ref(false)
+const hasMoreUsers = ref(false)
+const searchAfterUsers = ref(null)
 
 // 初始化
 onMounted(async () => {
@@ -187,6 +195,8 @@ watch(() => route.query, async (newQuery) => {
       searchPostsData()
     } else if (activeTab.value === 'circle') {
       searchCirclesData()
+    } else if (activeTab.value === 'user') {
+      searchUsersData()
     }
   }
 })
@@ -203,6 +213,10 @@ const handleTabChange = (value) => {
     if (circles.value.length === 0) {
       searchCirclesData()
     }
+  } else if (value === 'user') {
+    if (users.value.length === 0) {
+      searchUsersData()
+    }
   }
 }
 
@@ -214,6 +228,9 @@ const resetSearch = () => {
   posts.value = []
   searchAfterPosts.value = null
   hasMorePosts.value = false
+  users.value = []
+  searchAfterUsers.value = null
+  hasMoreUsers.value = false
 }
 
 // 转换帖子数据格式
@@ -355,6 +372,64 @@ const searchCirclesData = async () => {
 const loadMore = () => {
   if (!loading.value && hasMore.value) {
     searchCirclesData()
+  }
+}
+
+// 搜索用户数据
+const searchUsersData = async () => {
+  if (loadingUsers.value) return
+
+  loadingUsers.value = true
+  try {
+    const params = {
+      keyword: keyword.value,
+      size: pageSize
+    }
+
+    if (searchAfterUsers.value) {
+      params.search_after = JSON.stringify(searchAfterUsers.value)
+    }
+
+    const response = await searchUsers(params)
+
+    if (response.code === 200 && response.data) {
+      const newUsers = response.data.data || []
+
+      if (searchAfterUsers.value) {
+        // 加载更多，追加数据
+        users.value = [...users.value, ...newUsers]
+      } else {
+        // 首次加载或新搜索
+        users.value = newUsers
+      }
+
+      // 更新 search_after
+      if (response.data.search_after) {
+        try {
+          searchAfterUsers.value = JSON.parse(response.data.search_after)
+          hasMoreUsers.value = true
+        } catch (e) {
+          console.error('解析 search_after 失败:', e)
+          hasMoreUsers.value = false
+        }
+      } else {
+        hasMoreUsers.value = false
+      }
+    } else {
+      message.error(response.message || '搜索失败')
+    }
+  } catch (error) {
+    console.error('搜索用户失败:', error)
+    message.error('搜索失败，请稍后重试')
+  } finally {
+    loadingUsers.value = false
+  }
+}
+
+// 加载更多用户
+const loadMoreUsers = () => {
+  if (!loadingUsers.value && hasMoreUsers.value) {
+    searchUsersData()
   }
 }
 </script>

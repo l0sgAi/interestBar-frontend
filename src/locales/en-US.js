@@ -205,7 +205,14 @@ export default {
     normal: 'Normal',
     disabled: 'Disabled',
     userSearchInDevelopment: 'User search in development...',
-    anonymous: 'Anonymous'
+    anonymous: 'Anonymous',
+    admin: 'Admin',
+    noUserResults: 'No user results',
+    today: 'Today',
+    yesterday: 'Yesterday',
+    daysAgo: '{days}d ago',
+    monthsAgo: '{months}mo ago',
+    yearsAgo: '{years}y ago'
   },
 
   // 导航和菜单
