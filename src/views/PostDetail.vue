@@ -13,6 +13,8 @@
       </div>
 
       <div v-else-if="post" class="post-detail-container">
+        <!-- 左侧内容列 -->
+        <div class="post-main-column">
         <!-- 主帖子卡片 -->
         <NCard :bordered="false" class="post-card">
           <!-- 帖子头部信息 -->
@@ -154,6 +156,140 @@
           </div>
         </NCard>
 
+        <!-- 评论区 -->
+        <div class="comment-section">
+          <!-- 发评论 -->
+          <NCard :bordered="false" class="comment-editor-card">
+            <div class="comment-editor-header">
+              <span class="comment-section-title">发表评论</span>
+            </div>
+            <MdEditor
+              v-model="commentContent"
+              :language="language"
+              :preview="false"
+              :toolbars="commentToolbars"
+              theme="dark"
+              placeholder="写下你的评论...（支持图文、表情）"
+              :max-length="2000"
+              :rows="3"
+              @onUploadImg="handleCommentUploadImg"
+            />
+            <div class="comment-editor-footer">
+              <NButton type="primary" size="medium" :disabled="!commentContent.trim()" @click="handleSubmitComment">
+                发表评论
+              </NButton>
+            </div>
+          </NCard>
+
+          <!-- 评论列表 -->
+          <NCard :bordered="false" class="comment-list-card">
+            <div class="comment-list-header">
+              <span class="comment-section-title">评论 ({{ mockComments.length }})</span>
+              <div class="comment-sort">
+                <NButton text size="small" :type="commentSort === 'newest' ? 'primary' : 'default'" @click="commentSort = 'newest'">最新</NButton>
+                <NDivider vertical />
+                <NButton text size="small" :type="commentSort === 'hottest' ? 'primary' : 'default'" @click="commentSort = 'hottest'">最热</NButton>
+              </div>
+            </div>
+
+            <div class="comment-list">
+              <div v-for="comment in mockComments" :key="comment.id" class="comment-item">
+                <div class="comment-avatar">
+                  <NAvatar round :size="36" :src="comment.avatar || '/default-avatar.png'" />
+                </div>
+                <div class="comment-body">
+                  <div class="comment-author-row">
+                    <span class="comment-author">{{ comment.author }}</span>
+                    <span class="comment-time">{{ comment.time }}</span>
+                  </div>
+                  <div class="comment-content">
+                    <MdPreview
+                      :model-value="comment.content"
+                      :language="language"
+                      theme="dark"
+                      preview-theme="default"
+                    />
+                  </div>
+                  <div class="comment-actions">
+                    <NButton text size="small" class="comment-action-btn">
+                      <template #icon>
+                        <NIcon size="16">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                          </svg>
+                        </NIcon>
+                      </template>
+                      {{ comment.likes }}
+                    </NButton>
+                    <NButton text size="small" class="comment-action-btn" @click="handleReplyComment(comment)">
+                      <template #icon>
+                        <NIcon size="16">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                          </svg>
+                        </NIcon>
+                      </template>
+                      回复
+                    </NButton>
+                  </div>
+
+                  <!-- 子评论 -->
+                  <div v-if="comment.replies && comment.replies.length" class="comment-replies">
+                    <div v-for="reply in comment.replies" :key="reply.id" class="comment-item reply-item">
+                      <div class="comment-avatar">
+                        <NAvatar round :size="28" :src="reply.avatar || '/default-avatar.png'" />
+                      </div>
+                      <div class="comment-body">
+                        <div class="comment-author-row">
+                          <span class="comment-author">{{ reply.author }}</span>
+                          <template v-if="reply.reply_to">
+                            <span class="reply-arrow">回复</span>
+                            <span class="comment-author reply-to-name">@{{ reply.reply_to }}</span>
+                          </template>
+                          <span class="comment-time">{{ reply.time }}</span>
+                        </div>
+                        <div class="comment-content">
+                          <MdPreview
+                            :model-value="reply.content"
+                            :language="language"
+                            theme="dark"
+                            preview-theme="default"
+                          />
+                        </div>
+                        <div class="comment-actions">
+                          <NButton text size="small" class="comment-action-btn">
+                            <template #icon>
+                              <NIcon size="16">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                </svg>
+                              </NIcon>
+                            </template>
+                            {{ reply.likes }}
+                          </NButton>
+                          <NButton text size="small" class="comment-action-btn">
+                            <template #icon>
+                              <NIcon size="16">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                                </svg>
+                              </NIcon>
+                            </template>
+                            回复
+                          </NButton>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <NEmpty v-if="!mockComments.length" description="暂无评论，快来发表第一条评论吧" />
+            </div>
+          </NCard>
+        </div>
+        </div><!-- /.post-main-column -->
+
         <!-- 右侧圈子信息卡片 -->
         <div class="right-sidebar">
           <CircleInfoCard
@@ -183,8 +319,9 @@ import {
   useMessage
 } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
-import { MdPreview } from 'md-editor-v3'
+import { MdPreview, MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/preview.css'
+import 'md-editor-v3/lib/style.css'
 import AppHeader from '@/components/AppHeader.vue'
 import SideNav from '@/components/SideNav.vue'
 import CircleInfoCard from '@/components/CircleInfoCard.vue'
@@ -277,6 +414,112 @@ const handleCollect = () => {
   message.info(t('messages.favoriteFeaturePending'))
 }
 
+// ============ 评论区相关 ============
+const commentContent = ref('')
+const commentSort = ref('newest')
+
+// 评论编辑器精简工具栏
+const commentToolbars = [
+  'bold',
+  'italic',
+  '-',
+  'quote',
+  'unorderedList',
+  'orderedList',
+  '-',
+  'codeRow',
+  'link',
+  'image',
+  'emoji',
+  '-',
+  'preview',
+  'previewOnly'
+]
+
+// Mock 评论数据（后期对接API后移除）
+const mockComments = ref([
+  {
+    id: 1,
+    author: '张三',
+    avatar: '',
+    content: '写得非常好，学习了！🔥',
+    time: '2 小时前',
+    likes: 12,
+    replies: [
+      {
+        id: 101,
+        author: '李四',
+        avatar: '',
+        reply_to: '张三',
+        content: '同感，收藏了',
+        time: '1 小时前',
+        likes: 3
+      }
+    ]
+  },
+  {
+    id: 2,
+    author: '王五',
+    avatar: '',
+    content: '感谢分享！\n\n```js\nconsole.log("hello")\n```\n\n代码示例很清晰。',
+    time: '5 小时前',
+    likes: 8,
+    replies: []
+  },
+  {
+    id: 3,
+    author: '赵六',
+    avatar: '',
+    content: '这个功能什么时候能上线呀？期待 🎉',
+    time: '1 天前',
+    likes: 5,
+    replies: [
+      {
+        id: 301,
+        author: '张三',
+        avatar: '',
+        reply_to: '赵六',
+        content: '快了快了',
+        time: '22 小时前',
+        likes: 1
+      },
+      {
+        id: 302,
+        author: '赵六',
+        avatar: '',
+        reply_to: '张三',
+        content: '好的，辛苦了 👍',
+        time: '20 小时前',
+        likes: 2
+      }
+    ]
+  }
+])
+
+// 提交评论
+const handleSubmitComment = () => {
+  if (!commentContent.value.trim()) return
+  // TODO: 对接评论API
+  message.success('评论发表成功（模拟）')
+  commentContent.value = ''
+}
+
+// 回复评论
+const handleReplyComment = (comment) => {
+  // TODO: 实现回复功能，可以聚焦到编辑器并插入 @用户名
+  commentContent.value = `@${comment.author} `
+  window.scrollTo({ top: document.querySelector('.comment-editor-card')?.offsetTop - 80, behavior: 'smooth' })
+}
+
+// 评论图片上传
+const handleCommentUploadImg = async (files, callback) => {
+  // TODO: 对接图片上传API
+  const urls = await Promise.all(
+    files.map(() => Promise.resolve('https://via.placeholder.com/300'))
+  )
+  callback(urls)
+}
+
 onMounted(() => {
   loadPostDetail()
 })
@@ -317,6 +560,14 @@ onMounted(() => {
   min-width: 0;
   border-radius: 16px !important;
   overflow: hidden;
+}
+
+.post-main-column {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 /* 右侧悬浮栏 */
@@ -448,6 +699,167 @@ onMounted(() => {
   min-width: 120px;
   border-radius: 10px;
   font-weight: 500;
+}
+
+/* 评论区 */
+.comment-section {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: -1px;
+}
+
+.comment-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* 评论编辑器卡片 */
+.comment-editor-card {
+  border-radius: 16px !important;
+}
+
+.comment-editor-header {
+  margin-bottom: 12px;
+}
+
+.comment-editor-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+/* 评论列表卡片 */
+.comment-list-card {
+  border-radius: 16px !important;
+}
+
+.comment-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.comment-sort {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 评论列表 */
+.comment-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 单条评论 */
+.comment-item {
+  display: flex;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.comment-item:last-child {
+  border-bottom: none;
+}
+
+.comment-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.comment-author-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.comment-author {
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.comment-time {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.comment-content {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+.comment-content :deep(.md-editor) {
+  background: transparent !important;
+}
+
+.comment-content :deep(.md-editor-preview) {
+  padding: 0 !important;
+  font-size: 15px;
+}
+
+.comment-content :deep(.md-editor-preview-wrapper) {
+  padding: 0 !important;
+}
+
+/* 评论操作栏 */
+.comment-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.comment-action-btn {
+  color: rgba(255, 255, 255, 0.45) !important;
+  font-size: 13px;
+}
+
+.comment-action-btn:hover {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* 子评论区 */
+.comment-replies {
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+}
+
+.comment-replies .comment-item {
+  padding: 10px 0;
+}
+
+.reply-item .comment-author {
+  font-size: 14px;
+}
+
+.reply-arrow {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.reply-to-name {
+  color: #63e2b7;
+}
+
+/* 评论编辑器样式调整 */
+.comment-editor-card :deep(.md-editor) {
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.comment-editor-card :deep(.md-editor-toolbar-wrapper) {
+  border-radius: 12px 12px 0 0;
 }
 
 /* 响应式 */
