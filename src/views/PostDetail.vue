@@ -684,7 +684,6 @@ onMounted(() => {
   margin: 14px 0;
   padding: 24px;
   border-radius: 15px;
-  background: black;
 }
 
 /* Markdown 预览样式覆盖 */
@@ -852,6 +851,21 @@ onMounted(() => {
   color: #63e2b7;
 }
 
+/* md-editor-v3 深色主题自定义 — 偏黑底色 */
+:deep(.md-editor-dark) {
+  --md-bk-color: rgb(24, 24, 28);
+  --md-scrollbar-bg-color: rgb(24, 24, 28);
+}
+
+:deep(.md-editor-dark .md-editor-preview) {
+  --md-theme-bg-color: rgb(24, 24, 28);
+  /* --md-theme-bg-color-inset: #141419;
+  --md-theme-color-hover: #141419;
+  --md-theme-border-color: rgba(255, 255, 255, 0.1);
+  --md-theme-code-block-bg-color: #141419;
+  --md-theme-table-stripe-color: #0a0a0f; */
+}
+
 /* 评论编辑器一体化容器 */
 .comment-editor-wrapper {
   border-radius: 12px;
@@ -872,7 +886,7 @@ onMounted(() => {
   display: flex;
   justify-content: flex-end;
   padding: 10px 16px;
-  background: #1e1e1e;
+  background: rgb(24, 24, 28);
   border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 

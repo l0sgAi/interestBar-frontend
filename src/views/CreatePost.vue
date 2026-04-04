@@ -516,6 +516,21 @@ onMounted(() => {
   font-weight: 500;
 }
 
+/* md-editor-v3 深色主题自定义 — 偏黑底色 */
+:deep(.md-editor-dark) {
+  --md-bk-color: rgb(24, 24, 28);
+  --md-scrollbar-bg-color: rgb(24, 24, 28);
+}
+
+:deep(.md-editor-dark .md-editor-preview) {
+  --md-theme-bg-color: rgb(24, 24, 28);
+  /* --md-theme-bg-color-inset: #141419;
+  --md-theme-color-hover: #141419;
+  --md-theme-border-color: rgba(255, 255, 255, 0.1);
+  --md-theme-code-block-bg-color: #141419;
+  --md-theme-table-stripe-color: #0a0a0f; */
+}
+
 /* 响应式 */
 @media (max-width: 1400px) {
   .main-content {
@@ -546,5 +561,6 @@ onMounted(() => {
   .create-post-container {
     max-width: 100%;
   }
+  
 }
 </style>
