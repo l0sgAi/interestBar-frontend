@@ -167,7 +167,7 @@
               theme="dark"
               placeholder="写下你的评论...（支持图文、表情）"
               :max-length="2000"
-              :rows="3"
+              :style="{ height: '25dvh' }"
               @onUploadImg="handleCommentUploadImg"
             />
             <div class="comment-editor-footer">
