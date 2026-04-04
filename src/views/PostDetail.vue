@@ -159,21 +159,30 @@
             <div class="comment-editor-header">
               <span class="comment-section-title">发表评论</span>
             </div>
-            <MdEditor
-              v-model="commentContent"
-              :language="language"
-              :preview="false"
-              :toolbars="commentToolbars"
-              theme="dark"
-              placeholder="写下你的评论...（支持图文、表情）"
-              :max-length="2000"
-              :style="{ height: '25dvh' }"
-              @onUploadImg="handleCommentUploadImg"
-            />
-            <div class="comment-editor-footer">
-              <NButton type="primary" size="medium" :disabled="!commentContent.trim()" @click="handleSubmitComment">
-                发表评论
-              </NButton>
+            <div class="comment-editor-wrapper">
+              <MdEditor
+                v-model="commentContent"
+                :language="language"
+                :preview="false"
+                :toolbars="commentToolbars"
+                theme="dark"
+                placeholder="写下你的评论...（支持图文、表情）"
+                :max-length="2000"
+                :footers="[]"
+                :style="{ height: '25dvh' }"
+                @onUploadImg="handleCommentUploadImg"
+              />
+              <div class="comment-editor-footer">
+                <NButton
+                  type="primary"
+                  size="medium"
+                  round
+                  :disabled="!commentContent.trim()"
+                  @click="handleSubmitComment"
+                >
+                  发表评论
+                </NButton>
+              </div>
             </div>
           </NCard>
 
@@ -722,11 +731,6 @@ onMounted(() => {
   margin-bottom: 12px;
 }
 
-.comment-editor-footer {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 12px;
-}
 
 /* 评论列表卡片 */
 .comment-list-card {
@@ -848,14 +852,28 @@ onMounted(() => {
   color: #63e2b7;
 }
 
-/* 评论编辑器样式调整 */
-.comment-editor-card :deep(.md-editor) {
+/* 评论编辑器一体化容器 */
+.comment-editor-wrapper {
   border-radius: 12px;
+  overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.comment-editor-card :deep(.md-editor-toolbar-wrapper) {
-  border-radius: 12px 12px 0 0;
+.comment-editor-wrapper :deep(.md-editor) {
+  border: none !important;
+  border-radius: 0 !important;
+}
+
+.comment-editor-wrapper :deep(.md-editor-toolbar-wrapper) {
+  border-radius: 0;
+}
+
+.comment-editor-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px 16px;
+  background: #1e1e1e;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 /* 响应式 */
