@@ -1,0 +1,132 @@
+<template>
+  <NCard :bordered="false" class="comment-editor-card">
+    <div class="comment-editor-header">
+      <span class="comment-section-title">发表评论</span>
+    </div>
+    <div class="comment-editor-wrapper">
+      <MdEditor
+        v-model="content"
+        :language="language"
+        :preview="false"
+        :toolbars="toolbars"
+        theme="dark"
+        placeholder="写下你的评论...（支持图文、表情）"
+        :max-length="2000"
+        :footers="[]"
+        :style="{ height: '25dvh' }"
+        @onUploadImg="handleUploadImg"
+      />
+      <div class="comment-editor-footer">
+        <NButton
+          type="primary"
+          size="medium"
+          round
+          :disabled="!content.trim()"
+          @click="handleSubmit"
+        >
+          发表评论
+        </NButton>
+      </div>
+    </div>
+  </NCard>
+</template>
+
+<script setup>
+import { ref, watch } from 'vue'
+import { NCard, NButton } from 'naive-ui'
+import { MdEditor } from 'md-editor-v3'
+import 'md-editor-v3/lib/style.css'
+
+const props = defineProps({
+  language: {
+    type: String,
+    default: 'zh-CN'
+  },
+  modelValue: {
+    type: String,
+    default: ''
+  }
+})
+
+const emit = defineEmits(['update:modelValue', 'submit', 'uploadImg'])
+
+const content = ref(props.modelValue)
+
+watch(() => props.modelValue, (val) => {
+  content.value = val
+})
+
+watch(content, (val) => {
+  emit('update:modelValue', val)
+})
+
+const toolbars = [
+  'bold',
+  'italic',
+  '-',
+  'quote',
+  'unorderedList',
+  'orderedList',
+  '-',
+  'codeRow',
+  'link',
+  'image',
+  'emoji',
+  '-',
+  'preview',
+  'previewOnly'
+]
+
+const handleSubmit = () => {
+  if (!content.value.trim()) return
+  emit('submit', content.value)
+}
+
+const handleUploadImg = async (files, callback) => {
+  emit('uploadImg', files, callback)
+}
+</script>
+
+<style scoped>
+.comment-editor-card {
+  border-radius: 16px !important;
+}
+
+.comment-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.comment-editor-header {
+  margin-bottom: 12px;
+}
+
+.comment-editor-wrapper {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.comment-editor-wrapper :deep(.md-editor) {
+  border: none !important;
+  border-radius: 0 !important;
+}
+
+.comment-editor-wrapper :deep(.md-editor-toolbar-wrapper) {
+  border-radius: 0;
+}
+
+.comment-editor-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px 16px;
+  background: rgb(24, 24, 28);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+:deep(.md-editor-dark) {
+  --md-bk-color: rgb(24, 24, 28);
+  --md-scrollbar-bg-color: rgb(24, 24, 28);
+}
+</style>
