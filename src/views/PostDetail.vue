@@ -154,11 +154,7 @@
               分享
             </NButton>
           </div>
-        </NCard>
-
-        <!-- 评论区 -->
-        <div class="comment-section">
-          <!-- 发评论 -->
+           <!-- 发评论 -->
           <NCard :bordered="false" class="comment-editor-card">
             <div class="comment-editor-header">
               <span class="comment-section-title">发表评论</span>
@@ -287,7 +283,7 @@
               <NEmpty v-if="!mockComments.length" description="暂无评论，快来发表第一条评论吧" />
             </div>
           </NCard>
-        </div>
+        </NCard>
         </div><!-- /.post-main-column -->
 
         <!-- 右侧圈子信息卡片 -->
