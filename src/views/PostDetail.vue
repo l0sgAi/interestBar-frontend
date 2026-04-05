@@ -4,10 +4,10 @@
     <AppHeader />
 
     <!-- 侧边栏 -->
-    <SideNav />
+    <SideNav @collapsed="offset = 64" @expanded="offset = 260" />
 
     <!-- 主内容区域 -->
-    <div class="main-content">
+    <div class="main-content" :style="{ 'margin-left': `${offset}px` }">
       <div v-if="loading" class="loading-container">
         <NSpin size="large" />
       </div>
@@ -75,7 +75,7 @@ const setCircleSearch = inject('setCircleSearch', () => {})
 const loading = ref(true)
 const post = ref(null)
 const language = ref('zh-CN')
-
+const offset = ref(260);
 // 加载帖子详情
 const loadPostDetail = async () => {
   try {
@@ -220,9 +220,8 @@ onMounted(() => {
 }
 
 .main-content {
-  margin-left: 15%;
   margin-top: 64px;
-  padding: 24px;
+  width: auto;
   min-height: calc(100vh - 64px);
   transition: margin-left 0.3s ease, margin-right 0.3s ease;
 }
@@ -238,8 +237,6 @@ onMounted(() => {
   display: flex;
   gap: 24px;
   width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
   align-items: flex-start;
 }
 

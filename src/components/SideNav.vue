@@ -7,8 +7,8 @@
       :width="260"
       :collapsed="isCollapsed"
       show-trigger
-      @collapse="isCollapsed = true"
-      @expand="isCollapsed = false"
+      @collapse="whenCollapsedCLick"
+      @expand="whenExpandCLick"
       class="custom-sider"
     >
       <!-- 导航菜单 -->
@@ -44,7 +44,16 @@ import CreateCircleModal from './CreateCircleModal.vue'
 
 const router = useRouter()
 const { t } = useI18n()
+const emit = defineEmits(['collapsed', 'expanded'])
 
+const whenCollapsedCLick = () => {
+  isCollapsed.value = !isCollapsed.value;
+  emit('collapsed')
+}
+const whenExpandCLick = () => {
+  isCollapsed.value = !isCollapsed.value;
+  emit('expanded')
+}
 // 自定义 SVG 图标组件
 const createIcon = (svgPath) => {
   return () => h('svg', {
