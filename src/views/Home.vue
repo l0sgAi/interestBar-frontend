@@ -184,10 +184,10 @@ const handleLogout = async () => {
 <style scoped>
 .home-page {
   min-height: 100vh;
-  position: relative;
 }
 
 .content-wrapper {
+  width: calc(100% - 260px);
   display: flex;
   margin-top: 4%;
   min-height: calc(100vh - 64px);
@@ -229,7 +229,6 @@ const handleLogout = async () => {
   text-align: center;
   margin-bottom: 20px;
 }
-
 .title {
   font-size: 2rem;
   font-weight: 700;

@@ -167,13 +167,14 @@ const handleLoadMore = () => {
 
 <style scoped>
 .right-sidebar {
-  position: relative;
-  top: 1%;
+  position: sticky;
+  top: 80px;
   width: 22dvw;
   max-height: calc(100vh - 112px);
   z-index: 100;
   flex-shrink: 0;
-  margin-right: 2dvw;
+  align-self: flex-start;
+  margin-right: 3dvw;
 }
 
 .sidebar-content {
