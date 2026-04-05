@@ -4,10 +4,10 @@
     <AppHeader />
 
     <!-- 侧边栏 -->
-    <SideNav />
+    <SideNav @collapsed="offset = 64" @expanded="offset = 260" />
 
     <!-- 主内容区域 -->
-    <div class="main-content">
+    <div class="main-content" :style="{ 'margin-left': `${offset}px` }">
       <!-- 圈子头部信息 -->
       <div class="circle-header" :style="{ backgroundImage: coverImageStyle }">
         <div class="header-overlay">
@@ -252,6 +252,7 @@ const route = useRoute()
 const router = useRouter()
 const message = useMessage()
 const { t } = useI18n()
+const offset = ref(260)
 
 // 注入圈子搜索状态设置方法
 const setCircleSearch = inject('setCircleSearch', () => {})
@@ -495,7 +496,6 @@ onMounted(() => {
 }
 
 .main-content {
-  margin-left: 260px;
   margin-top: 64px;
   min-height: calc(100vh - 64px);
   transition: margin-left 0.3s ease;

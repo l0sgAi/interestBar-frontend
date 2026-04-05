@@ -5,10 +5,10 @@
       <AppHeader />
 
       <!-- 侧边栏 -->
-      <SideNav />
+      <SideNav @collapsed="offset = 64" @expanded="offset = 260" />
 
       <!-- 主内容区域 -->
-      <div class="main-content">
+      <div class="main-content" :style="{ 'margin-left': `${offset}px` }">
         <!-- 左侧内容区域 -->
         <div class="content-area">
           <!-- 标签页内容 -->
@@ -304,6 +304,7 @@ import { useI18n } from 'vue-i18n'
 const router = useRouter()
 const message = useMessage()
 const { t } = useI18n()
+const offset = ref(260)
 
 // 当前激活的标签页
 const activeTab = ref('posts')
@@ -718,10 +719,10 @@ onMounted(() => {
 }
 
 .main-content {
-  margin-left: 260px;
   margin-top: 64px;
   padding: 24px;
   min-height: calc(100vh - 64px);
+  transition: all 0.3s ease-in-out;
   display: flex;
   gap: 24px;
 }

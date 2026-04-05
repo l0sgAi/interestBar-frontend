@@ -4,10 +4,10 @@
     <AppHeader />
 
     <!-- 侧边栏 -->
-    <SideNav />
+    <SideNav @collapsed="offset = 64" @expanded="offset = 260" />
 
     <!-- 主内容区域 -->
-    <div class="main-content">
+    <div class="main-content" :style="{ 'margin-left': `${offset}px` }">
       <div class="search-container">
           <div class="search-info">
             <h2 class="search-title">{{ t('nav.searchResults') }}</h2>
@@ -86,6 +86,7 @@ const route = useRoute()
 const router = useRouter()
 const message = useMessage()
 const { t } = useI18n()
+const offset = ref(260)
 
 // 注入圈子搜索状态
 const circleSearchState = inject('circleSearchState', ref({ id: null, name: '', avatarUrl: '' }))
@@ -441,7 +442,6 @@ const loadMoreUsers = () => {
 }
 
 .main-content {
-  margin-left: 260px;
   margin-right: 384px;
   margin-top: 64px;
   padding: 24px;

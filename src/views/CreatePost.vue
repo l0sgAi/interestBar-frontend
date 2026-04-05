@@ -4,10 +4,10 @@
     <AppHeader />
 
     <!-- 侧边栏 -->
-    <SideNav />
+    <SideNav @collapsed="offset = 64" @expanded="offset = 260" />
 
     <!-- 主内容区域 -->
-    <div class="main-content">
+    <div class="main-content" :style="{ 'margin-left': `${offset}px` }">
       <div class="create-post-container">
         <NCard 
         :title="t('post.createPost')" 
@@ -120,6 +120,7 @@ import { uploadImage } from '@/api/user'
 const router = useRouter()
 const message = useMessage()
 const { t } = useI18n()
+const offset = ref(260)
 const formRef = ref(null)
 const submitting = ref(false)
 const loadingCircles = ref(false)
@@ -348,7 +349,6 @@ onMounted(() => {
 }
 
 .main-content {
-  margin-left: 15%;
   margin-top: 64px;
   padding: 24px;
   min-height: calc(100vh - 64px);
@@ -541,7 +541,6 @@ onMounted(() => {
 @media (max-width: 1200px) {
   .main-content {
     margin-right: 24px;
-    margin-left: 80px;
   }
 }
 

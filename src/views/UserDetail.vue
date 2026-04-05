@@ -5,10 +5,10 @@
       <AppHeader />
 
       <!-- 侧边栏 -->
-      <SideNav />
+      <SideNav @collapsed="offset = 64" @expanded="offset = 260" />
 
       <!-- 主内容区域 -->
-      <div class="main-content">
+      <div class="main-content" :style="{ 'margin-left': `${offset}px` }">
         <!-- 左侧内容区域 -->
         <div class="content-area">
           <!-- 标签页内容 -->
@@ -179,6 +179,7 @@ import { auth } from '@/utils/auth'
 import { getUserDetail } from '@/api/user'
 
 const router = useRouter()
+const offset = ref(260)
 const route = useRoute()
 const message = useMessage()
 
@@ -305,7 +306,6 @@ onMounted(() => {
 }
 
 .main-content {
-  margin-left: 260px;
   margin-top: 64px;
   padding: 24px;
   min-height: calc(100vh - 64px);

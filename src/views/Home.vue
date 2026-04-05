@@ -4,10 +4,10 @@
     <AppHeader />
 
     <!-- 侧边栏 -->
-    <SideNav />
+    <SideNav @collapsed="offset = 64" @expanded="offset = 260" />
 
     <!-- 主内容区域和右侧栏的容器 -->
-    <div class="content-wrapper">
+    <div class="content-wrapper" :style="{ 'margin-left': `${offset}px` }">
       <!-- 主内容区域 -->
       <div class="main-content">
         <div class="home-container">
@@ -48,6 +48,7 @@ import request from '@/utils/request'
 const router = useRouter()
 const message = useMessage()
 const { t } = useI18n()
+const offset = ref(260)
 
 // 示例帖子数据
 const recommendPosts = ref([
@@ -188,7 +189,6 @@ const handleLogout = async () => {
 
 .content-wrapper {
   display: flex;
-  margin-left: 15dvw;
   margin-top: 4%;
   min-height: calc(100vh - 64px);
   transition: margin-left 0.3s ease;
@@ -199,11 +199,6 @@ const handleLogout = async () => {
   padding: 24px;
   min-height: calc(100vh - 64px);
   width: 100%;
-}
-
-/* 当侧边栏折叠时的样式 */
-.content-wrapper.collapsed {
-  margin-left: 80px;
 }
 
 .home-container {
