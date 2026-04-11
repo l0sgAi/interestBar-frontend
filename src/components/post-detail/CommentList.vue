@@ -40,7 +40,7 @@
               </template>
               {{ comment.like_count }}
             </NButton>
-            <NButton text size="small" class="comment-action-btn" @click="$emit('reply', comment)">
+            <NButton text size="small" class="comment-action-btn" @click="openReply(comment)">
               <template #icon>
                 <NIcon size="16">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -51,6 +51,18 @@
               回复
             </NButton>
           </div>
+
+          <!-- 内联回复编辑器 -->
+          <CommentReplyEditor
+            v-if="activeReplyId === comment.id"
+            :post-id="Number(postId)"
+            :root-id="0"
+            :reply-to-id="comment.id"
+            :reply-to-name="comment.author_name"
+            :language="language"
+            @submit="handleReplySubmit(comment)"
+            @cancel="activeReplyId = null"
+          />
 
           <!-- 点击查看回复 -->
           <div
@@ -98,7 +110,7 @@
                     </template>
                     {{ reply.like_count }}
                   </NButton>
-                  <NButton text size="small" class="comment-action-btn" @click="$emit('reply', reply)">
+                  <NButton text size="small" class="comment-action-btn" @click="openReply(reply, comment)">
                     <template #icon>
                       <NIcon size="16">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -109,6 +121,18 @@
                     回复
                   </NButton>
                 </div>
+
+                <!-- 内联回复编辑器（回复子评论） -->
+                <CommentReplyEditor
+                  v-if="activeReplyId === reply.id"
+                  :post-id="Number(postId)"
+                  :root-id="comment.id"
+                  :reply-to-id="reply.id"
+                  :reply-to-name="reply.author_name"
+                  :language="language"
+                  @submit="handleReplySubmit(comment)"
+                  @cancel="activeReplyId = null"
+                />
               </div>
             </div>
             <!-- 收起回复 -->
@@ -143,6 +167,7 @@ import { NCard, NAvatar, NButton, NDivider, NIcon, NEmpty, NSpin } from 'naive-u
 import { MdPreview } from 'md-editor-v3'
 import 'md-editor-v3/lib/preview.css'
 import { getCommentList, getCommentReplies } from '@/api/comment'
+import CommentReplyEditor from './CommentReplyEditor.vue'
 
 const props = defineProps({
   postId: {
@@ -159,7 +184,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:sort', 'reply'])
+const emit = defineEmits(['update:sort'])
 
 // 数据状态
 const comments = ref([])
@@ -172,6 +197,27 @@ const initialized = ref(false)
 // 回复展开状态
 const expandedReplies = ref({})
 const loadingReplies = ref({})
+
+// 内联回复编辑器
+const activeReplyId = ref(null)
+
+const openReply = (comment) => {
+  activeReplyId.value = activeReplyId.value === comment.id ? null : comment.id
+}
+
+const handleReplySubmit = async (parentComment) => {
+  activeReplyId.value = null
+  // 如果回复的父评论已展开回复，重新加载
+  if (expandedReplies.value[parentComment.id]) {
+    expandedReplies.value[parentComment.id] = undefined
+    await loadReplies(parentComment)
+  } else if (parentComment.reply_count === 0) {
+    // 首次回复，自动展开
+    await loadReplies(parentComment)
+  }
+  // 刷新列表以更新 reply_count
+  refreshComments()
+}
 
 // 无限滚动
 const loadMoreTrigger = ref(null)

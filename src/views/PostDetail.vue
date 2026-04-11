@@ -22,7 +22,6 @@
             @collect="handleCollect"
           >
             <CommentEditor
-              v-model="commentContent"
               :post-id="Number(route.params.id)"
               :language="language"
               @submit="handleSubmitComment"
@@ -34,10 +33,9 @@
               :post-id="Number(route.params.id)"
               v-model:sort="commentSort"
               :language="language"
-              @reply="handleReplyComment"
             />
           </PostHeaderAndContent>
-        </div><!-- /.post-main-column -->
+        </div>
 
         <!-- 右侧圈子信息卡片 -->
         <div class="right-sidebar">
@@ -125,20 +123,12 @@ const handleCollect = () => {
 }
 
 // ============ 评论区相关 ============
-const commentContent = ref('')
 const commentSort = ref('newest')
 const commentListRef = ref(null)
 
 // 提交评论（API 调用已在 CommentEditor 内部完成，此处只做后续处理）
 const handleSubmitComment = () => {
-  commentContent.value = ''
   commentListRef.value?.refreshComments()
-}
-
-// 回复评论
-const handleReplyComment = (comment) => {
-  commentContent.value = `@${comment.author_name} `
-  window.scrollTo({ top: document.querySelector('.comment-editor-card')?.offsetTop - 80, behavior: 'smooth' })
 }
 
 // 评论图片上传
