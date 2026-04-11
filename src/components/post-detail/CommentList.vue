@@ -156,7 +156,13 @@
         <p>没有更多评论了</p>
       </div>
 
-      <NEmpty v-if="!loading && comments.length === 0 && initialized" description="暂无评论，快来发表第一条评论吧" />
+      <NEmpty v-if="!loading && comments.length === 0 && initialized" description="暂无评论，快来发表第一条评论吧" >
+      <template #icon>
+          <NIcon>
+            <CommentRound/>
+          </NIcon>
+        </template>
+      </NEmpty> 
     </div>
   </NCard>
 </template>
@@ -168,6 +174,7 @@ import { MdPreview } from 'md-editor-v3'
 import 'md-editor-v3/lib/preview.css'
 import { getCommentList, getCommentReplies } from '@/api/comment'
 import CommentReplyEditor from './CommentReplyEditor.vue'
+import {CommentRound} from '@vicons/material'
 
 const props = defineProps({
   postId: {

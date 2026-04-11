@@ -49,7 +49,7 @@
       <NEmpty v-else :description="t('post.postNotFound')" >
         <template #icon>
           <NIcon>
-            <CommentRound/>
+            <ArticleRound/>
           </NIcon>
         </template>
       </NEmpty> 
@@ -70,7 +70,7 @@ import CommentEditor from '@/components/post-detail/CommentEditor.vue'
 import CommentList from '@/components/post-detail/CommentList.vue'
 import { getPostDetail } from '@/api/post'
 import { getCircleDetail } from '@/api/circle'
-import {CommentRound} from '@vicons/material'
+import {ArticleRound} from '@vicons/material'
 
 const route = useRoute()
 const message = useMessage()
