@@ -119,6 +119,10 @@ const handleUploadImg = async (files, callback) => {
   border-radius: 0;
 }
 
+.reply-editor :deep(.md-editor-content) {
+  border-bottom: none !important;
+}
+
 .reply-editor-footer {
   display: flex;
   justify-content: flex-end;
@@ -126,7 +130,6 @@ const handleUploadImg = async (files, callback) => {
   gap: 8px;
   padding: 6px 10px;
   background: rgb(24, 24, 28);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 :deep(.md-editor-dark) {

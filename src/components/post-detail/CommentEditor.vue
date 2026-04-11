@@ -135,12 +135,15 @@ const handleUploadImg = async (files, callback) => {
   border-radius: 0;
 }
 
+.comment-editor-wrapper :deep(.md-editor-content) {
+  border-bottom: none !important;
+}
+
 .comment-editor-footer {
   display: flex;
   justify-content: flex-end;
   padding: 10px 16px;
   background: rgb(24, 24, 28);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 :deep(.md-editor-dark) {
