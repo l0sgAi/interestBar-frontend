@@ -191,7 +191,8 @@ const getStatusTagType = (status) => {
 }
 
 .post-header {
-  margin-bottom: 24px;
+  /* margin-bottom: 24px; */
+  padding: 24px 24px 0 24px;
 }
 
 .post-badges {

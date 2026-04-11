@@ -214,8 +214,8 @@ const getDefaultImage = () => {
 .post-header {
   display: flex;
   /* justify-content: space-between; */
+  padding: 16px;
   align-items: center;
-  margin-bottom: 16px;
   gap: 12px;
 }
 
