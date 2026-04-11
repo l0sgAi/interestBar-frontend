@@ -258,6 +258,7 @@ const getStatusTagType = (status) => {
 .post-content {
   margin: 14px 0;
   padding: 24px;
+  padding-top: 0;
   border-radius: 15px;
 }
 

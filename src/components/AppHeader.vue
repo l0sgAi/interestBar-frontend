@@ -77,12 +77,7 @@
             :size="40"
             :src="userAvatarUrl"
             class="user-avatar"/>
-          <span class="username">{{ username }}</span>
-          <span class="dropdown-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          </span>
+            <div v-if="userAvatarUrl===undefined">{{ username.charAt(0) }}</div>
         </div>
       </NDropdown>
     </div>

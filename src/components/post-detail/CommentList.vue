@@ -13,7 +13,7 @@
       <div v-for="comment in comments" :key="comment.id" class="comment-item">
         <div class="comment-avatar">
           <NAvatar round :size="36" :src="comment.author_avatar || undefined">
-            {{ comment.author_name?.charAt(0) }}
+          <div v-if="comment.author_avatar===undefined">{{ comment.author_name.charAt(0) }}</div>
           </NAvatar>
         </div>
         <div class="comment-body">
