@@ -1,7 +1,7 @@
 <template>
   <NCard :bordered="false" class="comment-list-card">
     <div class="comment-list-header">
-      <span class="comment-section-title">评论 ({{ comments.length }})</span>
+      <span class="comment-section-title">评论 ({{ totalCount }})</span>
       <div class="comment-sort">
         <NButton text size="small" :type="sort === 'newest' ? 'primary' : 'default'" @click="$emit('update:sort', 'newest')">最新</NButton>
         <NDivider vertical />
@@ -12,12 +12,14 @@
     <div class="comment-list">
       <div v-for="comment in comments" :key="comment.id" class="comment-item">
         <div class="comment-avatar">
-          <NAvatar round :size="36" :src="comment.avatar || '/default-avatar.png'" />
+          <NAvatar round :size="36" :src="comment.author_avatar || undefined">
+            {{ comment.author_name?.charAt(0) }}
+          </NAvatar>
         </div>
         <div class="comment-body">
           <div class="comment-author-row">
-            <span class="comment-author">{{ comment.author }}</span>
-            <span class="comment-time">{{ comment.time }}</span>
+            <span class="comment-author">{{ comment.author_name }}</span>
+            <span class="comment-time">{{ formatRelativeTime(comment.create_time) }}</span>
           </div>
           <div class="comment-content">
             <MdPreview
@@ -36,7 +38,7 @@
                   </svg>
                 </NIcon>
               </template>
-              {{ comment.likes }}
+              {{ comment.like_count }}
             </NButton>
             <NButton text size="small" class="comment-action-btn" @click="$emit('reply', comment)">
               <template #icon>
@@ -50,20 +52,32 @@
             </NButton>
           </div>
 
+          <!-- 点击查看回复 -->
+          <div
+            v-if="comment.reply_count > 0 && !expandedReplies[comment.id]"
+            class="load-replies-btn"
+            @click="loadReplies(comment)"
+          >
+            <NSpin v-if="loadingReplies[comment.id]" :size="14" />
+            <span v-else>点击查看 {{ comment.reply_count }} 条回复</span>
+          </div>
+
           <!-- 子评论 -->
-          <div v-if="comment.replies && comment.replies.length" class="comment-replies">
-            <div v-for="reply in comment.replies" :key="reply.id" class="comment-item reply-item">
+          <div v-if="expandedReplies[comment.id]" class="comment-replies">
+            <div v-for="reply in expandedReplies[comment.id]" :key="reply.id" class="comment-item reply-item">
               <div class="comment-avatar">
-                <NAvatar round :size="28" :src="reply.avatar || '/default-avatar.png'" />
+                <NAvatar round :size="28" :src="reply.author_avatar || undefined">
+                  {{ reply.author_name?.charAt(0) }}
+                </NAvatar>
               </div>
               <div class="comment-body">
                 <div class="comment-author-row">
-                  <span class="comment-author">{{ reply.author }}</span>
-                  <template v-if="reply.reply_to">
+                  <span class="comment-author">{{ reply.author_name }}</span>
+                  <template v-if="reply.reply_to_name">
                     <span class="reply-arrow">回复</span>
-                    <span class="comment-author reply-to-name">@{{ reply.reply_to }}</span>
+                    <span class="comment-author reply-to-name">@{{ reply.reply_to_name }}</span>
                   </template>
-                  <span class="comment-time">{{ reply.time }}</span>
+                  <span class="comment-time">{{ formatRelativeTime(reply.create_time) }}</span>
                 </div>
                 <div class="comment-content">
                   <MdPreview
@@ -82,9 +96,9 @@
                         </svg>
                       </NIcon>
                     </template>
-                    {{ reply.likes }}
+                    {{ reply.like_count }}
                   </NButton>
-                  <NButton text size="small" class="comment-action-btn">
+                  <NButton text size="small" class="comment-action-btn" @click="$emit('reply', reply)">
                     <template #icon>
                       <NIcon size="16">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -97,23 +111,42 @@
                 </div>
               </div>
             </div>
+            <!-- 收起回复 -->
+            <div class="collapse-replies-btn" @click="collapseReplies(comment.id)">
+              收起回复
+            </div>
           </div>
         </div>
       </div>
 
-      <NEmpty v-if="!comments.length" description="暂无评论，快来发表第一条评论吧" />
+      <!-- 无限滚动触发器 -->
+      <div v-if="hasMore && !loading" class="load-more-trigger" ref="loadMoreTrigger"></div>
+
+      <!-- 加载状态 -->
+      <div v-if="loading" class="loading-state">
+        <NSpin size="medium" />
+      </div>
+
+      <!-- 没有更多 -->
+      <div v-if="!hasMore && comments.length > 0" class="no-more">
+        <p>没有更多评论了</p>
+      </div>
+
+      <NEmpty v-if="!loading && comments.length === 0 && initialized" description="暂无评论，快来发表第一条评论吧" />
     </div>
   </NCard>
 </template>
 
 <script setup>
-import { NCard, NAvatar, NButton, NDivider, NIcon, NEmpty } from 'naive-ui'
+import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { NCard, NAvatar, NButton, NDivider, NIcon, NEmpty, NSpin } from 'naive-ui'
 import { MdPreview } from 'md-editor-v3'
 import 'md-editor-v3/lib/preview.css'
+import { getCommentList, getCommentReplies } from '@/api/comment'
 
-defineProps({
-  comments: {
-    type: Array,
+const props = defineProps({
+  postId: {
+    type: [Number, String],
     required: true
   },
   sort: {
@@ -126,7 +159,158 @@ defineProps({
   }
 })
 
-defineEmits(['update:sort', 'reply'])
+const emit = defineEmits(['update:sort', 'reply'])
+
+// 数据状态
+const comments = ref([])
+const totalCount = ref(0)
+const loading = ref(false)
+const hasMore = ref(false)
+const nextCursor = ref('')
+const initialized = ref(false)
+
+// 回复展开状态
+const expandedReplies = ref({})
+const loadingReplies = ref({})
+
+// 无限滚动
+const loadMoreTrigger = ref(null)
+let observer = null
+
+// 排序映射：newest → 1（时间倒序），hottest → 0（点赞倒序）
+const getSortValue = () => props.sort === 'newest' ? 1 : 0
+
+// 格式化相对时间
+const formatRelativeTime = (timeStr) => {
+  if (!timeStr) return ''
+  const now = new Date()
+  const date = new Date(timeStr.replace(/-/g, '/'))
+  const diff = (now - date) / 1000
+
+  if (diff < 60) return '刚刚'
+  if (diff < 3600) return `${Math.floor(diff / 60)} 分钟前`
+  if (diff < 86400) return `${Math.floor(diff / 3600)} 小时前`
+  if (diff < 2592000) return `${Math.floor(diff / 86400)} 天前`
+  return timeStr.slice(0, 10)
+}
+
+// 加载评论列表
+const loadComments = async (isRefresh = false) => {
+  if (loading.value) return
+  if (!isRefresh && !hasMore.value && initialized.value) return
+
+  loading.value = true
+  try {
+    const params = {
+      post_id: Number(props.postId),
+      sort: getSortValue()
+    }
+    if (!isRefresh && nextCursor.value) {
+      params.cursor = nextCursor.value
+    }
+
+    const res = await getCommentList(params)
+    if (res.data) {
+      if (isRefresh) {
+        comments.value = res.data.items || []
+      } else {
+        comments.value.push(...(res.data.items || []))
+      }
+      hasMore.value = res.data.has_more
+      nextCursor.value = res.data.next_cursor || ''
+      totalCount.value = comments.value.length
+    }
+  } catch (error) {
+    console.error('加载评论失败:', error)
+  } finally {
+    loading.value = false
+    initialized.value = true
+  }
+}
+
+// 加载子回复
+const loadReplies = async (comment) => {
+  if (loadingReplies.value[comment.id]) return
+  loadingReplies.value[comment.id] = true
+
+  try {
+    const res = await getCommentReplies({ root_id: comment.id })
+    if (res.data) {
+      expandedReplies.value[comment.id] = res.data.items || []
+    }
+  } catch (error) {
+    console.error('加载回复失败:', error)
+  } finally {
+    loadingReplies.value[comment.id] = false
+  }
+}
+
+// 收起回复
+const collapseReplies = (commentId) => {
+  delete expandedReplies.value[commentId]
+  // 触发响应式更新
+  expandedReplies.value = { ...expandedReplies.value }
+}
+
+// 刷新评论（供父组件调用）
+const refreshComments = () => {
+  comments.value = []
+  hasMore.value = false
+  nextCursor.value = ''
+  expandedReplies.value = {}
+  loadComments(true)
+}
+
+// 监听排序变化
+watch(() => props.sort, () => {
+  refreshComments()
+})
+
+// 无限滚动 Observer
+const setupObserver = () => {
+  if (!loadMoreTrigger.value) return
+
+  observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && hasMore.value && !loading.value) {
+          loadComments()
+        }
+      })
+    },
+    {
+      rootMargin: '100px',
+      threshold: 0.1
+    }
+  )
+
+  observer.observe(loadMoreTrigger.value)
+}
+
+const cleanupObserver = () => {
+  if (observer) {
+    observer.disconnect()
+    observer = null
+  }
+}
+
+// 监听数据变化，重新设置 observer
+watch(() => comments.value.length, async () => {
+  if (loadMoreTrigger.value && !observer && hasMore.value) {
+    await nextTick()
+    setupObserver()
+  }
+})
+
+onMounted(() => {
+  loadComments(true)
+})
+
+onUnmounted(() => {
+  cleanupObserver()
+})
+
+defineExpose({ refreshComments })
 </script>
 
 <style scoped>
@@ -227,6 +411,24 @@ defineEmits(['update:sort', 'reply'])
   color: rgba(255, 255, 255, 0.7) !important;
 }
 
+/* 查看回复按钮 */
+.load-replies-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 4px 0;
+  font-size: 13px;
+  color: #63e2b7;
+  cursor: pointer;
+  user-select: none;
+}
+
+.load-replies-btn:hover {
+  color: #7fe7c4;
+}
+
+/* 子评论区 */
 .comment-replies {
   margin-top: 12px;
   padding: 12px 16px;
@@ -236,6 +438,11 @@ defineEmits(['update:sort', 'reply'])
 
 .comment-replies .comment-item {
   padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.comment-replies .comment-item:last-child {
+  border-bottom: none;
 }
 
 .reply-item .comment-author {
@@ -249,6 +456,51 @@ defineEmits(['update:sort', 'reply'])
 
 .reply-to-name {
   color: #63e2b7;
+}
+
+/* 收起回复 */
+.collapse-replies-btn {
+  margin-top: 8px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  user-select: none;
+}
+
+.collapse-replies-btn:hover {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* 无限滚动触发器 */
+.load-more-trigger {
+  height: 1px;
+  margin-top: 20px;
+}
+
+/* 加载状态 */
+.loading-state {
+  display: flex;
+  justify-content: center;
+  padding: 32px 0;
+}
+
+/* 没有更多 */
+.no-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 0;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 13px;
+}
+
+.no-more::before,
+.no-more::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 20px;
 }
 
 :deep(.md-editor-dark) {

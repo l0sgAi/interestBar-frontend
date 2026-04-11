@@ -14,3 +14,35 @@ export function createComment(data) {
     data
   })
 }
+
+/**
+ * 获取顶层评论列表
+ * @param {Object} params
+ * @param {number} params.post_id - 帖子ID
+ * @param {number} [params.sort] - 0=按点赞倒序（默认），1=按时间倒序
+ * @param {string} [params.cursor] - 游标，首页不传
+ * @returns {Promise}
+ */
+export function getCommentList(params) {
+  return request({
+    url: '/comment/list',
+    method: 'get',
+    params
+  })
+}
+
+/**
+ * 加载子回复列表
+ * @param {Object} params
+ * @param {number} params.root_id - 根评论ID
+ * @param {number} [params.sort] - 0=按时间倒序（默认），1=按点赞倒序
+ * @param {string} [params.cursor] - 游标，首页不传
+ * @returns {Promise}
+ */
+export function getCommentReplies(params) {
+  return request({
+    url: '/comment/replies',
+    method: 'get',
+    params
+  })
+}

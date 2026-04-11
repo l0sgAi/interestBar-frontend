@@ -30,7 +30,8 @@
             />
 
             <CommentList
-              :comments="mockComments"
+              ref="commentListRef"
+              :post-id="Number(route.params.id)"
               v-model:sort="commentSort"
               :language="language"
               @reply="handleReplyComment"
@@ -126,75 +127,17 @@ const handleCollect = () => {
 // ============ 评论区相关 ============
 const commentContent = ref('')
 const commentSort = ref('newest')
-
-// Mock 评论数据（后期对接API后移除）
-const mockComments = ref([
-  {
-    id: 1,
-    author: '张三',
-    avatar: '',
-    content: '写得非常好，学习了！🔥',
-    time: '2 小时前',
-    likes: 12,
-    replies: [
-      {
-        id: 101,
-        author: '李四',
-        avatar: '',
-        reply_to: '张三',
-        content: '同感，收藏了',
-        time: '1 小时前',
-        likes: 3
-      }
-    ]
-  },
-  {
-    id: 2,
-    author: '王五',
-    avatar: '',
-    content: '感谢分享！\n\n```js\nconsole.log("hello")\n```\n\n代码示例很清晰。',
-    time: '5 小时前',
-    likes: 8,
-    replies: []
-  },
-  {
-    id: 3,
-    author: '赵六',
-    avatar: '',
-    content: '这个功能什么时候能上线呀？期待 🎉',
-    time: '1 天前',
-    likes: 5,
-    replies: [
-      {
-        id: 301,
-        author: '张三',
-        avatar: '',
-        reply_to: '赵六',
-        content: '快了快了',
-        time: '22 小时前',
-        likes: 1
-      },
-      {
-        id: 302,
-        author: '赵六',
-        avatar: '',
-        reply_to: '张三',
-        content: '好的，辛苦了 👍',
-        time: '20 小时前',
-        likes: 2
-      }
-    ]
-  }
-])
+const commentListRef = ref(null)
 
 // 提交评论（API 调用已在 CommentEditor 内部完成，此处只做后续处理）
 const handleSubmitComment = () => {
   commentContent.value = ''
+  commentListRef.value?.refreshComments()
 }
 
 // 回复评论
 const handleReplyComment = (comment) => {
-  commentContent.value = `@${comment.author} `
+  commentContent.value = `@${comment.author_name} `
   window.scrollTo({ top: document.querySelector('.comment-editor-card')?.offsetTop - 80, behavior: 'smooth' })
 }
 
