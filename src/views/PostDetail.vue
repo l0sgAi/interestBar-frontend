@@ -23,6 +23,7 @@
           >
             <CommentEditor
               v-model="commentContent"
+              :post-id="Number(route.params.id)"
               :language="language"
               @submit="handleSubmitComment"
               @upload-img="handleCommentUploadImg"
@@ -186,10 +187,8 @@ const mockComments = ref([
   }
 ])
 
-// 提交评论
+// 提交评论（API 调用已在 CommentEditor 内部完成，此处只做后续处理）
 const handleSubmitComment = () => {
-  // TODO: 对接评论API
-  message.success('评论发表成功（模拟）')
   commentContent.value = ''
 }
 
@@ -220,7 +219,7 @@ onMounted(() => {
 }
 
 .main-content {
-  margin-top: 64px;
+  margin-top: 10dvh;
   width: auto;
   min-height: calc(100vh - 64px);
   transition: margin-left 0.3s ease, margin-right 0.3s ease;

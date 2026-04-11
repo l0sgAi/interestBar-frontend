@@ -22,6 +22,7 @@
           size="medium"
           round
           :disabled="!content.trim()"
+          :loading="submitting"
           @click="handleSubmit"
         >
           发表评论
@@ -33,11 +34,16 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import { NCard, NButton } from 'naive-ui'
+import { NCard, NButton, useMessage } from 'naive-ui'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
+import { createComment } from '@/api/comment'
 
 const props = defineProps({
+  postId: {
+    type: Number,
+    required: true
+  },
   language: {
     type: String,
     default: 'zh-CN'
@@ -50,7 +56,9 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'submit', 'uploadImg'])
 
+const message = useMessage()
 const content = ref(props.modelValue)
+const submitting = ref(false)
 
 watch(() => props.modelValue, (val) => {
   content.value = val
@@ -77,9 +85,19 @@ const toolbars = [
   'previewOnly'
 ]
 
-const handleSubmit = () => {
-  if (!content.value.trim()) return
-  emit('submit', content.value)
+const handleSubmit = async () => {
+  if (!content.value.trim() || submitting.value) return
+  submitting.value = true
+  try {
+    await createComment({ post_id: props.postId, content: content.value })
+    message.success('评论成功')
+    emit('submit', content.value)
+    content.value = ''
+  } catch (err) {
+    message.error(err.message || '评论失败')
+  } finally {
+    submitting.value = false
+  }
 }
 
 const handleUploadImg = async (files, callback) => {
