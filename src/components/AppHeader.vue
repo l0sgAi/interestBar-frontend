@@ -76,6 +76,7 @@
             round
             :size="40"
             :src="userAvatarUrl"
+            :fallback-src=getAvatarUrl(username.charAt(0))
             class="user-avatar"/>
             <div v-if="userAvatarUrl===undefined">{{ username.charAt(0) }}</div>
         </div>
@@ -126,6 +127,11 @@ const fetchUserInfo = async () => {
       username.value = userData.username || 'User'
       userAvatarUrl.value = userData.avatar_url || ''
     }
+}
+
+// 组装url
+const getAvatarUrl = (name) => {
+  return 'https://ui-avatars.com/api/?name='+name
 }
 
 // 组件挂载时获取用户信息和同步搜索关键词

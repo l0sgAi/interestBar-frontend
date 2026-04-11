@@ -79,7 +79,7 @@
             <div v-for="reply in expandedReplies[comment.id]" :key="reply.id" class="comment-item reply-item">
               <div class="comment-avatar">
                 <NAvatar round :size="28" :src="reply.author_avatar || undefined">
-                  {{ reply.author_name?.charAt(0) }}
+                  <div v-if="reply.author_avatar===undefined">{{ reply.author_name.charAt(0) }}</div>
                 </NAvatar>
               </div>
               <div class="comment-body">

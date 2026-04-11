@@ -46,7 +46,13 @@
         </div>
       </div>
 
-      <NEmpty v-else :description="t('post.postNotFound')" />
+      <NEmpty v-else :description="t('post.postNotFound')" >
+        <template #icon>
+          <NIcon>
+            <CommentRound/>
+          </NIcon>
+        </template>
+      </NEmpty> 
     </div>
   </div>
 </template>
@@ -54,7 +60,7 @@
 <script setup>
 import { ref, onMounted, inject } from 'vue'
 import { useRoute } from 'vue-router'
-import { NSpin, NEmpty, useMessage } from 'naive-ui'
+import { NSpin, NEmpty, useMessage, NIcon } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 import AppHeader from '@/components/AppHeader.vue'
 import SideNav from '@/components/SideNav.vue'
@@ -64,6 +70,7 @@ import CommentEditor from '@/components/post-detail/CommentEditor.vue'
 import CommentList from '@/components/post-detail/CommentList.vue'
 import { getPostDetail } from '@/api/post'
 import { getCircleDetail } from '@/api/circle'
+import {CommentRound} from '@vicons/material'
 
 const route = useRoute()
 const message = useMessage()
