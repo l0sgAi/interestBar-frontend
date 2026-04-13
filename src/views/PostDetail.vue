@@ -130,7 +130,7 @@ const handleCollect = () => {
 }
 
 // ============ 评论区相关 ============
-const commentSort = ref('newest')
+const commentSort = ref('hottest')
 const commentListRef = ref(null)
 
 // 提交评论（API 调用已在 CommentEditor 内部完成，此处只做后续处理）

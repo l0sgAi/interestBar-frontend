@@ -3,9 +3,9 @@
     <div class="comment-list-header">
       <span class="comment-section-title">{{ t('comment.list.title', { count: totalCount }) }}</span>
       <div class="comment-sort">
-        <NButton text size="small" :type="sort === 'newest' ? 'primary' : 'default'" @click="$emit('update:sort', 'newest')">{{ t('comment.sort.newest') }}</NButton>
-        <NDivider vertical />
         <NButton text size="small" :type="sort === 'hottest' ? 'primary' : 'default'" @click="$emit('update:sort', 'hottest')">{{ t('comment.sort.hottest') }}</NButton>
+        <NDivider vertical />
+        <NButton text size="small" :type="sort === 'newest' ? 'primary' : 'default'" @click="$emit('update:sort', 'newest')">{{ t('comment.sort.newest') }}</NButton>
       </div>
     </div>
 
@@ -18,7 +18,7 @@
         </div>
         <div class="comment-body">
           <div class="comment-author-row">
-            <span class="comment-author clickable" @click="goToUserDetail(comment.author_id)">{{ comment.author_name }}</span>
+            <span class="comment-author" :class="{ clickable: getUserId(comment) }" @click="getUserId(comment) && goToUserDetail(getUserId(comment))">{{ comment.author_name }}</span>
             <span class="comment-time">{{ formatTime(comment.create_time) }}</span>
           </div>
           <div class="comment-content">
@@ -84,10 +84,10 @@
               </div>
               <div class="comment-body">
                 <div class="comment-author-row">
-                  <span class="comment-author clickable" @click="goToUserDetail(reply.author_id)">{{ reply.author_name }}</span>
+                  <span class="comment-author" :class="{ clickable: getUserId(reply) }" @click="getUserId(reply) && goToUserDetail(getUserId(reply))">{{ reply.author_name }}</span>
                   <template v-if="getReplyToName(reply, expandedReplies[comment.id])">
                     <span class="reply-arrow">{{ t('comment.actions.reply') }}</span>
-                    <span class="comment-author reply-to-name clickable" @click="goToUserDetail(getReplyToUserId(reply, expandedReplies[comment.id]))">@{{ getReplyToName(reply, expandedReplies[comment.id]) }}</span>
+                    <span class="comment-author reply-to-name" :class="{ clickable: getReplyToUserId(reply, expandedReplies[comment.id]) }" @click="getReplyToUserId(reply, expandedReplies[comment.id]) && goToUserDetail(getReplyToUserId(reply, expandedReplies[comment.id]))">@{{ getReplyToName(reply, expandedReplies[comment.id]) }}</span>
                   </template>
                   <span class="comment-time">{{ formatTime(reply.create_time) }}</span>
                 </div>
@@ -186,7 +186,7 @@ const props = defineProps({
   },
   sort: {
     type: String,
-    default: 'newest'
+    default: 'hottest'
   },
   language: {
     type: String,
@@ -201,6 +201,11 @@ const { formatTime } = useFormatTime()
 	const router = useRouter()
 
 // 跳转到用户详情页
+// 获取用户ID（兼容多种字段名）
+const getUserId = (item) => {
+  return item.author_id || item.user_id || item.userId || item.authorId || item.id
+}
+
 const goToUserDetail = (userId) => {
   if (userId) {
     router.push(`/user/${userId}`)
