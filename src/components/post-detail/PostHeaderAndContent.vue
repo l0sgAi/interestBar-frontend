@@ -30,7 +30,9 @@
             :src="post.author_avatar || '/default-avatar.png'"
           />
           <div class="author-text">
-            <div class="author-name">{{ post.author_name || t('user.anonymous') }}</div>
+            <div class="author-name" :class="{ clickable: post.author_id }" @click="goToUserDetail(post.author_id)">
+              {{ post.author_name || t('user.anonymous') }}
+            </div>
             <div class="post-time">
               {{ formatTime(post.create_time) }}
             </div>
@@ -141,6 +143,7 @@
 <script setup>
 import { NCard, NTag, NAvatar, NButton, NIcon } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import { MdPreview } from 'md-editor-v3'
 import 'md-editor-v3/lib/preview.css'
 import { useFormatTime } from '@/utils/i18n'
@@ -160,6 +163,14 @@ defineEmits(['like', 'collect'])
 
 const { t } = useI18n()
 const { formatTime } = useFormatTime()
+const router = useRouter()
+
+// 跳转到用户详情页
+const goToUserDetail = (userId) => {
+  if (userId) {
+    router.push(`/user/${userId}`)
+  }
+}
 
 const getStatusText = (status) => {
   const statusMap = {
@@ -232,6 +243,15 @@ const getStatusTagType = (status) => {
   font-size: 18px;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.9);
+  transition: color 0.2s;
+}
+
+.author-name.clickable {
+  cursor: pointer;
+}
+
+.author-name.clickable:hover {
+  color: #63e2b7;
 }
 
 .post-time {

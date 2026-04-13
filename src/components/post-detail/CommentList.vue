@@ -18,7 +18,7 @@
         </div>
         <div class="comment-body">
           <div class="comment-author-row">
-            <span class="comment-author">{{ comment.author_name }}</span>
+            <span class="comment-author clickable" @click="goToUserDetail(comment.author_id)">{{ comment.author_name }}</span>
             <span class="comment-time">{{ formatTime(comment.create_time) }}</span>
           </div>
           <div class="comment-content">
@@ -84,10 +84,10 @@
               </div>
               <div class="comment-body">
                 <div class="comment-author-row">
-                  <span class="comment-author">{{ reply.author_name }}</span>
+                  <span class="comment-author clickable" @click="goToUserDetail(reply.author_id)">{{ reply.author_name }}</span>
                   <template v-if="getReplyToName(reply, expandedReplies[comment.id])">
                     <span class="reply-arrow">{{ t('comment.actions.reply') }}</span>
-                    <span class="comment-author reply-to-name">@{{ getReplyToName(reply, expandedReplies[comment.id]) }}</span>
+                    <span class="comment-author reply-to-name clickable" @click="goToUserDetail(getReplyToUserId(reply, expandedReplies[comment.id]))">@{{ getReplyToName(reply, expandedReplies[comment.id]) }}</span>
                   </template>
                   <span class="comment-time">{{ formatTime(reply.create_time) }}</span>
                 </div>
@@ -169,6 +169,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
+	import { useRouter } from 'vue-router'
 import { NCard, NAvatar, NButton, NDivider, NIcon, NEmpty, NSpin } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 import { MdPreview } from 'md-editor-v3'
@@ -197,6 +198,14 @@ const emit = defineEmits(['update:sort'])
 
 const { t } = useI18n()
 const { formatTime } = useFormatTime()
+	const router = useRouter()
+
+// 跳转到用户详情页
+const goToUserDetail = (userId) => {
+  if (userId) {
+    router.push(`/user/${userId}`)
+  }
+}
 
 // 数据状态
 const comments = ref([])
@@ -223,6 +232,19 @@ const getReplyToName = (reply, replies) => {
   if (reply.reply_to_id && replies) {
     const targetReply = replies.find(r => r.id === reply.reply_to_id)
     return targetReply?.author_name
+  }
+  return null
+}
+// 获取被回复用户的ID
+const getReplyToUserId = (reply, replies) => {
+  // 优先使用后端返回的 reply_to_user_id
+  if (reply.reply_to_user_id) {
+    return reply.reply_to_user_id
+  }
+  // 如果有 reply_to_id 且非0，从回复列表中查找对应的用户ID
+  if (reply.reply_to_id && replies) {
+    const targetReply = replies.find(r => r.id === reply.reply_to_id)
+    return targetReply?.author_id
   }
   return null
 }
@@ -429,6 +451,14 @@ defineExpose({ refreshComments })
   color: rgba(255, 255, 255, 0.85);
 }
 
+.comment-author.clickable {
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.comment-author.clickable:hover {
+  color: #63e2b7;
+}
 .comment-time {
   font-size: 13px;
   color: rgba(255, 255, 255, 0.4);
@@ -504,7 +534,31 @@ defineExpose({ refreshComments })
 }
 
 .reply-item .comment-author {
+n.comment-author.clickable {
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.comment-author.clickable:hover {
+  color: #63e2b7;
+}
   font-size: 14px;
+n.comment-author.clickable {
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.comment-author.clickable:hover {
+  color: #63e2b7;
+}
+}
+n.comment-author.clickable {
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.comment-author.clickable:hover {
+  color: #63e2b7;
 }
 
 .reply-arrow {
