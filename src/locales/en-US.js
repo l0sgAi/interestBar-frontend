@@ -293,7 +293,7 @@ export default {
       reply: 'Reply'
     },
     reply: {
-      placeholder: 'Reply to @{name}...',
+      placeholder: '{name}',
       success: 'Reply posted',
       failed: 'Reply failed'
     }

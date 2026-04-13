@@ -15,12 +15,12 @@
       <div v-else-if="post" class="post-detail-container">
         <!-- 左侧内容列 -->
         <div class="post-main-column">
-          <PostHeaderAndContent
-            :post="post"
-            :language="language"
-            @like="handleLike"
-            @collect="handleCollect"
-          >
+            <PostHeaderAndContent
+              :post="post"
+              :language="language"
+              @like="handleLike"
+              @collect="handleCollect"
+            >
             <CommentEditor
               :post-id="Number(route.params.id)"
               :language="language"

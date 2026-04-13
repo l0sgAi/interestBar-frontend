@@ -6,7 +6,7 @@
       :preview="false"
       :toolbars="toolbars"
       theme="dark"
-      :placeholder="t('comment.reply.placeholder', { name: replyToName })"
+      :placeholder="replyToName ? `@${t('comment.reply.placeholder', { name: replyToName })}` : t('comment.editor.placeholder')"
       :max-length="2000"
       :footers="[]"
       :style="{ height: '17dvh' }"

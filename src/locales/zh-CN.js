@@ -293,7 +293,7 @@ export default {
       reply: '回复'
     },
     reply: {
-      placeholder: '回复 @{name}...',
+      placeholder: '{name}',
       success: '回复成功',
       failed: '回复失败'
     }
