@@ -80,14 +80,16 @@ const handleSubmit = async () => {
   if (!content.value.trim() || submitting.value) return
   submitting.value = true
   try {
-    await createComment({
+    const res = await createComment({
       post_id: props.postId,
       root_id: props.rootId || props.replyToId,
       reply_to_id: props.replyToId,
       content: content.value
     })
     message.success(t('comment.reply.success'))
-    emit('submit')
+    content.value = ''
+    // 返回新创建的评论数据
+    emit('submit', res.data)
   } catch (err) {
     message.error(err.message || t('comment.reply.failed'))
   } finally {

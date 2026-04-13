@@ -76,6 +76,26 @@
 
           <!-- 子评论 -->
           <div v-if="isRepliesExpanded(comment.id)" class="comment-replies">
+            <!-- 回复列表头部：排序切换 -->
+            <div class="comment-replies-header">
+              <div class="replies-sort-toggle">
+                <span
+                  class="sort-option"
+                  :class="{ active: repliesSort === 1 }"
+                  @click="repliesSort !== 1 && toggleRepliesSort(comment.id)"
+                >
+                  {{ t('comment.sort.newest') }}
+                </span>
+                <span class="sort-divider">/</span>
+                <span
+                  class="sort-option"
+                  :class="{ active: repliesSort === 0 }"
+                  @click="repliesSort !== 0 && toggleRepliesSort(comment.id)"
+                >
+                  {{ t('comment.sort.hottest') }}
+                </span>
+              </div>
+            </div>
             <div v-for="reply in getCurrentReplies(comment.id)" :key="reply.id" class="comment-item reply-item">
               <div class="comment-avatar">
                 <NAvatar round :size="28" :src="reply.author_avatar || undefined">
@@ -261,6 +281,9 @@ const initialized = ref(false)
 const repliesData = ref({})
 const loadingReplies = ref({})
 
+// 回复排序状态：0=最新（默认），1=最热（最多点赞）
+const repliesSort = ref(0)
+
 // 获取某个评论的回复数据
 const getRepliesData = (commentId) => {
   if (!repliesData.value[commentId]) {
@@ -366,19 +389,44 @@ const openReply = (comment) => {
   activeReplyId.value = activeReplyId.value === comment.id ? null : comment.id
 }
 
-const handleReplySubmit = async (parentComment) => {
+const handleReplySubmit = async (parentComment, newReply) => {
   activeReplyId.value = null
-  // 重置该评论的回复数据，从头加载
-  resetRepliesData(parentComment.id)
-  // 如果回复的父评论已展开回复，重新加载第一页
-  if (isRepliesExpanded(parentComment.id)) {
-    await loadReplies(parentComment)
-  } else if (parentComment.reply_count === 0) {
-    // 首次回复，自动展开并加载
-    await loadReplies(parentComment)
+
+  // 如果有新回复的数据，直接添加到前端列表
+  if (newReply) {
+    const data = getRepliesData(parentComment.id)
+
+    // 确保第一页已加载
+    if (!data.pages[0]) {
+      data.pages[0] = []
+    }
+
+    // 将新回复添加到第一页的开头
+    data.pages[0].unshift(newReply)
+
+    // 更新父评论的回复计数
+    parentComment.reply_count = (parentComment.reply_count || 0) + 1
+
+    // 如果当前不在第一页，切换回第一页
+    if (data.currentPage !== 0) {
+      data.currentPage = 0
+    }
+
+    // 如果回复区域未展开，展开它
+    if (!isRepliesExpanded(parentComment.id)) {
+      expandReplies(parentComment.id)
+    }
+  } else {
+    // 降级处理：如果没有返回数据，则重新加载
+    resetRepliesData(parentComment.id)
+    if (isRepliesExpanded(parentComment.id)) {
+      await loadReplies(parentComment)
+    } else if (parentComment.reply_count === 0) {
+      await loadReplies(parentComment)
+    }
+    // 刷新列表以更新 reply_count
+    refreshComments()
   }
-  // 刷新列表以更新 reply_count
-  refreshComments()
 }
 
 // 无限滚动
@@ -387,6 +435,25 @@ let observer = null
 
 // 排序映射：newest → 1（时间倒序），hottest → 0（点赞倒序）
 const getSortValue = () => props.sort === 'newest' ? 1 : 0
+
+// 回复排序值：0=最新（默认），1=最热
+const getRepliesSortValue = () => repliesSort.value
+
+// 切换回复排序
+const toggleRepliesSort = async (commentId) => {
+  if (repliesSort.value === 0 || repliesSort.value === 1) {
+    repliesSort.value = repliesSort.value === 0 ? 1 : 0
+  }
+  // 重置该评论的回复数据，回到第一页
+  if (repliesData.value[commentId]) {
+    delete repliesData.value[commentId]
+  }
+  // 重新加载第一页
+  const comment = comments.value.find(c => c.id === commentId)
+  if (comment) {
+    await loadReplies(comment)
+  }
+}
 
 // 加载评论列表
 const loadComments = async (isRefresh = false) => {
@@ -435,7 +502,7 @@ const loadReplies = async (comment) => {
   try {
     const params = {
       root_id: comment.id,
-      sort: getSortValue()
+      sort: getRepliesSortValue()
     }
 
     // 非首页需要传游标
@@ -493,7 +560,7 @@ const nextPage = async (commentId) => {
     try {
       const params = {
         root_id: comment.id,
-        sort: getSortValue(),
+        sort: getRepliesSortValue(),
         cursor: data.cursors[data.currentPage]
       }
 
@@ -710,6 +777,14 @@ defineExpose({ refreshComments })
   border-radius: 12px;
 }
 
+/* 回复列表头部 */
+.comment-replies-header {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 4px;
+  padding-bottom: 4px;
+}
+
 .comment-replies .comment-item {
   padding: 10px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
@@ -738,6 +813,32 @@ defineExpose({ refreshComments })
   justify-content: space-between;
   align-items: center;
   margin-top: 8px;
+}
+
+/* 回复排序切换器 */
+.replies-sort-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.sort-option {
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.sort-option:hover {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.sort-option.active {
+  color: #63e2b7;
+}
+
+.sort-divider {
+  color: rgba(255, 255, 255, 0.2);
 }
 
 /* 收起回复 */
