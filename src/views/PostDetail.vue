@@ -33,6 +33,7 @@
               :post-id="Number(route.params.id)"
               v-model:sort="commentSort"
               :language="language"
+              :comment-count="post?.comment_count || 0"
             />
           </PostHeaderAndContent>
         </div>

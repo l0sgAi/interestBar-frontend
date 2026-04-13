@@ -1,7 +1,7 @@
 <template>
-  <NCard :bordered="false" class="comment-list-card">
+  <NCard ref="commentListCardRef" :bordered="false" class="comment-list-card">
     <div class="comment-list-header">
-      <span class="comment-section-title">{{ t('comment.list.title', { count: totalCount }) }}</span>
+      <span class="comment-section-title">{{ t('comment.list.title', { count: props.commentCount }) }}</span>
       <div class="comment-sort">
         <NButton text size="small" :type="sort === 'hottest' ? 'primary' : 'default'" @click="$emit('update:sort', 'hottest')">{{ t('comment.sort.hottest') }}</NButton>
         <NDivider vertical />
@@ -247,6 +247,10 @@ const props = defineProps({
   language: {
     type: String,
     default: 'zh-CN'
+  },
+  commentCount: {
+    type: Number,
+    default: 0
   }
 })
 
@@ -270,7 +274,6 @@ const goToUserDetail = (userId) => {
 
 // 数据状态
 const comments = ref([])
-const totalCount = ref(0)
 const loading = ref(false)
 const hasMore = ref(false)
 const nextCursor = ref('')
@@ -433,6 +436,11 @@ const handleReplySubmit = async (parentComment, newReply) => {
 const loadMoreTrigger = ref(null)
 let observer = null
 
+// 懒加载相关
+const commentListCardRef = ref(null)
+const commentsLoaded = ref(false)
+let lazyObserver = null
+
 // 排序映射：newest → 1（时间倒序），hottest → 0（点赞倒序）
 const getSortValue = () => props.sort === 'newest' ? 1 : 0
 
@@ -479,13 +487,18 @@ const loadComments = async (isRefresh = false) => {
       }
       hasMore.value = res.data.has_more
       nextCursor.value = res.data.next_cursor || ''
-      totalCount.value = comments.value.length
     }
   } catch (error) {
     console.error('加载评论失败:', error)
   } finally {
     loading.value = false
     initialized.value = true
+
+    // 评论加载完成后，设置无限滚动 observer
+    if (hasMore.value) {
+      await nextTick()
+      setupInfiniteScrollObserver()
+    }
   }
 }
 
@@ -586,12 +599,24 @@ const nextPage = async (commentId) => {
 
 // 刷新评论（供父组件调用）
 const refreshComments = () => {
+  // 清理 observer
+  if (observer) {
+    observer.disconnect()
+    observer = null
+  }
+
+  // 重置状态
   comments.value = []
   hasMore.value = false
   nextCursor.value = ''
   repliesData.value = {}
   expandedReplyIds.value = []
-  loadComments(true)
+  commentsLoaded.value = false
+
+  // 重新设置懒加载（如果已经在视口内会立即触发）
+  nextTick(() => {
+    setupLazyObserver()
+  })
 }
 
 // 监听排序变化
@@ -599,9 +624,42 @@ watch(() => props.sort, () => {
   refreshComments()
 })
 
-// 无限滚动 Observer
-const setupObserver = () => {
+// 懒加载 Observer - 监听评论区容器进入视口
+const setupLazyObserver = () => {
+  if (!commentListCardRef.value || commentsLoaded.value) return
+
+  lazyObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && !commentsLoaded.value) {
+          commentsLoaded.value = true
+          // 先清理可能存在的旧 observer
+          if (observer) {
+            observer.disconnect()
+            observer = null
+          }
+          loadComments(true)
+        }
+      })
+    },
+    {
+      rootMargin: '200px',
+      threshold: 0.01
+    }
+  )
+
+  lazyObserver.observe(commentListCardRef.value.$el || commentListCardRef.value)
+}
+
+// 无限滚动 Observer - 监听滚动到底部
+const setupInfiniteScrollObserver = () => {
   if (!loadMoreTrigger.value) return
+
+  // 先清理已存在的 observer
+  if (observer) {
+    observer.disconnect()
+    observer = null
+  }
 
   observer = new IntersectionObserver(
     (entries) => {
@@ -625,18 +683,14 @@ const cleanupObserver = () => {
     observer.disconnect()
     observer = null
   }
+  if (lazyObserver) {
+    lazyObserver.disconnect()
+    lazyObserver = null
+  }
 }
 
-// 监听数据变化，重新设置 observer
-watch(() => comments.value.length, async () => {
-  if (loadMoreTrigger.value && !observer && hasMore.value) {
-    await nextTick()
-    setupObserver()
-  }
-})
-
 onMounted(() => {
-  loadComments(true)
+  setupLazyObserver()
 })
 
 onUnmounted(() => {
