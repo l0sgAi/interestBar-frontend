@@ -56,8 +56,8 @@
           <CommentReplyEditor
             v-if="activeReplyId === comment.id"
             :post-id="Number(postId)"
-            :root-id="0"
-            :reply-to-id="comment.id"
+            :root-id="comment.id"
+            :reply-to-id="0"
             :reply-to-name="comment.author_name"
             :language="language"
             @submit="handleReplySubmit(comment)"
@@ -85,9 +85,9 @@
               <div class="comment-body">
                 <div class="comment-author-row">
                   <span class="comment-author">{{ reply.author_name }}</span>
-                  <template v-if="reply.reply_to_name">
+                  <template v-if="getReplyToName(reply, expandedReplies[comment.id])">
                     <span class="reply-arrow">{{ t('comment.actions.reply') }}</span>
-                    <span class="comment-author reply-to-name">@{{ reply.reply_to_name }}</span>
+                    <span class="comment-author reply-to-name">@{{ getReplyToName(reply, expandedReplies[comment.id]) }}</span>
                   </template>
                   <span class="comment-time">{{ formatTime(reply.create_time) }}</span>
                 </div>
@@ -212,6 +212,20 @@ const loadingReplies = ref({})
 
 // 内联回复编辑器
 const activeReplyId = ref(null)
+
+// 获取被回复用户的名称
+const getReplyToName = (reply, replies) => {
+  // 如果后端已经返回 reply_to_name，直接使用
+  if (reply.reply_to_name) {
+    return reply.reply_to_name
+  }
+  // 如果有 reply_to_id 且非0，从回复列表中查找对应的用户名
+  if (reply.reply_to_id && replies) {
+    const targetReply = replies.find(r => r.id === reply.reply_to_id)
+    return targetReply?.author_name
+  }
+  return null
+}
 
 const openReply = (comment) => {
   activeReplyId.value = activeReplyId.value === comment.id ? null : comment.id
