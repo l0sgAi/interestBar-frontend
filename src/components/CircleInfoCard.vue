@@ -75,7 +75,7 @@
           </NIcon>
           <div class="stat-content">
             <span class="stat-value">{{ circleDetail.hot }}</span>
-            <span class="stat-label">Hot</span>
+            <span class="stat-label">{{ t('circle.hotness') }}</span>
           </div>
         </div>
       </div>

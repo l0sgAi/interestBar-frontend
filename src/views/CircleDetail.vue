@@ -55,7 +55,7 @@
                 <template #icon>
                   <NIcon><EditIcon /></NIcon>
                 </template>
-                发帖
+                {{t('post.createPost')}}
               </NButton>
 
               <!-- 加入/退出按钮 -->
@@ -67,7 +67,7 @@
                 @click="handleJoinCircle"
                 :loading="joinLoading"
               >
-                加入圈子
+              {{t('circle.joinCircle')}}
               </NButton>
               <NButton
                 v-else
@@ -101,30 +101,30 @@
         <!-- 帖子列表区域 -->
         <div class="posts-section">
           <NTabs v-model:value="activeTab" type="segment" animated>
-            <NTabPane name="hot" tab="最热">
+            <NTabPane name="hot" :tab="t('post.hottest')">
               <div class="posts-list">
                 <div v-if="hotPosts.length === 0" class="empty-state">
-                  <p>暂无热门帖子</p>
+                  <p>{{t('post.noPosts')}}</p>
                 </div>
                 <div v-else>
                   <PostList :posts="hotPosts" />
                 </div>
               </div>
             </NTabPane>
-            <NTabPane name="new" tab="最新">
+            <NTabPane name="new" :tab="t('post.latest')">
               <div class="posts-list">
                 <div v-if="newPosts.length === 0" class="empty-state">
-                  <p>暂无最新帖子</p>
+                  <p>{{t('post.noPosts')}}</p>
                 </div>
                 <div v-else>
                   <PostList :posts="newPosts" />
                 </div>
               </div>
             </NTabPane>
-            <NTabPane name="top" tab="精华">
+            <NTabPane name="top" :tab="t('post.highlights')">
               <div class="posts-list">
                 <div v-if="topPosts.length === 0" class="empty-state">
-                  <p>暂无精华帖子</p>
+                  <p>{{t('post.noPosts')}}</p>
                 </div>
                 <div v-else>
                   <PostList :posts="topPosts" />
@@ -138,7 +138,7 @@
         <div class="right-sidebar-header">
           <div class="sidebar-card">
             <div class="card-header">
-              <h3>关于圈子</h3>
+              <h3>{{ t('circle.aboutCircle') }}</h3>
             </div>
             <div class="card-body">
               <!-- 统计数据 -->
@@ -149,7 +149,7 @@
                   </NIcon>
                   <div class="stat-content">
                     <span class="stat-value">{{ formatNumber(circleDetail.member_count) }}</span>
-                    <span class="stat-label">成员</span>
+                    <span class="stat-label">{{ t('circle.members') }}</span>
                   </div>
                 </div>
                 <div class="stat-item">
@@ -158,7 +158,7 @@
                   </NIcon>
                   <div class="stat-content">
                     <span class="stat-value">{{ formatNumber(circleDetail.post_count) }}</span>
-                    <span class="stat-label">帖子</span>
+                    <span class="stat-label">{{ t('circle.posts') }}</span>
                   </div>
                 </div>
                 <div class="stat-item">
@@ -167,26 +167,26 @@
                   </NIcon>
                   <div class="stat-content">
                     <span class="stat-value">{{ circleDetail.hot }}</span>
-                    <span class="stat-label">热度</span>
+                    <span class="stat-label">{{ t('circle.hotness') }}</span>
                   </div>
                 </div>
               </div>
 
               <div class="description-section">
-                <h4 class="section-title">简介</h4>
-                <p class="description">{{ getDisplayDescription(circleDetail.description) || '暂无描述' }}</p>
+                <h4 class="section-title">{{ t('circle.description') }}</h4>
+                <p class="description">{{ getDisplayDescription(circleDetail.description) || t('circle.noDescription') }}</p>
                 <div
                   v-if="shouldShowMoreButton(circleDetail.description)"
                   class="show-more-btn"
                   @click="toggleDescription"
                 >
-                  {{ isDescriptionExpanded ? '收起' : '点击查看更多' }}
+                  {{ isDescriptionExpanded ? t('common.collapse') : t('common.showMore') }}
                 </div>
               </div>
 
               <div class="circle-info">
                 <div class="info-row">
-                  <span class="label">创建时间</span>
+                  <span class="label">{{ t('time.createdAt') }}</span>
                   <span class="value">{{ formatDate(circleDetail.create_time) }}</span>
                 </div>
                 <!-- <div class="info-row">
@@ -194,37 +194,37 @@
                   <span class="value">{{ categoryName || '未分类' }}</span>
                 </div> -->
                 <div class="info-row">
-                  <span class="label">加入方式</span>
+                  <span class="label">{{ t('circle.joinType') }}</span>
                   <span class="value">{{ getJoinTypeText(circleDetail.join_type) }}</span>
                 </div>
               </div>
 
               <div v-if="circleDetail.is_joined" class="member-info">
-                <h4 class="section-title">你的成员信息</h4>
+                <h4 class="section-title">{{ t('circle.yourMemberInfo') }}</h4>
                 <div class="info-row">
-                  <span class="label">角色</span>
+                  <span class="label">{{ t('user.role') }}</span>
                   <NTag :type="getRoleInfo(circleDetail.member_role).type" size="large">
                     {{ getRoleInfo(circleDetail.member_role).text }}
                   </NTag>
                 </div>
                 <div class="info-row">
-                  <span class="label">状态</span>
+                  <span class="label">{{ t('user.status') }}</span>
                   <NTag :type="getMemberStatusInfo(circleDetail.member_status).type" size="large">
                     {{ getMemberStatusInfo(circleDetail.member_status).text }}
                   </NTag>
                 </div>
                 <div v-if="circleDetail.member_is_top" class="info-row">
-                  <span class="label">置顶显示</span>
-                  <span class="value">是</span>
+                  <span class="label">{{ t('circle.pinnedDisplay') }}</span>
+                  <span class="value">{{ t('common.yes') }}</span>
                 </div>
                 <div v-if="circleDetail.member_is_disturb" class="info-row">
-                  <span class="label">消息免打扰</span>
-                  <span class="value">已开启</span>
+                  <span class="label">{{ t('circle.messageDisturb') }}</span>
+                  <span class="value">{{ t('common.enabled') }}</span>
                 </div>
               </div>
 
               <div v-if="circleDetail.rule" class="rules-section">
-                <h4 class="section-title">圈子规则</h4>
+                <h4 class="section-title">{{ t('circle.rules') }}</h4>
                 <p class="rules">{{ circleDetail.rule }}</p>
               </div>
             </div>
@@ -261,11 +261,11 @@ const setCircleSearch = inject('setCircleSearch', () => {})
 const moreOptions = computed(() => {
   const options = [
     {
-      label: '分享圈子',
+      label: t('circle.shareCircle'),
       key: 'share'
     },
     {
-      label: '举报',
+      label: t('circle.report'),
       key: 'report'
     }
   ]
@@ -348,9 +348,10 @@ const formatNumber = (num) => {
 
 // 格式化日期
 const formatDate = (dateStr) => {
-  if (!dateStr) return '未知'
+  if (!dateStr) return t('common.unknown')
   const date = new Date(dateStr)
-  return date.toLocaleDateString('zh-CN', {
+  const locale = t('common.unknown') === 'Unknown' ? 'en-US' : 'zh-CN'
+  return date.toLocaleDateString(locale, {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
@@ -360,38 +361,38 @@ const formatDate = (dateStr) => {
 // 获取加入方式文本
 const getJoinTypeText = (type) => {
   const types = {
-    0: '直接加入',
-    1: '需要审核',
-    2: '私密圈子'
+    0: t('circle.joinTypeDirect'),
+    1: t('circle.joinTypeReview'),
+    2: t('circle.joinTypePrivate')
   }
-  return types[type] || '未知'
+  return types[type] || t('common.unknown')
 }
 
 // 获取角色文本和类型
 const getRoleInfo = (role) => {
   const roles = {
-    10: { text: '普通成员', type: 'default' },
-    20: { text: '管理员', type: 'info' },
-    30: { text: '圈主', type: 'warning' }
+    10: { text: t('circle.roleMember'), type: 'default' },
+    20: { text: t('circle.roleAdmin'), type: 'info' },
+    30: { text: t('circle.roleOwner'), type: 'warning' }
   }
-  return roles[role] || { text: '未知', type: 'default' }
+  return roles[role] || { text: t('common.unknown'), type: 'default' }
 }
 
 // 获取状态文本和类型
 const getMemberStatusInfo = (status) => {
   const statuses = {
-    0: { text: '正常', type: 'success' },
-    1: { text: '正常', type: 'success' },
-    2: { text: '已禁言', type: 'error' }
+    0: { text: t('circle.statusNormal'), type: 'success' },
+    1: { text: t('circle.statusNormal'), type: 'success' },
+    2: { text: t('circle.statusMuted'), type: 'error' }
   }
-  return statuses[status] || { text: '未知', type: 'default' }
+  return statuses[status] || { text: t('common.unknown'), type: 'default' }
 }
 
 // 获取圈子详情
 const fetchCircleDetail = async () => {
   const circleId = route.params.id
   if (!circleId) {
-    message.error('圈子ID不存在')
+    message.error(t('circle.circleIdNotFound'))
     router.push('/home')
     return
   }
@@ -417,7 +418,7 @@ const fetchCircleDetail = async () => {
       // TODO: 获取帖子列表数据
     }
   } catch (error) {
-    message.error('获取圈子详情失败：' + (error.message || '未知错误'))
+    message.error(t('messages.getDetailFailed', { error: error.message || t('common.unknownError') }))
     router.push('/home')
   } finally {
     loading.value = false
@@ -429,11 +430,11 @@ const handleJoinCircle = async () => {
   joinLoading.value = true
   try {
     await joinCircle({ circle_id: circleDetail.value.id })
-    message.success('加入成功')
+    message.success(t('circle.joinSuccess'))
     // 重新获取圈子详情，同步刷新侧栏统计数据
     await fetchCircleDetail()
   } catch (error) {
-    message.error('加入失败：' + (error.message || '未知错误'))
+    message.error(t('circle.joinFailed') + '：' + (error.message || t('common.unknownError')))
   } finally {
     joinLoading.value = false
   }
@@ -445,11 +446,11 @@ const handleLeaveCircle = async () => {
   isButtonHovered.value = false
   try {
     await leaveCircle({ circle_id: circleDetail.value.id })
-    message.success('已退出圈子')
+    message.success(t('circle.leaveSuccess'))
     // 重新获取圈子详情，同步刷新侧栏统计数据
     await fetchCircleDetail()
   } catch (error) {
-    message.error('退出失败：' + (error.message || '未知错误'))
+    message.error(t('circle.leaveFailed') + '：' + (error.message || t('common.unknownError')))
   } finally {
     joinLoading.value = false
   }
@@ -460,9 +461,9 @@ const handleToggleDisturb = async () => {
   try {
     // TODO: 调用切换免打扰接口
     circleDetail.value.member_is_disturb = !circleDetail.value.member_is_disturb
-    message.success(circleDetail.value.member_is_disturb ? '已开启免打扰' : '已关闭免打扰')
+    message.success(circleDetail.value.member_is_disturb ? t('circle.disturbEnabled') : t('circle.disturbDisabled'))
   } catch (error) {
-    message.error('操作失败：' + (error.message || '未知错误'))
+    message.error(t('messages.operationFailed', { error: error.message || t('common.unknownError') }))
   }
 }
 
@@ -476,10 +477,10 @@ const handleCreatePost = () => {
 const handleMoreSelect = (key) => {
   switch (key) {
     case 'share':
-      message.info('分享功能开发中...')
+      message.info(t('common.featureInDevelopment'))
       break
     case 'report':
-      message.info('举报功能开发中...')
+      message.info(t('common.featureInDevelopment'))
       break
   }
 }

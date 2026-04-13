@@ -24,7 +24,11 @@ export default {
     operationFailed: '操作失败',
     unknownError: '未知错误',
     unknown: '未知',
-    featureInDevelopment: '功能开发中...'
+    featureInDevelopment: '功能开发中...',
+    collapse: '收起',
+    showMore: '点击查看更多',
+    yes: '是',
+    enabled: '已开启'
   },
 
   // 时间相关
@@ -89,6 +93,9 @@ export default {
     noPostResults: '暂无帖子结果',
     noFavorites: '暂无收藏',
     searching: '搜索中...',
+    hottest:'近期热点',
+    latest:'最新',
+    highlights:'精华',
     postNotFound: '帖子不存在'
   },
 
@@ -132,6 +139,15 @@ export default {
     roleOwner: '圈主',
     statusMuted: '已禁言',
     rules: '圈子规则',
+    aboutCircle: '关于圈子',
+    hotness: '热度',
+    noDescription: '暂无描述',
+    yourMemberInfo: '你的成员信息',
+    pinnedDisplay: '置顶显示',
+    messageDisturb: '消息免打扰',
+    shareCircle: '分享圈子',
+    circleIdNotFound: '圈子ID不存在',
+    statusNormal: '正常',
     form: {
       name: '圈子名称',
       namePlaceholder: '请输入兴趣圈名称',

@@ -24,7 +24,11 @@ export default {
     operationFailed: 'Operation failed',
     unknownError: 'Unknown error',
     unknown: 'Unknown',
-    featureInDevelopment: 'Feature in development...'
+    featureInDevelopment: 'Feature in development...',
+    collapse: 'Collapse',
+    showMore: 'Show more',
+    yes: 'Yes',
+    enabled: 'Enabled'
   },
 
   // 时间相关
@@ -89,6 +93,9 @@ export default {
     noPostResults: 'No post results',
     noFavorites: 'No favorites yet',
     searching: 'Searching...',
+    hottest:'Trending',
+    latest:'Latest',
+    highlights:'Highlights',
     postNotFound: 'Post not found'
   },
 
@@ -132,6 +139,15 @@ export default {
     roleOwner: 'Owner',
     statusMuted: 'Muted',
     rules: 'Circle Rules',
+    aboutCircle: 'About Circle',
+    hotness: 'Hotness',
+    noDescription: 'No description',
+    yourMemberInfo: 'Your Member Info',
+    pinnedDisplay: 'Pinned',
+    messageDisturb: 'Notifications Muted',
+    shareCircle: 'Share Circle',
+    circleIdNotFound: 'Circle ID not found',
+    statusNormal: 'Normal',
     form: {
       name: 'Circle Name',
       namePlaceholder: 'Enter circle name',
