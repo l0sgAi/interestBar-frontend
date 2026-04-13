@@ -282,8 +282,14 @@ export default {
       title: 'Comments ({count})',
       viewReplies: 'View {count} replies',
       collapseReplies: 'Collapse replies',
+      loadMoreReplies: 'Load more replies',
       noMore: 'No more comments',
-      empty: 'No comments yet. Be the first to comment!'
+      empty: 'No comments yet. Be the first to comment!',
+      pagination: {
+        total: 'Total {count}',
+        page: 'Goto',
+        goto: 'Go'
+      }
     },
     sort: {
       newest: 'Newest',

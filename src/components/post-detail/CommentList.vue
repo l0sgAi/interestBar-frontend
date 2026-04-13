@@ -66,7 +66,7 @@
 
           <!-- 点击查看回复 -->
           <div
-            v-if="comment.reply_count > 0 && !expandedReplies[comment.id]"
+            v-if="comment.reply_count > 0 && !isRepliesExpanded(comment.id)"
             class="load-replies-btn"
             @click="loadReplies(comment)"
           >
@@ -75,8 +75,8 @@
           </div>
 
           <!-- 子评论 -->
-          <div v-if="expandedReplies[comment.id]" class="comment-replies">
-            <div v-for="reply in expandedReplies[comment.id]" :key="reply.id" class="comment-item reply-item">
+          <div v-if="isRepliesExpanded(comment.id)" class="comment-replies">
+            <div v-for="reply in getRepliesData(comment.id).items" :key="reply.id" class="comment-item reply-item">
               <div class="comment-avatar">
                 <NAvatar round :size="28" :src="reply.author_avatar || undefined">
                   <div v-if="reply.author_avatar===undefined">{{ reply.author_name.charAt(0) }}</div>
@@ -85,9 +85,9 @@
               <div class="comment-body">
                 <div class="comment-author-row">
                   <span class="comment-author" :class="{ clickable: getUserId(reply) }" @click="getUserId(reply) && goToUserDetail(getUserId(reply))">{{ reply.author_name }}</span>
-                  <template v-if="getReplyToName(reply, expandedReplies[comment.id])">
+                  <template v-if="getReplyToName(reply, getRepliesData(comment.id).items)">
                     <span class="reply-arrow">{{ t('comment.actions.reply') }}</span>
-                    <span class="comment-author reply-to-name" :class="{ clickable: getReplyToUserId(reply, expandedReplies[comment.id]) }" @click="getReplyToUserId(reply, expandedReplies[comment.id]) && goToUserDetail(getReplyToUserId(reply, expandedReplies[comment.id]))">@{{ getReplyToName(reply, expandedReplies[comment.id]) }}</span>
+                    <span class="comment-author reply-to-name" :class="{ clickable: getReplyToUserId(reply, getRepliesData(comment.id).items) }" @click="getReplyToUserId(reply, getRepliesData(comment.id).items) && goToUserDetail(getReplyToUserId(reply, getRepliesData(comment.id).items))">@{{ getReplyToName(reply, getRepliesData(comment.id).items) }}</span>
                   </template>
                   <span class="comment-time">{{ formatTime(reply.create_time) }}</span>
                 </div>
@@ -135,9 +135,45 @@
                 />
               </div>
             </div>
-            <!-- 收起回复 -->
-            <div class="collapse-replies-btn" @click="collapseReplies(comment.id)">
-              {{ t('comment.list.collapseReplies') }}
+
+            <!-- 收起回复和翻页 -->
+            <div class="replies-footer">
+              <div class="collapse-replies-btn" @click="collapseReplies(comment.id)">
+                {{ t('comment.list.collapseReplies') }}
+              </div>
+              <div v-if="getRepliesData(comment.id).total > REPLIES_PAGE_SIZE" class="replies-pagination-arrows">
+                <NSpin v-if="getRepliesData(comment.id).loading" :size="14" />
+                <template v-else>
+                  <!-- 上一页 -->
+                  <button
+                    class="page-arrow-btn"
+                    :disabled="getRepliesData(comment.id).page <= 1"
+                    @click="changeRepliesPage(comment.id, getRepliesData(comment.id).page - 1)"
+                  >
+                    <NIcon size="14">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                      </svg>
+                    </NIcon>
+                  </button>
+                  <!-- 页码显示 -->
+                  <span class="page-number">
+                    {{ getRepliesData(comment.id).page }} / {{ Math.ceil(getRepliesData(comment.id).total / REPLIES_PAGE_SIZE) }}
+                  </span>
+                  <!-- 下一页 -->
+                  <button
+                    class="page-arrow-btn"
+                    :disabled="getRepliesData(comment.id).page >= Math.ceil(getRepliesData(comment.id).total / REPLIES_PAGE_SIZE)"
+                    @click="changeRepliesPage(comment.id, getRepliesData(comment.id).page + 1)"
+                  >
+                    <NIcon size="14">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                      </svg>
+                    </NIcon>
+                  </button>
+                </template>
+              </div>
             </div>
           </div>
         </div>
@@ -220,9 +256,49 @@ const hasMore = ref(false)
 const nextCursor = ref('')
 const initialized = ref(false)
 
-// 回复展开状态
-const expandedReplies = ref({})
+// 回复展开状态和分页数据
+// 格式: { [commentId]: { items: [], page: 1, pageSize: 5, total: 0, loading: false } }
+const repliesData = ref({})
 const loadingReplies = ref({})
+
+// 每页回复数量
+const REPLIES_PAGE_SIZE = 5
+
+// 获取某个评论的回复数据
+const getRepliesData = (commentId) => {
+  if (!repliesData.value[commentId]) {
+    repliesData.value[commentId] = {
+      items: [],
+      page: 1,
+      pageSize: REPLIES_PAGE_SIZE,
+      total: 0,
+      loading: false
+    }
+  }
+  return repliesData.value[commentId]
+}
+
+// 展开的回复ID列表（用于控制显示）
+const expandedReplyIds = ref([])
+
+// 检查回复是否展开
+const isRepliesExpanded = (commentId) => {
+  return expandedReplyIds.value.includes(commentId)
+}
+
+// 展开回复
+const expandReplies = (commentId) => {
+  if (!expandedReplyIds.value.includes(commentId)) {
+    expandedReplyIds.value.push(commentId)
+  }
+}
+
+// 收起回复
+const collapseReplies = (commentId) => {
+  expandedReplyIds.value = expandedReplyIds.value.filter(id => id !== commentId)
+  // 重置该评论的回复数据，下次展开重新加载
+  delete repliesData.value[commentId]
+}
 
 // 内联回复编辑器
 const activeReplyId = ref(null)
@@ -260,12 +336,13 @@ const openReply = (comment) => {
 
 const handleReplySubmit = async (parentComment) => {
   activeReplyId.value = null
-  // 如果回复的父评论已展开回复，重新加载
-  if (expandedReplies.value[parentComment.id]) {
-    expandedReplies.value[parentComment.id] = undefined
+  // 重置该评论的回复数据，从头加载
+  delete repliesData.value[parentComment.id]
+  // 如果回复的父评论已展开回复，重新加载第一页
+  if (isRepliesExpanded(parentComment.id)) {
     await loadReplies(parentComment)
   } else if (parentComment.reply_count === 0) {
-    // 首次回复，自动展开
+    // 首次回复，自动展开并加载
     await loadReplies(parentComment)
   }
   // 刷新列表以更新 reply_count
@@ -313,28 +390,46 @@ const loadComments = async (isRefresh = false) => {
   }
 }
 
-// 加载子回复
-const loadReplies = async (comment) => {
-  if (loadingReplies.value[comment.id]) return
+// 加载子回复（页码分页）
+const loadReplies = async (comment, page = 1) => {
+  const data = getRepliesData(comment.id)
+
+  // 如果正在加载，直接返回
+  if (data.loading) return
+
+  data.loading = true
   loadingReplies.value[comment.id] = true
 
   try {
-    const res = await getCommentReplies({ root_id: comment.id })
+    const params = {
+      root_id: comment.id,
+      sort: getSortValue(),
+      page: page,
+      page_size: REPLIES_PAGE_SIZE
+    }
+
+    const res = await getCommentReplies(params)
     if (res.data) {
-      expandedReplies.value[comment.id] = res.data.items || []
+      data.items = res.data.items || []
+      data.page = page
+      data.total = res.data.total || comment.reply_count || 0
+      // 展开回复区域
+      expandReplies(comment.id)
     }
   } catch (error) {
     console.error('加载回复失败:', error)
   } finally {
+    data.loading = false
     loadingReplies.value[comment.id] = false
   }
 }
 
-// 收起回复
-const collapseReplies = (commentId) => {
-  delete expandedReplies.value[commentId]
-  // 触发响应式更新
-  expandedReplies.value = { ...expandedReplies.value }
+// 切换回复页码
+const changeRepliesPage = (commentId, page) => {
+  const comment = comments.value.find(c => c.id === commentId)
+  if (comment) {
+    loadReplies(comment, page)
+  }
 }
 
 // 刷新评论（供父组件调用）
@@ -342,7 +437,8 @@ const refreshComments = () => {
   comments.value = []
   hasMore.value = false
   nextCursor.value = ''
-  expandedReplies.value = {}
+  repliesData.value = {}
+  expandedReplyIds.value = []
   loadComments(true)
 }
 
@@ -539,31 +635,7 @@ defineExpose({ refreshComments })
 }
 
 .reply-item .comment-author {
-n.comment-author.clickable {
-  cursor: pointer;
-  transition: color 0.2s;
-}
-
-.comment-author.clickable:hover {
-  color: #63e2b7;
-}
   font-size: 14px;
-n.comment-author.clickable {
-  cursor: pointer;
-  transition: color 0.2s;
-}
-
-.comment-author.clickable:hover {
-  color: #63e2b7;
-}
-}
-n.comment-author.clickable {
-  cursor: pointer;
-  transition: color 0.2s;
-}
-
-.comment-author.clickable:hover {
-  color: #63e2b7;
 }
 
 .reply-arrow {
@@ -575,9 +647,17 @@ n.comment-author.clickable {
   color: #63e2b7;
 }
 
+/* 收起回复和翻页容器 */
+.replies-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
 /* 收起回复 */
 .collapse-replies-btn {
-  margin-top: 8px;
   font-size: 13px;
   color: rgba(255, 255, 255, 0.4);
   cursor: pointer;
@@ -586,6 +666,48 @@ n.comment-author.clickable {
 
 .collapse-replies-btn:hover {
   color: rgba(255, 255, 255, 0.6);
+}
+
+/* 翻页箭头容器 */
+.replies-pagination-arrows {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 翻页箭头按钮 */
+.page-arrow-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.page-arrow-btn:hover:not(:disabled) {
+  background: rgba(99, 226, 183, 0.1);
+  border-color: rgba(99, 226, 183, 0.3);
+  color: #63e2b7;
+}
+
+.page-arrow-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* 页码显示 */
+.page-number {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  min-width: 40px;
+  text-align: center;
 }
 
 /* 无限滚动触发器 */
@@ -629,3 +751,4 @@ n.comment-author.clickable {
   --md-theme-bg-color: rgb(24, 24, 28);
 }
 </style>
+

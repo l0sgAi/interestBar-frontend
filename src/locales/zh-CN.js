@@ -282,8 +282,14 @@ export default {
       title: '评论 ({count})',
       viewReplies: '点击查看 {count} 条回复',
       collapseReplies: '收起回复',
+      loadMoreReplies: '加载更多回复',
       noMore: '没有更多评论了',
-      empty: '暂无评论，快来发表第一条评论吧'
+      empty: '暂无评论，快来发表第一条评论吧',
+      pagination: {
+        total: '共 {count} 条',
+        page: '跳至',
+        goto: '跳转'
+      }
     },
     sort: {
       newest: '最新',

@@ -32,11 +32,12 @@ export function getCommentList(params) {
 }
 
 /**
- * 加载子回复列表
+ * 加载子回复列表（页码分页）
  * @param {Object} params
  * @param {number} params.root_id - 根评论ID
  * @param {number} [params.sort] - 0=按时间倒序（默认），1=按点赞倒序
- * @param {string} [params.cursor] - 游标，首页不传
+ * @param {number} [params.page] - 页码，从1开始
+ * @param {number} [params.page_size] - 每页数量，默认5
  * @returns {Promise}
  */
 export function getCommentReplies(params) {
