@@ -269,6 +269,36 @@ export default {
     tooLong: 'Content too long'
   },
 
+  // 评论相关
+  comment: {
+    editor: {
+      title: 'Post a Comment',
+      placeholder: 'Write your comment... (supports images and emoji)',
+      submit: 'Post Comment',
+      success: 'Comment posted',
+      failed: 'Comment failed'
+    },
+    list: {
+      title: 'Comments ({count})',
+      viewReplies: 'View {count} replies',
+      collapseReplies: 'Collapse replies',
+      noMore: 'No more comments',
+      empty: 'No comments yet. Be the first to comment!'
+    },
+    sort: {
+      newest: 'Newest',
+      hottest: 'Hottest'
+    },
+    actions: {
+      reply: 'Reply'
+    },
+    reply: {
+      placeholder: 'Reply to @{name}...',
+      success: 'Reply posted',
+      failed: 'Reply failed'
+    }
+  },
+
   // 消息提示
   messages: {
     loginRequired: 'Please login first',

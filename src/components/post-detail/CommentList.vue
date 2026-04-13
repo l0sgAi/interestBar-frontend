@@ -1,11 +1,11 @@
 <template>
   <NCard :bordered="false" class="comment-list-card">
     <div class="comment-list-header">
-      <span class="comment-section-title">评论 ({{ totalCount }})</span>
+      <span class="comment-section-title">{{ t('comment.list.title', { count: totalCount }) }}</span>
       <div class="comment-sort">
-        <NButton text size="small" :type="sort === 'newest' ? 'primary' : 'default'" @click="$emit('update:sort', 'newest')">最新</NButton>
+        <NButton text size="small" :type="sort === 'newest' ? 'primary' : 'default'" @click="$emit('update:sort', 'newest')">{{ t('comment.sort.newest') }}</NButton>
         <NDivider vertical />
-        <NButton text size="small" :type="sort === 'hottest' ? 'primary' : 'default'" @click="$emit('update:sort', 'hottest')">最热</NButton>
+        <NButton text size="small" :type="sort === 'hottest' ? 'primary' : 'default'" @click="$emit('update:sort', 'hottest')">{{ t('comment.sort.hottest') }}</NButton>
       </div>
     </div>
 
@@ -19,7 +19,7 @@
         <div class="comment-body">
           <div class="comment-author-row">
             <span class="comment-author">{{ comment.author_name }}</span>
-            <span class="comment-time">{{ formatRelativeTime(comment.create_time) }}</span>
+            <span class="comment-time">{{ formatTime(comment.create_time) }}</span>
           </div>
           <div class="comment-content">
             <MdPreview
@@ -48,7 +48,7 @@
                   </svg>
                 </NIcon>
               </template>
-              回复
+              {{ t('comment.actions.reply') }}
             </NButton>
           </div>
 
@@ -71,7 +71,7 @@
             @click="loadReplies(comment)"
           >
             <NSpin v-if="loadingReplies[comment.id]" :size="14" />
-            <span v-else>点击查看 {{ comment.reply_count }} 条回复</span>
+            <span v-else>{{ t('comment.list.viewReplies', { count: comment.reply_count }) }}</span>
           </div>
 
           <!-- 子评论 -->
@@ -86,10 +86,10 @@
                 <div class="comment-author-row">
                   <span class="comment-author">{{ reply.author_name }}</span>
                   <template v-if="reply.reply_to_name">
-                    <span class="reply-arrow">回复</span>
+                    <span class="reply-arrow">{{ t('comment.actions.reply') }}</span>
                     <span class="comment-author reply-to-name">@{{ reply.reply_to_name }}</span>
                   </template>
-                  <span class="comment-time">{{ formatRelativeTime(reply.create_time) }}</span>
+                  <span class="comment-time">{{ formatTime(reply.create_time) }}</span>
                 </div>
                 <div class="comment-content">
                   <MdPreview
@@ -118,7 +118,7 @@
                         </svg>
                       </NIcon>
                     </template>
-                    回复
+                    {{ t('comment.actions.reply') }}
                   </NButton>
                 </div>
 
@@ -137,7 +137,7 @@
             </div>
             <!-- 收起回复 -->
             <div class="collapse-replies-btn" @click="collapseReplies(comment.id)">
-              收起回复
+              {{ t('comment.list.collapseReplies') }}
             </div>
           </div>
         </div>
@@ -153,10 +153,10 @@
 
       <!-- 没有更多 -->
       <div v-if="!hasMore && comments.length > 0" class="no-more">
-        <p>没有更多评论了</p>
+        <p>{{ t('comment.list.noMore') }}</p>
       </div>
 
-      <NEmpty v-if="!loading && comments.length === 0 && initialized" description="暂无评论，快来发表第一条评论吧" >
+      <NEmpty v-if="!loading && comments.length === 0 && initialized" :description="t('comment.list.empty')" >
       <template #icon>
           <NIcon>
             <CommentRound/>
@@ -170,11 +170,13 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { NCard, NAvatar, NButton, NDivider, NIcon, NEmpty, NSpin } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 import { MdPreview } from 'md-editor-v3'
 import 'md-editor-v3/lib/preview.css'
 import { getCommentList, getCommentReplies } from '@/api/comment'
 import CommentReplyEditor from './CommentReplyEditor.vue'
 import {CommentRound} from '@vicons/material'
+import { useFormatTime } from '@/utils/i18n'
 
 const props = defineProps({
   postId: {
@@ -192,6 +194,9 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:sort'])
+
+const { t } = useI18n()
+const { formatTime } = useFormatTime()
 
 // 数据状态
 const comments = ref([])
@@ -232,20 +237,6 @@ let observer = null
 
 // 排序映射：newest → 1（时间倒序），hottest → 0（点赞倒序）
 const getSortValue = () => props.sort === 'newest' ? 1 : 0
-
-// 格式化相对时间
-const formatRelativeTime = (timeStr) => {
-  if (!timeStr) return ''
-  const now = new Date()
-  const date = new Date(timeStr.replace(/-/g, '/'))
-  const diff = (now - date) / 1000
-
-  if (diff < 60) return '刚刚'
-  if (diff < 3600) return `${Math.floor(diff / 60)} 分钟前`
-  if (diff < 86400) return `${Math.floor(diff / 3600)} 小时前`
-  if (diff < 2592000) return `${Math.floor(diff / 86400)} 天前`
-  return timeStr.slice(0, 10)
-}
 
 // 加载评论列表
 const loadComments = async (isRefresh = false) => {

@@ -6,14 +6,14 @@
       :preview="false"
       :toolbars="toolbars"
       theme="dark"
-      :placeholder="`回复 @${replyToName}...`"
+      :placeholder="t('comment.reply.placeholder', { name: replyToName })"
       :max-length="2000"
       :footers="[]"
       :style="{ height: '17dvh' }"
       @onUploadImg="handleUploadImg"
     />
     <div class="reply-editor-footer">
-      <NButton size="small" quaternary @click="$emit('cancel')">取消</NButton>
+      <NButton size="small" quaternary @click="$emit('cancel')">{{ t('common.cancel') }}</NButton>
       <NButton
         type="primary"
         size="small"
@@ -22,7 +22,7 @@
         :loading="submitting"
         @click="handleSubmit"
       >
-        回复
+        {{ t('comment.actions.reply') }}
       </NButton>
     </div>
   </div>
@@ -31,6 +31,7 @@
 <script setup>
 import { ref } from 'vue'
 import { NButton, useMessage } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 import { createComment } from '@/api/comment'
@@ -60,6 +61,7 @@ const props = defineProps({
 
 const emit = defineEmits(['submit', 'cancel'])
 
+const { t } = useI18n()
 const message = useMessage()
 const content = ref('')
 const submitting = ref(false)
@@ -84,10 +86,10 @@ const handleSubmit = async () => {
       reply_to_id: props.replyToId,
       content: content.value
     })
-    message.success('回复成功')
+    message.success(t('comment.reply.success'))
     emit('submit')
   } catch (err) {
-    message.error(err.message || '回复失败')
+    message.error(err.message || t('comment.reply.failed'))
   } finally {
     submitting.value = false
   }

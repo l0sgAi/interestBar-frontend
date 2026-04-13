@@ -269,6 +269,36 @@ export default {
     tooLong: '内容太长'
   },
 
+  // 评论相关
+  comment: {
+    editor: {
+      title: '发表评论',
+      placeholder: '写下你的评论...（支持图文、表情）',
+      submit: '发表评论',
+      success: '评论成功',
+      failed: '评论失败'
+    },
+    list: {
+      title: '评论 ({count})',
+      viewReplies: '点击查看 {count} 条回复',
+      collapseReplies: '收起回复',
+      noMore: '没有更多评论了',
+      empty: '暂无评论，快来发表第一条评论吧'
+    },
+    sort: {
+      newest: '最新',
+      hottest: '最热'
+    },
+    actions: {
+      reply: '回复'
+    },
+    reply: {
+      placeholder: '回复 @{name}...',
+      success: '回复成功',
+      failed: '回复失败'
+    }
+  },
+
   // 消息提示
   messages: {
     loginRequired: '请先登录',

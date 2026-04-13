@@ -1,7 +1,7 @@
 <template>
   <NCard :bordered="false" class="comment-editor-card">
     <div class="comment-editor-header">
-      <span class="comment-section-title">发表评论</span>
+      <span class="comment-section-title">{{ t('comment.editor.title') }}</span>
     </div>
     <div class="comment-editor-wrapper">
       <MdEditor
@@ -10,7 +10,7 @@
         :preview="false"
         :toolbars="toolbars"
         theme="dark"
-        placeholder="写下你的评论...（支持图文、表情）"
+        :placeholder="t('comment.editor.placeholder')"
         :max-length="2000"
         :footers="[]"
         :style="{ height: '25dvh' }"
@@ -25,7 +25,7 @@
           :loading="submitting"
           @click="handleSubmit"
         >
-          发表评论
+          {{ t('comment.editor.submit') }}
         </NButton>
       </div>
     </div>
@@ -35,6 +35,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { NCard, NButton, useMessage } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 import { createComment } from '@/api/comment'
@@ -56,6 +57,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'submit', 'uploadImg'])
 
+const { t } = useI18n()
 const message = useMessage()
 const content = ref(props.modelValue)
 const submitting = ref(false)
@@ -90,11 +92,11 @@ const handleSubmit = async () => {
   submitting.value = true
   try {
     await createComment({ post_id: props.postId, content: content.value })
-    message.success('评论成功')
+    message.success(t('comment.editor.success'))
     emit('submit', content.value)
     content.value = ''
   } catch (err) {
-    message.error(err.message || '评论失败')
+    message.error(err.message || t('comment.editor.failed'))
   } finally {
     submitting.value = false
   }
