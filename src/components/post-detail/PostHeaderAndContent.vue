@@ -114,7 +114,7 @@
             </svg>
           </NIcon>
         </template>
-        收藏
+        {{ t('post.actions.favorite') }}
       </NButton>
 
       <NButton size="large">
@@ -129,7 +129,7 @@
             </svg>
           </NIcon>
         </template>
-        分享
+        {{ t('post.actions.share') }}
       </NButton>
     </div>
 
