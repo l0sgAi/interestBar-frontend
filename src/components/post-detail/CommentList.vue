@@ -75,7 +75,7 @@
           </div>
 
           <!-- 子评论 -->
-          <div v-if="isRepliesExpanded(comment.id)" class="comment-replies">
+          <div v-if="isRepliesExpanded(comment.id)" class="comment-replies" :class="{ 'replies-loading': getRepliesData(comment.id).pageLoading }">
             <!-- 回复列表头部：排序切换 -->
             <div class="comment-replies-header">
               <div class="replies-sort-toggle">
@@ -162,7 +162,7 @@
                 {{ t('comment.list.collapseReplies') }}
               </div>
               <div v-if="getTotalPages(comment.id) > 1 || hasNextPage(comment.id)" class="replies-pagination-arrows">
-                <NSpin v-if="getRepliesData(comment.id).loading" :size="14" />
+                <NSpin v-if="getRepliesData(comment.id).pageLoading" :size="14" />
                 <template v-else>
                   <!-- 上一页 -->
                   <button
@@ -194,6 +194,11 @@
                   </button>
                 </template>
               </div>
+            </div>
+
+            <!-- 加载遮罩 -->
+            <div v-if="getRepliesData(comment.id).pageLoading" class="replies-loading-overlay">
+              <NSpin :size="24" />
             </div>
           </div>
         </div>
@@ -295,7 +300,8 @@ const getRepliesData = (commentId) => {
       currentPage: 0,        // 当前页码（从0开始）
       cursors: [''],         // 每页对应的游标
       hasMoreMap: {},        // 每页是否有更多数据 {pageIndex: boolean}
-      loading: false
+      loading: false,
+      pageLoading: false     // 页面加载状态（用于显示遮罩）
     }
   }
   return repliesData.value[commentId]
@@ -558,6 +564,9 @@ const nextPage = async (commentId) => {
 
   const data = getRepliesData(commentId)
 
+  // 如果正在加载，忽略
+  if (data.pageLoading) return
+
   // 如果下一页已缓存，直接切换
   if (data.pages[data.currentPage + 1]) {
     data.currentPage = data.currentPage + 1
@@ -566,8 +575,7 @@ const nextPage = async (commentId) => {
 
   // 如果当前页有更多数据，加载下一页
   if (data.hasMoreMap[data.currentPage] && !data.loading) {
-    data.currentPage = data.currentPage + 1
-    data.loading = true
+    data.pageLoading = true
     loadingReplies.value[commentId] = true
 
     try {
@@ -581,17 +589,19 @@ const nextPage = async (commentId) => {
       if (res.data) {
         const items = res.data.items || []
 
-        // 保存当前页数据
-        data.pages[data.currentPage] = items
-        data.cursors[data.currentPage + 1] = res.data.next_cursor || ''
-        data.hasMoreMap[data.currentPage] = res.data.has_more
+        // 保存到下一页
+        const nextPageIndex = data.currentPage + 1
+        data.pages[nextPageIndex] = items
+        data.cursors[nextPageIndex + 1] = res.data.next_cursor || ''
+        data.hasMoreMap[nextPageIndex] = res.data.has_more
+
+        // 加载成功后才切换页面
+        data.currentPage = nextPageIndex
       }
     } catch (error) {
       console.error('加载回复失败:', error)
-      // 加载失败，回退页码
-      data.currentPage = data.currentPage - 1
     } finally {
-      data.loading = false
+      data.pageLoading = false
       loadingReplies.value[commentId] = false
     }
   }
@@ -825,10 +835,31 @@ defineExpose({ refreshComments })
 
 /* 子评论区 */
 .comment-replies {
+  position: relative;
   margin-top: 12px;
   padding: 12px 16px;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 12px;
+}
+
+/* 加载状态下的遮罩效果 */
+.comment-replies.replies-loading {
+  pointer-events: none;
+}
+
+/* 加载遮罩层 */
+.replies-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 12px;
+  z-index: 10;
 }
 
 /* 回复列表头部 */
