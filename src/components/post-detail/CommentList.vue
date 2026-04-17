@@ -75,22 +75,22 @@
           </div>
 
           <!-- 子评论 -->
-          <div v-if="isRepliesExpanded(comment.id)" class="comment-replies" :class="{ 'replies-loading': getRepliesData(comment.id).pageLoading }">
+          <div v-if="isRepliesExpanded(comment.id)" class="comment-replies" :class="{ 'replies-loading': getRepliesData(comment.id).pageLoading || getRepliesData(comment.id).sortLoading }">
             <!-- 回复列表头部：排序切换 -->
             <div class="comment-replies-header">
               <div class="replies-sort-toggle">
                 <span
                   class="sort-option"
-                  :class="{ active: repliesSort === 1 }"
-                  @click="repliesSort !== 1 && toggleRepliesSort(comment.id)"
+                  :class="{ active: repliesSort === 1, disabled: getRepliesData(comment.id).sortLoading }"
+                  @click="repliesSort !== 1 && !getRepliesData(comment.id).sortLoading && toggleRepliesSort(comment.id)"
                 >
                   {{ t('comment.sort.newest') }}
                 </span>
                 <span class="sort-divider">/</span>
                 <span
                   class="sort-option"
-                  :class="{ active: repliesSort === 0 }"
-                  @click="repliesSort !== 0 && toggleRepliesSort(comment.id)"
+                  :class="{ active: repliesSort === 0, disabled: getRepliesData(comment.id).sortLoading }"
+                  @click="repliesSort !== 0 && !getRepliesData(comment.id).sortLoading && toggleRepliesSort(comment.id)"
                 >
                   {{ t('comment.sort.hottest') }}
                 </span>
@@ -197,7 +197,7 @@
             </div>
 
             <!-- 加载遮罩 -->
-            <div v-if="getRepliesData(comment.id).pageLoading" class="replies-loading-overlay">
+            <div v-if="getRepliesData(comment.id).pageLoading || getRepliesData(comment.id).sortLoading" class="replies-loading-overlay">
               <NSpin :size="24" />
             </div>
           </div>
@@ -301,7 +301,8 @@ const getRepliesData = (commentId) => {
       cursors: [''],         // 每页对应的游标
       hasMoreMap: {},        // 每页是否有更多数据 {pageIndex: boolean}
       loading: false,
-      pageLoading: false     // 页面加载状态（用于显示遮罩）
+      pageLoading: false,    // 页面加载状态（用于显示遮罩）
+      sortLoading: false     // 排序切换加载状态
     }
   }
   return repliesData.value[commentId]
@@ -455,17 +456,43 @@ const getRepliesSortValue = () => repliesSort.value
 
 // 切换回复排序
 const toggleRepliesSort = async (commentId) => {
+  const data = getRepliesData(commentId)
+
+  // 如果正在加载，忽略
+  if (data.sortLoading) return
+
+  // 切换排序值
   if (repliesSort.value === 0 || repliesSort.value === 1) {
     repliesSort.value = repliesSort.value === 0 ? 1 : 0
   }
-  // 重置该评论的回复数据，回到第一页
-  if (repliesData.value[commentId]) {
-    delete repliesData.value[commentId]
-  }
-  // 重新加载第一页
-  const comment = comments.value.find(c => c.id === commentId)
-  if (comment) {
-    await loadReplies(comment)
+
+  // 设置排序加载状态
+  data.sortLoading = true
+
+  try {
+    // 重新加载第一页（使用新的排序值）
+    const comment = comments.value.find(c => c.id === commentId)
+    if (comment) {
+      const params = {
+        root_id: comment.id,
+        sort: getRepliesSortValue()
+      }
+
+      const res = await getCommentReplies(params)
+      if (res.data) {
+        const items = res.data.items || []
+
+        // 加载成功后，替换数据为第一页
+        data.pages = [items]
+        data.currentPage = 0
+        data.cursors = ['', res.data.next_cursor || '']
+        data.hasMoreMap = { 0: items.length > 0 && res.data.has_more }
+      }
+    }
+  } catch (error) {
+    console.error('切换排序失败:', error)
+  } finally {
+    data.sortLoading = false
   }
 }
 
@@ -920,6 +947,12 @@ defineExpose({ refreshComments })
 
 .sort-option.active {
   color: #63e2b7;
+}
+
+.sort-option.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+  cursor: not-allowed;
 }
 
 .sort-divider {
