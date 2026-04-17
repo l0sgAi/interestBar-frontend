@@ -190,11 +190,12 @@ onMounted(() => {
 
 /* 右侧悬浮栏 */
 .right-sidebar {
-  width: 384px;
+  width: 23dvw;
   flex-shrink: 0;
   position: sticky;
   top: 88px;
   max-height: calc(100vh - 88px);
+  margin-right: 5dvw;
   overflow-y: auto;
   /* 隐藏滚动条 */
   scrollbar-width: none; /* Firefox */
