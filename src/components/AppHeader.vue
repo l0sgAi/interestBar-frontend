@@ -506,7 +506,7 @@ const handleClearCircleSearch = () => {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 6px 12px 6px 6px;
+  padding: 6px 6px 6px 6px;
   border-radius: 24px;
   cursor: pointer;
   transition: all 0.3s ease;
