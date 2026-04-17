@@ -289,8 +289,8 @@ const initialized = ref(false)
 const repliesData = ref({})
 const loadingReplies = ref({})
 
-// 回复排序状态：0=最新（默认），1=最热（最多点赞）
-const repliesSort = ref(0)
+// 回复排序状态：0=最热（最多点赞），1=最新（默认）
+const repliesSort = ref(1)
 
 // 获取某个评论的回复数据
 const getRepliesData = (commentId) => {
@@ -450,7 +450,7 @@ let lazyObserver = null
 // 排序映射：newest → 1（时间倒序），hottest → 0（点赞倒序）
 const getSortValue = () => props.sort === 'newest' ? 1 : 0
 
-// 回复排序值：0=最新（默认），1=最热
+// 回复排序值：0=最热（最多点赞），1=最新（默认）
 const getRepliesSortValue = () => repliesSort.value
 
 // 切换回复排序
