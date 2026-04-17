@@ -32,8 +32,8 @@
               ref="commentListRef"
               :post-id="Number(route.params.id)"
               v-model:sort="commentSort"
+              v-model:comment-count="commentCount"
               :language="language"
-              :comment-count="post?.comment_count || 0"
             />
           </PostHeaderAndContent>
         </div>
@@ -93,6 +93,8 @@ const loadPostDetail = async () => {
 
     if (res.data) {
       post.value = res.data
+      // 设置评论数
+      commentCount.value = res.data.comment_count || 0
 
       // 设置圈子搜索状态
       if (post.value.circle_id) {
@@ -133,10 +135,17 @@ const handleCollect = () => {
 // ============ 评论区相关 ============
 const commentSort = ref('hottest')
 const commentListRef = ref(null)
+const commentCount = ref(0) // 独立的评论数变量
 
 // 提交评论（API 调用已在 CommentEditor 内部完成，此处只做后续处理）
-const handleSubmitComment = () => {
-  commentListRef.value?.refreshComments()
+const handleSubmitComment = (newComment) => {
+  // 直接将新评论添加到列表中，而不是刷新整个列表
+  if (newComment) {
+    commentListRef.value?.addComment(newComment)
+  } else {
+    // 降级处理：如果没有返回数据，则刷新列表
+    commentListRef.value?.refreshComments()
+  }
 }
 
 // 评论图片上传

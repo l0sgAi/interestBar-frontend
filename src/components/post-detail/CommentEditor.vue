@@ -39,6 +39,7 @@ import { useI18n } from 'vue-i18n'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 import { createComment } from '@/api/comment'
+import { getUserInfo } from '@/api/auth'
 
 const props = defineProps({
   postId: {
@@ -91,9 +92,36 @@ const handleSubmit = async () => {
   if (!content.value.trim() || submitting.value) return
   submitting.value = true
   try {
-    await createComment({ post_id: props.postId, content: content.value })
+    const res = await createComment({ post_id: props.postId, content: content.value })
     message.success(t('comment.editor.success'))
-    emit('submit', content.value)
+
+    // 获取当前用户信息
+    let userData = {}
+    try {
+      const userRes = await getUserInfo()
+      if (userRes.data) {
+        userData = userRes.data
+      }
+    } catch (err) {
+      console.error('获取用户信息失败:', err)
+    }
+
+    // 构建新评论数据
+    // 如果 res.data 是对象则使用它，如果是数字（ID）则创建新对象
+    const newComment = typeof res.data === 'object' && res.data !== null
+      ? { ...res.data }
+      : { id: res.data }
+
+    // 使用本地获取的用户信息填充评论数据
+    newComment.author_name = userData.name || newComment.author_name || ''
+    newComment.author_id = userData.id || newComment.author_id
+    newComment.author_avatar = userData.avatar_url || newComment.author_avatar || null
+    newComment.content = newComment.content || content.value
+    newComment.like_count = newComment.like_count || 0
+    newComment.reply_count = newComment.reply_count || 0
+    newComment.create_time = newComment.create_time || new Date().toISOString()
+
+    emit('submit', newComment)
     content.value = ''
   } catch (err) {
     message.error(err.message || t('comment.editor.failed'))

@@ -259,7 +259,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:sort'])
+const emit = defineEmits(['update:sort', 'update:commentCount'])
 
 const { t } = useI18n()
 const { formatTime } = useFormatTime()
@@ -434,9 +434,18 @@ const handleReplySubmit = async (parentComment, newReply) => {
     } else if (parentComment.reply_count === 0) {
       await loadReplies(parentComment)
     }
-    // 刷新列表以更新 reply_count
-    refreshComments()
   }
+}
+
+// 添加新评论到列表顶部
+const addComment = (newComment) => {
+  if (!newComment) return
+
+  // 将新评论添加到列表顶部
+  comments.value.unshift(newComment)
+
+  // 更新评论总数
+  emit('update:commentCount', (props.commentCount || 0) + 1)
 }
 
 // 无限滚动
@@ -734,7 +743,7 @@ onUnmounted(() => {
   cleanupObserver()
 })
 
-defineExpose({ refreshComments })
+defineExpose({ refreshComments, addComment })
 </script>
 
 <style scoped>

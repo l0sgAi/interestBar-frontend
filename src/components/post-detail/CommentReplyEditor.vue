@@ -35,6 +35,7 @@ import { useI18n } from 'vue-i18n'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 import { createComment } from '@/api/comment'
+import { getUserInfo } from '@/api/auth'
 
 const props = defineProps({
   postId: {
@@ -87,9 +88,36 @@ const handleSubmit = async () => {
       content: content.value
     })
     message.success(t('comment.reply.success'))
+
+    // 获取当前用户信息
+    let userData = {}
+    try {
+      const userRes = await getUserInfo()
+      if (userRes.data) {
+        userData = userRes.data
+      }
+    } catch (err) {
+      console.error('获取用户信息失败:', err)
+    }
+
+    // 构建新回复数据
+    // 如果 res.data 是对象则使用它，如果是数字（ID）则创建新对象
+    const newReply = typeof res.data === 'object' && res.data !== null
+      ? { ...res.data }
+      : { id: res.data }
+
+    // 使用本地获取的用户信息填充回复数据
+    newReply.author_name = userData.name || newReply.author_name || ''
+    newReply.author_id = userData.id || newReply.author_id
+    newReply.author_avatar = userData.avatar_url || newReply.author_avatar || null
+    newReply.content = newReply.content || content.value
+    newReply.like_count = newReply.like_count || 0
+    newReply.reply_to_name = newReply.reply_to_name || props.replyToName || null
+    newReply.create_time = newReply.create_time || new Date().toISOString()
+
     content.value = ''
-    // 返回新创建的评论数据
-    emit('submit', res.data)
+    // 返回新创建的回复数据
+    emit('submit', newReply)
   } catch (err) {
     message.error(err.message || t('comment.reply.failed'))
   } finally {
