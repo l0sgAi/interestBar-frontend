@@ -582,7 +582,7 @@ const nextPage = async (commentId) => {
       const params = {
         root_id: comment.id,
         sort: getRepliesSortValue(),
-        cursor: data.cursors[data.currentPage]
+        cursor: data.cursors[data.currentPage + 1]
       }
 
       const res = await getCommentReplies(params)
