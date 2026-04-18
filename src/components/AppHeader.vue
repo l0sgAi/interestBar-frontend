@@ -328,7 +328,7 @@ const handleClearCircleSearch = () => {
 .logo {
   font-size: 1.5rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #ec4899 0%, #a855f7 25%, #3b82f6 50%, #06b6d4 75%, #22c55e 100%);
+  background: rgba(60, 250, 183, 0.734);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -358,12 +358,12 @@ const handleClearCircleSearch = () => {
 
 .search-box:hover {
   background: rgba(255, 255, 255, 0.08);
-  border-color: rgb(52, 127, 180);
+  border-color: rgba(83, 249, 166, 0.493);
 }
 
 .search-box:focus-within {
   background: rgba(255, 255, 255, 0.1);
-  border-color: rgb(161, 52, 106);
+  border-color: rgb(0, 255, 102);
   box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
 }
 
@@ -372,8 +372,8 @@ const handleClearCircleSearch = () => {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: rgba(236, 72, 153, 0.15);
-  border: 1px solid rgba(236, 72, 153, 0.3);
+  background: rgba(131, 248, 149, 0.264);
+  border: 1px solid rgba(90, 246, 160, 0.379);
   border-radius: 16px;
   padding: 4px 8px 4px 4px;
   flex-shrink: 0;

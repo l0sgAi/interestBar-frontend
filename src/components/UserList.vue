@@ -1,5 +1,5 @@
 <template>
-  <div class="user-list" ref="listContainer">
+  <div class="user-list">
     <!-- 空状态 -->
     <div v-if="!loading && users.length === 0" class="empty-state">
       <NIcon size="64" :color="'rgba(255,255,255,0.2)'">
@@ -91,7 +91,6 @@ const emit = defineEmits(['load-more'])
 
 const router = useRouter()
 
-const listContainer = ref(null)
 const loadMoreTrigger = ref(null)
 const observer = ref(null)
 
@@ -129,7 +128,15 @@ const handleUserClick = (user) => {
 
 // 设置 Intersection Observer 实现无限滚动
 const setupObserver = () => {
-  if (!loadMoreTrigger.value) return
+  // 清理旧的观察器
+  if (observer.value) {
+    observer.value.disconnect()
+  }
+
+  // 只有在有触发元素且有更多数据时才创建观察器
+  if (!loadMoreTrigger.value || !props.hasMore || props.loading) {
+    return
+  }
 
   observer.value = new IntersectionObserver(
     (entries) => {
@@ -140,9 +147,8 @@ const setupObserver = () => {
       })
     },
     {
-      root: listContainer.value,
-      rootMargin: '100px',
-      threshold: 0.1
+      rootMargin: '200px',
+      threshold: 0
     }
   )
 
@@ -166,11 +172,9 @@ onUnmounted(() => {
   cleanupObserver()
 })
 
-// 监听 users 变化，重新设置 observer
-watch(() => props.users, () => {
-  if (loadMoreTrigger.value && !observer.value) {
-    setupObserver()
-  }
+// 监听 users、hasMore 和 loading 变化，重新设置 observer
+watch([() => props.users, () => props.hasMore, () => props.loading, loadMoreTrigger], () => {
+  setupObserver()
 })
 </script>
 
@@ -235,11 +239,11 @@ watch(() => props.users, () => {
 }
 
 .user-avatar :deep(.n-avatar) {
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+  /* background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%); */
   color: white;
   font-weight: 700;
   font-size: 1.5rem;
-  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4);
+  /* box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4); */
 }
 
 .user-info {

@@ -95,7 +95,7 @@ defineProps({
   height: 48px;
   border-radius: 50%;
   border: 2px solid rgba(255, 255, 255, 0.15);
-  background: linear-gradient(135deg, #ec4899 0%, #a855f7 50%, #3b82f6 100%);
+  /* background: linear-gradient(135deg, #ec4899 0%, #a855f7 50%, #3b82f6 100%); */
   display: flex;
   align-items: center;
   justify-content: center;

@@ -237,7 +237,7 @@ watch([() => props.circles, () => props.hasMore, () => props.loading, loadMoreTr
 }
 
 .circle-avatar :deep(.n-avatar) {
-  background: linear-gradient(135deg, #ec4899 0%, #a855f7 50%, #3b82f6 100%);
+  /* background: linear-gradient(135deg, #ec4899 0%, #a855f7 50%, #3b82f6 100%); */
   color: white;
   font-weight: 700;
   font-size: 1.5rem;
