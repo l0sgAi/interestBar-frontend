@@ -1,59 +1,50 @@
 <template>
-  <div v-if="circleData" class="circle-rule-card">
-    <NCard :bordered="false" class="rule-card">
-      <div class="circle-header">
-        <div class="circle-avatar-wrapper">
-          <img
-            v-if="circleData.avatar_url"
-            :src="circleData.avatar_url"
-            class="circle-avatar"
-            :alt="circleData.name"
-          />
-          <div v-else class="circle-avatar-placeholder">
-            {{ circleData.name?.charAt(0)?.toUpperCase() || '?' }}
+  <Transition name="card-slide">
+    <div v-if="circleData" class="circle-rule-card">
+      <NCard :bordered="false" class="rule-card">
+        <div class="circle-header">
+          <div class="circle-avatar-wrapper">
+            <img
+              v-if="circleData.avatar_url"
+              :src="circleData.avatar_url"
+              class="circle-avatar"
+              :alt="circleData.name"
+            />
+            <div v-else class="circle-avatar-placeholder">
+              {{ circleData.name?.charAt(0)?.toUpperCase() || '?' }}
+            </div>
+          </div>
+          <div class="circle-info">
+            <h3 class="circle-name">{{ circleData.name }}</h3>
+            <p class="circle-slug">c/{{ circleData.slug || circleData.id }}</p>
           </div>
         </div>
-        <div class="circle-info">
-          <h3 class="circle-name">{{ circleData.name }}</h3>
-          <p class="circle-slug">c/{{ circleData.slug || circleData.id }}</p>
-        </div>
-      </div>
 
-      <div v-if="circleData.rule" class="rules-section">
-        <div class="rules-header">
-          <NIcon size="16" class="rules-icon">
+        <div v-if="circleData.rule" class="rules-section">
+          <div class="rules-header">
+            <NIcon size="16" class="rules-icon">
+              <InfoCircleIcon />
+            </NIcon>
+            <span class="rules-title">{{ t('post.circleRules') }}</span>
+          </div>
+          <p class="rules-content">{{ circleData.rule }}</p>
+        </div>
+
+        <div v-else class="no-rules">
+          <NIcon size="20" color="rgba(255,255,255,0.3)">
             <InfoCircleIcon />
           </NIcon>
-          <span class="rules-title">{{ t('post.circleRules') }}</span>
+          <span>{{ t('post.noCircleRules') }}</span>
         </div>
-        <p class="rules-content">{{ circleData.rule }}</p>
-      </div>
-
-      <div v-else class="no-rules">
-        <NIcon size="20" color="rgba(255,255,255,0.3)">
-          <InfoCircleIcon />
-        </NIcon>
-        <span>{{ t('post.noCircleRules') }}</span>
-      </div>
-    </NCard>
-  </div>
-
-  <div v-else class="circle-rule-card empty">
-    <NCard :bordered="false" class="rule-card empty-card">
-      <div class="empty-state">
-        <NIcon size="32" color="rgba(255,255,255,0.2)">
-          <CircleIcon />
-        </NIcon>
-        <p>{{ t('post.selectCircleToViewRules') }}</p>
-      </div>
-    </NCard>
-  </div>
+      </NCard>
+    </div>
+  </Transition>
 </template>
 
 <script setup>
 import { NCard, NIcon } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
-import { InfoCircle as InfoCircleIcon, Circle as CircleIcon } from '@vicons/tabler'
+import { InfoCircle as InfoCircleIcon } from '@vicons/tabler'
 
 const { t } = useI18n()
 
@@ -75,11 +66,6 @@ defineProps({
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
-}
-
-.empty-card {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px dashed rgba(255, 255, 255, 0.15);
 }
 
 .circle-header {
@@ -181,22 +167,41 @@ defineProps({
   font-size: 0.85rem;
 }
 
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 32px 16px;
-  color: rgba(255, 255, 255, 0.4);
-  font-size: 0.9rem;
-  text-align: center;
-}
-
 @media (max-width: 1200px) {
   .circle-rule-card {
     max-width: 100%;
     margin-top: 20px;
+  }
+}
+
+/* 卡片滑入动画 */
+.card-slide-enter-active {
+  animation: cardSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-slide-leave-active {
+  animation: cardSlideOut 0.3s ease-in;
+}
+
+@keyframes cardSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(20px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes cardSlideOut {
+  0% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-10px) scale(0.98);
   }
 }
 </style>
