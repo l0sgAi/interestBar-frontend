@@ -103,7 +103,7 @@
 
 <script setup>
 import { ref, onMounted, h } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import {
   NCard,
   NForm,
@@ -126,6 +126,7 @@ import { getCircleDetail } from '@/api/circle'
 import { uploadImage } from '@/api/user'
 
 const router = useRouter()
+const route = useRoute()
 const message = useMessage()
 const { t } = useI18n()
 const offset = ref(260)
@@ -367,8 +368,21 @@ const handleCancel = () => {
   router.back()
 }
 
-onMounted(() => {
-  loadCircles()
+onMounted(async () => {
+  await loadCircles()
+
+  // 检查 URL 参数中是否有 circleId，如果有则默认选中
+  const circleIdFromUrl = route.query.circleId
+  if (circleIdFromUrl) {
+    const circleId = Number(circleIdFromUrl)
+    // 检查圈子是否在选项列表中
+    const circleExists = circleOptions.value.some(option => option.value === circleId)
+    if (circleExists) {
+      formData.value.circle_id = circleId
+      // 加载圈子详情以显示规则卡片
+      await handleCircleChange(circleId)
+    }
+  }
 })
 </script>
 

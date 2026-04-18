@@ -328,7 +328,7 @@ const handleClearCircleSearch = () => {
 .logo {
   font-size: 1.5rem;
   font-weight: 700;
-  background: rgba(60, 250, 183, 0.734);
+  background: rgba(96, 248, 187, 0.867);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
