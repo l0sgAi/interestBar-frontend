@@ -242,8 +242,10 @@ const renderCircleLabel = (option) => {
   return h('div', { style: { display: 'flex', alignItems: 'center', gap: '12px', padding: '8px 0' } }, [
     h(NAvatar, {
       size: 48,
-      src: option.avatar,
+      src: option.avatar || undefined,
       round: true
+    }, {
+      default: () => !option.avatar ? (option.label?.charAt(0) || '?') : undefined
     }),
     h('div', { style: { flex: 1 } }, [
       h('div', { style: { fontWeight: 500, fontSize: '21px' } }, option.label),

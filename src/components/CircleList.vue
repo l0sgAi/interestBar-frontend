@@ -236,7 +236,6 @@ watch(() => props.circles, () => {
   color: white;
   font-weight: 700;
   font-size: 1.5rem;
-  /* box-shadow: 0 4px 16px rgba(236, 72, 153, 0.4); */
 }
 
 .circle-info {
