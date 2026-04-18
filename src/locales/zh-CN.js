@@ -57,6 +57,9 @@ export default {
     summaryPlaceholder: '请输入摘要，用于检索和关键词匹配',
     belongToCircle: '所属圈子',
     selectCircle: '搜索并选择圈子',
+    circleRules: '圈子规则',
+    noCircleRules: '该圈子暂无规则',
+    selectCircleToViewRules: '选择圈子后查看规则',
     detail: '帖子详情',
     status: {
       normal: '正常',

@@ -57,6 +57,9 @@ export default {
     summaryPlaceholder: 'Enter summary for search and keyword matching',
     belongToCircle: 'Circle',
     selectCircle: 'Search and select a circle',
+    circleRules: 'Circle Rules',
+    noCircleRules: 'No rules for this circle',
+    selectCircleToViewRules: 'Select a circle to view rules',
     detail: 'Post Detail',
     status: {
       normal: 'Normal',

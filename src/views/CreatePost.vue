@@ -9,87 +9,93 @@
     <!-- 主内容区域 -->
     <div class="main-content" :style="{ 'margin-left': `${offset}px` }">
       <div class="create-post-container">
-        <NCard 
-        :title="t('post.createPost')" 
-        :bordered="false" 
-        class="post-card"
-        :header-style="{fontSize:'35px',marginLeft:'20px',marginTop:'20px'}"
-        >
-          <NForm
-            ref="formRef"
-            :model="formData"
-            :rules="rules"
-            label-placement="top"
-            require-mark-placement="right-hanging"
+        <div class="content-wrapper">
+          <NCard
+          :title="t('post.createPost')"
+          :bordered="false"
+          class="post-card"
+          :header-style="{fontSize:'35px',marginLeft:'20px',marginTop:'20px'}"
           >
-            <!-- 圈子选择 -->
-            <NFormItem :label="t('post.belongToCircle')" path="circle_id">
-              <NSelect
-                v-model:value="formData.circle_id"
-                :options="circleOptions"
-                :loading="loadingCircles"
-                filterable
-                :placeholder="t('post.selectCircle')"
-                clearable
-                @search="handleSearchCircle"
-                :render-label="renderCircleLabel"
-                size="large"
-                class="circle-select"
-              />
-            </NFormItem>
+            <NForm
+              ref="formRef"
+              :model="formData"
+              :rules="rules"
+              label-placement="top"
+              require-mark-placement="right-hanging"
+            >
+              <!-- 圈子选择 -->
+              <NFormItem :label="t('post.belongToCircle')" path="circle_id">
+                <NSelect
+                  v-model:value="formData.circle_id"
+                  :options="circleOptions"
+                  :loading="loadingCircles"
+                  filterable
+                  :placeholder="t('post.selectCircle')"
+                  clearable
+                  @search="handleSearchCircle"
+                  @update:value="handleCircleChange"
+                  :render-label="renderCircleLabel"
+                  size="large"
+                  class="circle-select"
+                />
+              </NFormItem>
 
-            <!-- 标题 -->
-            <NFormItem :label="t('post.title')" path="title">
-              <NInput
-                v-model:value="formData.title"
-                :placeholder="t('post.titlePlaceholder')"
-                maxlength="200"
-                show-count
-                size="large"
-                class="title-input"
-              />
-            </NFormItem>
+              <!-- 标题 -->
+              <NFormItem :label="t('post.title')" path="title">
+                <NInput
+                  v-model:value="formData.title"
+                  :placeholder="t('post.titlePlaceholder')"
+                  maxlength="200"
+                  show-count
+                  size="large"
+                  class="title-input"
+                />
+              </NFormItem>
 
-            <!-- 摘要 -->
-            <!-- <NFormItem label="摘要（检索关键词，可选）" path="summary">
-              <NInput
-                v-model:value="formData.summary"
-                type="textarea"
-                placeholder="请输入摘要，用于检索和关键词匹配"
-                maxlength="500"
-                show-count
-                size="large"
-                class="title-input"
-              />
-            </NFormItem> -->
+              <!-- 摘要 -->
+              <!-- <NFormItem label="摘要（检索关键词，可选）" path="summary">
+                <NInput
+                  v-model:value="formData.summary"
+                  type="textarea"
+                  placeholder="请输入摘要，用于检索和关键词匹配"
+                  maxlength="500"
+                  show-count
+                  size="large"
+                  class="title-input"
+                />
+              </NFormItem> -->
 
-            <!-- 正文（Markdown编辑器） -->
-            <NFormItem :label="t('post.content')" path="content">
-              <MdEditor
-                v-model="formData.content"
-                :language="language"
-                :preview="true"
-                :toolbars="toolbars"
-                theme="dark"
-                :placeholder="t('post.contentPlaceholder')"
-                :max-length="50000"
-                :rows="25"
-                @onUploadImg="handleUploadImg"
-              />
-            </NFormItem>
-            <div class="footer-actions">
-              <NButton size="large" @click="handleCancel">{{ t('common.cancel') }}</NButton>
-              <NButton
-                size="large"
-                type="primary"
-                :loading="submitting"
-                @click="handleSubmit"
-              >
-                {{ t('common.submit') }}
-              </NButton>
-            </div>
-          </NForm>
-        </NCard>
+              <!-- 正文（Markdown编辑器） -->
+              <NFormItem :label="t('post.content')" path="content">
+                <MdEditor
+                  v-model="formData.content"
+                  :language="language"
+                  :preview="true"
+                  :toolbars="toolbars"
+                  theme="dark"
+                  :placeholder="t('post.contentPlaceholder')"
+                  :max-length="50000"
+                  :rows="25"
+                  @onUploadImg="handleUploadImg"
+                />
+              </NFormItem>
+              <div class="footer-actions">
+                <NButton size="large" @click="handleCancel">{{ t('common.cancel') }}</NButton>
+                <NButton
+                  size="large"
+                  type="primary"
+                  :loading="submitting"
+                  @click="handleSubmit"
+                >
+                  {{ t('common.submit') }}
+                </NButton>
+              </div>
+            </NForm>
+          </NCard>
+
+          <!-- 右侧规则卡片 -->
+          <CircleRuleCard :circle-data="selectedCircleData" />
+        </div>
       </div>
     </div>
   </div>
@@ -114,7 +120,9 @@ import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 import AppHeader from '@/components/AppHeader.vue'
 import SideNav from '@/components/SideNav.vue'
+import CircleRuleCard from '@/components/post-create/CircleRuleCard.vue'
 import { getMyCircles, createPost } from '@/api/post'
+import { getCircleDetail } from '@/api/circle'
 import { uploadImage } from '@/api/user'
 
 const router = useRouter()
@@ -126,6 +134,9 @@ const submitting = ref(false)
 const loadingCircles = ref(false)
 const language = ref('zh-CN')
 let searchTimer = null
+
+// 选中的圈子数据
+const selectedCircleData = ref(null)
 
 // 表单数据
 const formData = ref({
@@ -252,9 +263,26 @@ const renderCircleLabel = (option) => {
       h(NText, {
         depth: 3,
         style: { fontSize: '16px' }
-      }, { default: () => `${option.member_count || 0} 成员` })
+      }, { default: () => `${option.member_count || 0} ${t('circle.members')}` })
     ])
   ])
+}
+
+// 圈子选择变化时加载圈子详情
+const handleCircleChange = async (circleId) => {
+  if (!circleId) {
+    selectedCircleData.value = null
+    return
+  }
+
+  try {
+    const res = await getCircleDetail(circleId)
+    if (res.data) {
+      selectedCircleData.value = res.data
+    }
+  } catch (error) {
+    console.error('加载圈子详情失败:', error)
+  }
 }
 
 // 上传图片
@@ -361,6 +389,17 @@ onMounted(() => {
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
+}
+
+.content-wrapper {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.content-wrapper .post-card {
+  flex: 1;
+  min-width: 0;
 }
 
 .post-card {
@@ -544,6 +583,10 @@ onMounted(() => {
 @media (max-width: 1200px) {
   .main-content {
     margin-right: 24px;
+  }
+
+  .content-wrapper {
+    flex-direction: column;
   }
 }
 
