@@ -398,7 +398,7 @@ onMounted(() => {
 }
 
 :deep(.circle-select .n-base-selection) {
-  min-height: 72px !important;
+  min-height: 62px !important;
 }
 
 :deep(.circle-select .n-base-selection__border),
@@ -407,30 +407,30 @@ onMounted(() => {
 }
 
 :deep(.circle-select .n-base-selection-label) {
-  min-height: 72px !important;
-  font-size: 21px !important;
+  min-height: 62px !important;
+  font-size: 18px !important;
   display: flex !important;
   align-items: center !important;
 }
 
 :deep(.circle-select .n-base-selection-placeholder) {
-  font-size: 21px !important;
-  min-height: 72px !important;
+  font-size: 18px !important;
+  min-height: 62px !important;
   display: flex !important;
   align-items: center !important;
 }
 
 :deep(.circle-select .n-base-selection-input) {
-  font-size: 21px !important;
+  font-size: 18px !important;
 }
 
 /* 下拉列表选项样式 */
 :deep(.n-virtuoso__item) {
-  min-height: 64px !important;
+  min-height: 56px !important;
 }
 
 :deep(.n-base-select-option__content) {
-  min-height: 64px !important;
+  min-height: 56px !important;
   padding: 12px 16px !important;
 }
 
@@ -447,36 +447,37 @@ onMounted(() => {
 
 :deep(.n-input__input-el),
 :deep(.n-input__textarea-el) {
-  font-size: 21px;
+  font-size: 18px;
 }
 
 :deep(.n-input--large .n-input__input-el),
 :deep(.n-input--large .n-input__textarea-el) {
-  font-size: 21px;
+  font-size: 18px;
 }
 
 /* 标题输入框样式 */
 .title-input {
-  min-height: 72px;
-  font-size: 21px;
+  min-height: 64px;
+  font-size: 18px;
+  max-width: 75%;
 }
 
 :deep(.title-input .n-input__input-el) {
-  height: 72px !important;
-  line-height: 72px !important;
-  font-size: 21px !important;
+  height: 64px !important;
+  line-height: 64px !important;
+  font-size: 18px !important;
 }
 
 /* 摘要输入框样式 */
 .summary-input :deep(.n-input__textarea-el) {
-  font-size: 21px !important;
+  font-size: 18px !important;
   line-height: 1.6;
 }
 
 /* Markdown 编辑器样式 */
 :deep(.md-editor) {
-  font-size: 21px !important;
-  border-radius: 21px !important;
+  font-size: 18px !important;
+  border-radius: 18px !important;
   overflow: hidden;
 }
 
@@ -486,19 +487,19 @@ onMounted(() => {
 }
 
 :deep(.cm-scroller *){
-  font-size: 21px;
+  font-size: 18px;
 }
 
 /* 工具栏样式 */
 :deep(.md-editor-toolbar) {
-  font-size: 21px !important;
+  font-size: 18px !important;
   border-radius: 21px 21px 0 0 !important;
   padding: 7px !important;
 }
 
 :deep(.md-editor-toolbar-item svg) {
-  width: 21px !important;
-  height: 21px !important;
+  width: 18px !important;
+  height: 18px !important;
 }
 
 :deep(.md-editor-footer){
