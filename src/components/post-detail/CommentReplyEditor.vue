@@ -70,8 +70,7 @@ const submitting = ref(false)
 const toolbars = [
   'bold',
   'italic',
-  '-',
-  'emoji',
+  '_',
   'image',
   '-',
   'preview'
