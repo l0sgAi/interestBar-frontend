@@ -46,7 +46,7 @@
               <NIcon size="14">
                 <FireIcon />
               </NIcon>
-              Hot {{ circle.hot }}
+               {{ circle.hot }}
             </span>
           </div>
         </div>
@@ -126,7 +126,15 @@ const handleJoin = (circle) => {
 
 // 设置 Intersection Observer 实现无限滚动
 const setupObserver = () => {
-  if (!loadMoreTrigger.value) return
+  // 清理旧的观察器
+  if (observer.value) {
+    observer.value.disconnect()
+  }
+
+  // 只有在有触发元素且有更多数据时才创建观察器
+  if (!loadMoreTrigger.value || !props.hasMore || props.loading) {
+    return
+  }
 
   observer.value = new IntersectionObserver(
     (entries) => {
@@ -137,9 +145,8 @@ const setupObserver = () => {
       })
     },
     {
-      root: listContainer.value,
-      rootMargin: '100px',
-      threshold: 0.1
+      rootMargin: '200px',
+      threshold: 0
     }
   )
 
@@ -163,11 +170,9 @@ onUnmounted(() => {
   cleanupObserver()
 })
 
-// 监听 circles 变化，重新设置 observer
-watch(() => props.circles, () => {
-  if (loadMoreTrigger.value && !observer.value) {
-    setupObserver()
-  }
+// 监听 circles、hasMore 和 loading 变化，重新设置 observer
+watch([() => props.circles, () => props.hasMore, () => props.loading, loadMoreTrigger], () => {
+  setupObserver()
 })
 </script>
 

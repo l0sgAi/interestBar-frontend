@@ -35,11 +35,7 @@
               <NSpin size="medium" />
               <p>{{ t('post.searching') }}</p>
             </div>
-            <div v-if="hasMorePosts && !loadingPosts" class="load-more-container">
-              <NButton @click="loadMorePosts" :loading="loadingPosts">
-                {{ t('common.loadMore') }}
-              </NButton>
-            </div>
+            <div ref="postsSentinel" class="sentinel"></div>
           </NTabPane>
           <NTabPane name="circle" :tab="t('circle.interestCircle')">
             <CircleList
@@ -67,9 +63,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, inject } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch, inject } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { NTabs,NDivider, NTabPane, NIcon, NSpin, NButton, useMessage } from 'naive-ui'
+import { NTabs,NDivider, NTabPane, NIcon, NSpin, useMessage } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 import { FileText as FileTextIcon } from '@vicons/tabler'
 import AppHeader from '@/components/AppHeader.vue'
@@ -118,6 +114,10 @@ const users = ref([])
 const loadingUsers = ref(false)
 const hasMoreUsers = ref(false)
 const searchAfterUsers = ref(null)
+
+// 帖子无限滚动相关
+const postsSentinel = ref(null)
+const postsObserver = ref(null)
 
 // 初始化
 onMounted(async () => {
@@ -317,6 +317,45 @@ const loadMorePosts = () => {
     searchPostsData()
   }
 }
+
+// 设置帖子无限滚动观察器
+const setupPostsObserver = () => {
+  // 清理旧的观察器
+  if (postsObserver.value) {
+    postsObserver.value.disconnect()
+  }
+
+  // 只有在有更多数据且不在加载状态时才创建观察器
+  if (!postsSentinel.value || !hasMorePosts.value || loadingPosts.value) {
+    return
+  }
+
+  postsObserver.value = new IntersectionObserver(
+    (entries) => {
+      const entry = entries[0]
+      if (entry.isIntersecting && hasMorePosts.value && !loadingPosts.value) {
+        loadMorePosts()
+      }
+    },
+    {
+      rootMargin: '200px' // 提前200px开始加载
+    }
+  )
+
+  postsObserver.value.observe(postsSentinel.value)
+}
+
+// 监听帖子的 sentinel、hasMorePosts 和 loadingPosts 变化
+watch([postsSentinel, hasMorePosts, loadingPosts], () => {
+  setupPostsObserver()
+})
+
+// 组件卸载时清理观察器
+onBeforeUnmount(() => {
+  if (postsObserver.value) {
+    postsObserver.value.disconnect()
+  }
+})
 
 // 搜索兴趣圈数据
 const searchCirclesData = async () => {
@@ -551,5 +590,10 @@ const loadMoreUsers = () => {
 
 :deep(.n-tab-pane) {
   padding: 16px 0 0 0 !important;
+}
+
+.sentinel {
+  width: 100%;
+  height: 1px;
 }
 </style>
