@@ -23,7 +23,7 @@
             :size="56"
             :src="circle.avatar_url"
           >
-            <div v-if="circle.avatar_url===undefined">{{ circle.name.charAt(0) }}</div>
+            <div v-if="circle.avatar_url===undefined || circle.avatar_url==''">{{ circle.name.charAt(0) }}</div>
           </NAvatar>
         </div>
         <div class="circle-info">
@@ -236,7 +236,7 @@ watch(() => props.circles, () => {
   color: white;
   font-weight: 700;
   font-size: 1.5rem;
-  box-shadow: 0 4px 16px rgba(236, 72, 153, 0.4);
+  /* box-shadow: 0 4px 16px rgba(236, 72, 153, 0.4); */
 }
 
 .circle-info {

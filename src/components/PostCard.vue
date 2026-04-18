@@ -8,8 +8,9 @@
           round
           :size="48"
           :src="circleAvatar"
-          :style="circleAvatar ? '' : { background: circleColor }"
-        />
+        >
+          <div v-if="circleAvatar===undefined || circleAvatar==''">{{ circleName.charAt(0) }}</div>
+        </NAvatar>
         <span class="circle-name">{{ circleName }}</span>
       </div>
       <!-- 用户信息 -->
@@ -214,7 +215,7 @@ const getDefaultImage = () => {
 .post-header {
   display: flex;
   /* justify-content: space-between; */
-  padding: 16px;
+  padding: 8px;
   align-items: center;
   gap: 12px;
 }
@@ -225,6 +226,14 @@ const getDefaultImage = () => {
   gap: 15px;
   padding: 4px 10px;
   flex-shrink: 0;
+}
+
+.circle-info :deep(.n-avatar) {
+  background: linear-gradient(135deg, #ec4899 0%, #a855f7 50%, #3b82f6 100%);
+  color: white;
+  font-weight: 700;
+  font-size: 1.5rem;
+  /* box-shadow: 0 4px 16px rgba(236, 72, 153, 0.4); */
 }
 
 .circle-name {
@@ -269,11 +278,13 @@ const getDefaultImage = () => {
   font-weight: 600;
   color: rgba(255, 255, 255, 0.95);
   margin-bottom: 8px;
+  margin-left: 16px;
   line-height: 1.4;
 }
 
 .post-text {
   font-size: 0.95rem;
+  margin-left: 16px;
   color: rgba(255, 255, 255, 0.8);
   line-height: 1.6;
 }
