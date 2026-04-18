@@ -23,7 +23,7 @@
             :size="56"
             :src="user.avatar_url"
             >
-            <div v-if="user.avatar_url===undefined">{{ user.username.charAt(0) }}</div>
+            <div v-if="user.avatar_url===undefined || user.avatar_url==''">{{ user.username.charAt(0) }}</div>
           </NAvatar>
         </div>
         <div class="user-info">
