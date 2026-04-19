@@ -219,7 +219,7 @@ const handleLoadMore = () => {
 .title-icon {
   width: 20px;
   height: 20px;
-  color: #ec4899;
+  color: #6bf9bbcb;
 }
 
 .sidebar-subtitle {

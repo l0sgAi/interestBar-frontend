@@ -76,9 +76,9 @@
             round
             :size="40"
             :src="userAvatarUrl"
-            :fallback-src=getAvatarUrl(username.charAt(0))
-            class="user-avatar"/>
-            <div v-if="userAvatarUrl===undefined">{{ username.charAt(0) }}</div>
+            class="user-avatar">
+            <div v-if="userAvatarUrl===undefined || userAvatarUrl==''" >{{ username.charAt(0) }}</div>
+          </NAvatar>
         </div>
       </NDropdown>
     </div>
@@ -391,7 +391,6 @@ const handleClearCircleSearch = () => {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #ec4899 0%, #a855f7 50%, #3b82f6 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -518,10 +517,10 @@ const handleClearCircleSearch = () => {
 }
 
 .user-avatar {
-  background: linear-gradient(135deg, #ec4899 0%, #a855f7 50%, #3b82f6 100%);
+  /* background: linear-gradient(135deg, #ec4899 0%, #a855f7 50%, #3b82f6 100%); */
   color: white;
   font-weight: 600;
-  box-shadow: 0 2px 8px rgba(236, 72, 153, 0.3);
+  /* box-shadow: 0 2px 8px rgba(236, 72, 153, 0.3); */
 }
 
 .username {
