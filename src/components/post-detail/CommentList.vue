@@ -251,7 +251,7 @@ import { toggleLike } from '@/api/like'
 import CommentReplyEditor from './CommentReplyEditor.vue'
 import {CommentRound} from '@vicons/material'
 import { useFormatTime } from '@/utils/i18n'
-import { useThrottleFn } from '@/utils/throttle'
+import { useThrottleFn, useDebounceFn } from '@/utils/throttle'
 
 const props = defineProps({
   postId: {
@@ -422,20 +422,34 @@ const openReply = (comment) => {
   activeReplyId.value = activeReplyId.value === comment.id ? null : comment.id
 }
 
-const handleToggleLike = useThrottleFn(async (type, target) => {
+const debouncedLikeRequest = useDebounceFn(async (type, target) => {
   try {
     const res = await toggleLike({ type, target_id: target.id })
     if (res.data) {
-      const newLiked = res.data.is_liked
-      target.liked = newLiked
-      target.like_count = newLiked
-        ? target.like_count + 1
-        : target.like_count - 1
+      const serverLiked = res.data.is_liked
+      if (target.liked !== serverLiked) {
+        target.like_count = serverLiked
+          ? target.like_count + 1
+          : target.like_count - 1
+        target.liked = serverLiked
+      }
     }
-  } catch (error) {
-    console.error('点赞操作失败:', error)
+  } catch {
+    target.liked = !target.liked
+    target.like_count = target.liked
+      ? target.like_count + 1
+      : target.like_count - 1
   }
-}, 1000)
+}, 600)
+
+const handleToggleLike = (type, target) => {
+  const newLiked = !target.liked
+  target.liked = newLiked
+  target.like_count = newLiked
+    ? target.like_count + 1
+    : target.like_count - 1
+  debouncedLikeRequest(type, target)
+}
 
 const handleReplySubmit = async (parentComment, newReply) => {
   activeReplyId.value = null

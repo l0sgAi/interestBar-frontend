@@ -24,3 +24,14 @@ export function useThrottleFn(fn, delay) {
     }
   }
 }
+
+export function useDebounceFn(fn, delay) {
+  let timer = null
+  return function (...args) {
+    if (timer) clearTimeout(timer)
+    timer = setTimeout(() => {
+      timer = null
+      fn.apply(this, args)
+    }, delay)
+  }
+}

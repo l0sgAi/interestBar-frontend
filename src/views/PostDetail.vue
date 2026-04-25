@@ -72,7 +72,7 @@ import CommentList from '@/components/post-detail/CommentList.vue'
 import { getPostDetail } from '@/api/post'
 import { toggleLike } from '@/api/like'
 import { getCircleDetail } from '@/api/circle'
-import { useThrottleFn } from '@/utils/throttle'
+import { useThrottleFn, useDebounceFn } from '@/utils/throttle'
 import {ArticleRound} from '@vicons/material'
 
 const route = useRoute()
@@ -124,23 +124,38 @@ const loadPostDetail = async () => {
   }
 }
 
-// 点赞（1000ms 节流）
-const handleLike = useThrottleFn(async () => {
+// 点赞（乐观更新 + debounce 合并请求）
+const debouncedPostLike = useDebounceFn(async () => {
   if (!post.value) return
   try {
     const res = await toggleLike({ type: 'post', target_id: post.value.id })
     if (res.data) {
-      const newLiked = res.data.is_liked
-      post.value.is_liked = newLiked
-      post.value.like_count = newLiked
-        ? post.value.like_count + 1
-        : post.value.like_count - 1
+      const serverLiked = res.data.is_liked
+      if (post.value.is_liked !== serverLiked) {
+        post.value.like_count = serverLiked
+          ? post.value.like_count + 1
+          : post.value.like_count - 1
+        post.value.is_liked = serverLiked
+      }
     }
   } catch (error) {
-    console.error('点赞操作失败:', error)
+    post.value.is_liked = !post.value.is_liked
+    post.value.like_count = post.value.is_liked
+      ? post.value.like_count + 1
+      : post.value.like_count - 1
     message.error(t('messages.operationFailed', { error: error.message }))
   }
-}, 1000)
+}, 600)
+
+const handleLike = () => {
+  if (!post.value) return
+  const newLiked = !post.value.is_liked
+  post.value.is_liked = newLiked
+  post.value.like_count = newLiked
+    ? post.value.like_count + 1
+    : post.value.like_count - 1
+  debouncedPostLike()
+}
 
 // 收藏
 const handleCollect = () => {
