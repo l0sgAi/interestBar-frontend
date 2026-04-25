@@ -14,7 +14,6 @@
         :max-length="2000"
         :footers="[]"
         :style="{ height: '25dvh' }"
-        @onUploadImg="handleUploadImg"
       />
       <!-- 图片预览照片墙 -->
       <div v-if="uploadedImages.length || uploading" class="image-wall">
@@ -45,6 +44,33 @@
         <span class="image-wall-count">{{ uploadedImages.length + uploadingCount }} / {{ MAX_COMMENT_IMAGES }}</span>
       </div>
       <div class="comment-editor-footer">
+        <div class="footer-left">
+          <input
+            ref="fileInputRef"
+            type="file"
+            accept="image/*"
+            multiple
+            style="display: none"
+            @change="handleFileSelect"
+          />
+          <NButton
+            quaternary
+            size="small"
+            :title="t('comment.editor.uploadImage')"
+            :disabled="uploadedImages.length >= MAX_COMMENT_IMAGES || uploading"
+            @click="fileInputRef.click()"
+          >
+            <template #icon>
+              <NIcon size="18">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+              </NIcon>
+            </template>
+          </NButton>
+        </div>
         <NButton
           type="primary"
           size="medium"
@@ -62,7 +88,7 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import { NCard, NButton, NImage, NImageGroup, NSpin, useMessage } from 'naive-ui'
+import { NCard, NButton, NImage, NImageGroup, NIcon, NSpin, useMessage } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
@@ -94,6 +120,7 @@ const submitting = ref(false)
 const uploading = ref(false)
 const uploadingCount = ref(0)
 const uploadedImages = ref([])
+const fileInputRef = ref(null)
 
 const MAX_COMMENT_IMAGES = 5
 
@@ -115,7 +142,6 @@ const toolbars = [
   '-',
   'codeRow',
   'link',
-  'image',
   'emoji',
   '-',
   'preview',
@@ -173,10 +199,16 @@ const handleSubmit = async () => {
   }
 }
 
-const handleUploadImg = async (files, callback) => {
+const handleFileSelect = (e) => {
+  const files = Array.from(e.target.files || [])
+  if (!files.length) return
+  uploadFiles(files)
+  e.target.value = ''
+}
+
+const uploadFiles = async (files) => {
   if (uploadedImages.value.length >= MAX_COMMENT_IMAGES) {
     message.warning(`评论最多上传 ${MAX_COMMENT_IMAGES} 张图片`)
-    callback([])
     return
   }
   const remaining = MAX_COMMENT_IMAGES - uploadedImages.value.length
@@ -197,12 +229,10 @@ const handleUploadImg = async (files, callback) => {
       }
     }
     uploadedImages.value = [...uploadedImages.value, ...urls]
-    callback([])
     message.success('图片上传成功')
   } catch (error) {
     console.error('图片上传失败:', error)
     message.error('图片上传失败，请重试')
-    callback([])
   } finally {
     uploading.value = false
     uploadingCount.value = 0
@@ -306,9 +336,15 @@ const handleUploadImg = async (files, callback) => {
 
 .comment-editor-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   padding: 10px 16px;
   background: rgb(24, 24, 28);
+}
+
+.footer-left {
+  display: flex;
+  align-items: center;
 }
 
 :deep(.md-editor-dark) {

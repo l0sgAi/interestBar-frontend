@@ -279,7 +279,8 @@ export default {
       placeholder: 'Write your comment... (supports images and emoji)',
       submit: 'Post Comment',
       success: 'Comment posted',
-      failed: 'Comment failed'
+      failed: 'Comment failed',
+      uploadImage: 'Upload Image'
     },
     list: {
       title: 'Comments ({count})',

@@ -10,7 +10,6 @@
       :max-length="2000"
       :footers="[]"
       :style="{ height: '17dvh' }"
-      @onUploadImg="handleUploadImg"
     />
     <!-- 图片预览照片墙 -->
     <div v-if="uploadedImages.length || uploading" class="image-wall">
@@ -41,24 +40,53 @@
       <span class="image-wall-count">{{ uploadedImages.length + uploadingCount }} / {{ MAX_COMMENT_IMAGES }}</span>
     </div>
     <div class="reply-editor-footer">
-      <NButton size="small" quaternary @click="$emit('cancel')">{{ t('common.cancel') }}</NButton>
-      <NButton
-        type="primary"
-        size="small"
-        round
-        :disabled="!content.trim() && !uploadedImages.length"
-        :loading="submitting"
-        @click="handleSubmit"
-      >
-        {{ t('comment.actions.reply') }}
-      </NButton>
+      <div class="footer-left">
+        <input
+          ref="fileInputRef"
+          type="file"
+          accept="image/*"
+          multiple
+          style="display: none"
+          @change="handleFileSelect"
+        />
+        <NButton
+          quaternary
+          size="small"
+          :title="t('comment.editor.uploadImage')"
+          :disabled="uploadedImages.length >= MAX_COMMENT_IMAGES || uploading"
+          @click="fileInputRef.click()"
+        >
+          <template #icon>
+            <NIcon size="16">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+              </svg>
+            </NIcon>
+          </template>
+        </NButton>
+      </div>
+      <div class="footer-right">
+        <NButton size="small" quaternary @click="$emit('cancel')">{{ t('common.cancel') }}</NButton>
+        <NButton
+          type="primary"
+          size="small"
+          round
+          :disabled="!content.trim() && !uploadedImages.length"
+          :loading="submitting"
+          @click="handleSubmit"
+        >
+          {{ t('comment.actions.reply') }}
+        </NButton>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import { NButton, NImage, NImageGroup, NSpin, useMessage } from 'naive-ui'
+import { NButton, NImage, NImageGroup, NIcon, NSpin, useMessage } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
@@ -98,6 +126,7 @@ const submitting = ref(false)
 const uploading = ref(false)
 const uploadingCount = ref(0)
 const uploadedImages = ref([])
+const fileInputRef = ref(null)
 
 const MAX_COMMENT_IMAGES = 5
 
@@ -105,7 +134,6 @@ const toolbars = [
   'bold',
   'italic',
   '_',
-  'image',
   '-',
   'preview'
 ]
@@ -163,10 +191,16 @@ const handleSubmit = async () => {
   }
 }
 
-const handleUploadImg = async (files, callback) => {
+const handleFileSelect = (e) => {
+  const files = Array.from(e.target.files || [])
+  if (!files.length) return
+  uploadFiles(files)
+  e.target.value = ''
+}
+
+const uploadFiles = async (files) => {
   if (uploadedImages.value.length >= MAX_COMMENT_IMAGES) {
     message.warning(`评论最多上传 ${MAX_COMMENT_IMAGES} 张图片`)
-    callback([])
     return
   }
   const remaining = MAX_COMMENT_IMAGES - uploadedImages.value.length
@@ -187,12 +221,10 @@ const handleUploadImg = async (files, callback) => {
       }
     }
     uploadedImages.value = [...uploadedImages.value, ...urls]
-    callback([])
     message.success('图片上传成功')
   } catch (error) {
     console.error('图片上传失败:', error)
     message.error('图片上传失败，请重试')
-    callback([])
   } finally {
     uploading.value = false
     uploadingCount.value = 0
@@ -283,11 +315,21 @@ const handleUploadImg = async (files, callback) => {
 
 .reply-editor-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
-  gap: 8px;
   padding: 6px 10px;
   background: rgb(24, 24, 28);
+}
+
+.footer-left {
+  display: flex;
+  align-items: center;
+}
+
+.footer-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 :deep(.md-editor-dark) {

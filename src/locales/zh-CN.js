@@ -279,7 +279,8 @@ export default {
       placeholder: '写下你的评论...（支持图文、表情）',
       submit: '发表评论',
       success: '评论成功',
-      failed: '评论失败'
+      failed: '评论失败',
+      uploadImage: '上传图片'
     },
     list: {
       title: '评论 ({count})',
