@@ -1,15 +1,27 @@
 <template>
-  <canvas ref="canvas" class="animated-bg"></canvas>
+  <div class="animated-bg-wrapper">
+    <canvas ref="canvas" class="animated-bg"></canvas>
+    <div class="gradient-overlay" :style="overlayStyle"></div>
+  </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 
 const canvas = ref(null)
 let ctx = null
 let particles = []
 let animationId = null
-let mouse = { x: null, y: null, radius: 150 }
+let mouse = ref({ x: null, y: null, radius: 150 })
+
+const overlayStyle = computed(() => {
+  if (mouse.value.x !== null && mouse.value.y !== null) {
+    return {
+      background: `radial-gradient(circle 400px at ${mouse.value.x}px ${mouse.value.y}px, rgba(255,255,255,0.12), transparent 70%)`
+    }
+  }
+  return { background: 'transparent' }
+})
 
 // 粒子类
 class Particle {
@@ -37,13 +49,13 @@ class Particle {
 
   update() {
     // 鼠标交互效果
-    if (mouse.x !== null && mouse.y !== null) {
-      const dx = mouse.x - this.x
-      const dy = mouse.y - this.y
+    if (mouse.value.x !== null && mouse.value.y !== null) {
+      const dx = mouse.value.x - this.x
+      const dy = mouse.value.y - this.y
       const distance = Math.sqrt(dx * dx + dy * dy)
 
-      if (distance < mouse.radius) {
-        const force = (mouse.radius - distance) / mouse.radius
+      if (distance < mouse.value.radius) {
+        const force = (mouse.value.radius - distance) / mouse.value.radius
         const angle = Math.atan2(dy, dx)
 
         this.x -= Math.cos(angle) * force * 2
@@ -145,14 +157,11 @@ const resizeCanvas = () => {
 
 // 鼠标移动事件
 const handleMouseMove = (e) => {
-  mouse.x = e.x
-  mouse.y = e.y
+  mouse.value = { ...mouse.value, x: e.x, y: e.y }
 }
 
-// 鼠标离开
 const handleMouseLeave = () => {
-  mouse.x = null
-  mouse.y = null
+  mouse.value = { ...mouse.value, x: null, y: null }
 }
 
 onMounted(() => {
@@ -174,7 +183,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.animated-bg {
+.animated-bg-wrapper {
   position: fixed;
   top: 0;
   left: 0;
@@ -182,5 +191,25 @@ onUnmounted(() => {
   height: 100%;
   z-index: 0;
   pointer-events: none;
+  overflow: hidden;
+}
+
+.animated-bg {
+  position: absolute;
+  top: -40px;
+  left: -40px;
+  width: calc(100% + 80px);
+  height: calc(100% + 80px);
+  filter: blur(60px) saturate(1.6) brightness(0.9);
+}
+
+.gradient-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  mix-blend-mode: soft-light;
+  transition: background 0.3s ease;
 }
 </style>
