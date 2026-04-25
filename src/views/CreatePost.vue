@@ -7,7 +7,7 @@
     <SideNav @collapsed="offset = 64" @expanded="offset = 260" />
 
     <!-- 主内容区域 -->
-    <div class="main-content" :style="{ 'margin-left': `${offset}px` }">
+    <div class="main-content" :style="{ 'margin-left': `${offset}px`, width: `calc(100% - ${offset}px)` }">
       <div class="create-post-container">
         <div class="content-wrapper">
           <NCard
@@ -396,7 +396,7 @@ onMounted(async () => {
   margin-top: 64px;
   padding: 24px;
   min-height: calc(100vh - 64px);
-  transition: margin-left 0.3s ease, margin-right 0.3s ease;
+  transition: margin-left 0.3s ease, width 0.3s ease;
 }
 
 .create-post-container {

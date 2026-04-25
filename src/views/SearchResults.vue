@@ -7,7 +7,7 @@
     <SideNav @collapsed="offset = 64" @expanded="offset = 260" />
 
     <!-- 主内容区域 -->
-    <div class="main-content" :style="{ 'margin-left': `${offset}px` }">
+    <div class="main-content" :style="{ 'margin-left': `${offset}px`, width: `calc(100% - ${offset}px)` }">
       <div class="search-container">
           <div class="search-info">
             <h2 class="search-title">{{ t('nav.searchResults') }}</h2>
@@ -481,11 +481,10 @@ const loadMoreUsers = () => {
 }
 
 .main-content {
-  margin-right: 384px;
   margin-top: 64px;
   padding: 24px;
   min-height: calc(100vh - 64px);
-  transition: margin-left 0.3s ease, margin-right 0.3s ease;
+  transition: margin-left 0.3s ease, width 0.3s ease;
 }
 
 .search-container {

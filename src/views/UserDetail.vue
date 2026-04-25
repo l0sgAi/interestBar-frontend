@@ -8,7 +8,7 @@
       <SideNav @collapsed="offset = 64" @expanded="offset = 260" />
 
       <!-- 主内容区域 -->
-      <div class="main-content" :style="{ 'margin-left': `${offset}px` }">
+      <div class="main-content" :style="{ 'margin-left': `${offset}px`, width: `calc(100% - ${offset}px)` }">
         <!-- 左侧内容区域 -->
         <div class="content-area">
           <!-- 标签页内容 -->
@@ -311,6 +311,8 @@ onMounted(() => {
   min-height: calc(100vh - 64px);
   display: flex;
   gap: 24px;
+  justify-content: center;
+  transition: margin-left 0.3s ease, width 0.3s ease;
 }
 
 /* 左侧内容区域 */

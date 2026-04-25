@@ -7,7 +7,7 @@
     <SideNav @collapsed="offset = 64" @expanded="offset = 260" />
 
     <!-- 主内容区域 -->
-    <div class="main-content" :style="{ 'margin-left': `${offset}px` }">
+    <div class="main-content" :style="{ 'margin-left': `${offset}px`, width: `calc(100% - ${offset}px)` }">
       <div v-if="loading" class="loading-container">
         <NSpin size="large" />
       </div>
@@ -170,16 +170,8 @@ onMounted(() => {
 
 .main-content {
   margin-top: 10dvh;
-  width: auto;
   min-height: calc(100vh - 64px);
-  transition: margin-left 0.3s ease, margin-right 0.3s ease;
-}
-
-.loading-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 400px;
+  transition: margin-left 0.3s ease, width 0.3s ease;
 }
 
 .post-detail-container {
@@ -187,6 +179,14 @@ onMounted(() => {
   gap: 24px;
   width: 100%;
   align-items: flex-start;
+  justify-content: center;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
 }
 
 .post-main-column {
@@ -204,7 +204,6 @@ onMounted(() => {
   position: sticky;
   top: 88px;
   max-height: calc(100vh - 88px);
-  margin-right: 5dvw;
   overflow-y: auto;
   /* 隐藏滚动条 */
   scrollbar-width: none; /* Firefox */

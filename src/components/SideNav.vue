@@ -416,4 +416,9 @@ const handleCreateSuccess = (data) => {
 :deep(.n-menu-item:hover .circle-icon) {
   transform: scale(1.1);
 }
+
+:deep(.n-layout-toggle-button){
+  background-color: transparent !important;
+  border: none !important;
+}
 </style>

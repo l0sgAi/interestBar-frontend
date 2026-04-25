@@ -7,7 +7,7 @@
     <SideNav @collapsed="offset = 64" @expanded="offset = 260" />
 
     <!-- 主内容区域 -->
-    <div class="main-content" :style="{ 'margin-left': `${offset}px` }">
+    <div class="main-content" :style="{ 'margin-left': `${offset}px`, width: `calc(100% - ${offset}px)` }">
       <!-- 圈子头部信息 -->
       <div class="circle-header" :style="{ backgroundImage: coverImageStyle }">
         <div class="header-overlay">
@@ -499,7 +499,7 @@ onMounted(() => {
 .main-content {
   margin-top: 64px;
   min-height: calc(100vh - 64px);
-  transition: margin-left 0.3s ease;
+  transition: margin-left 0.3s ease, width 0.3s ease;
 }
 
 /* 圈子头部 */
@@ -594,6 +594,7 @@ onMounted(() => {
   display: flex;
   gap: 24px;
   align-items: flex-start;
+  justify-content: center;
   padding: 24px;
 }
 
