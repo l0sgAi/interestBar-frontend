@@ -102,6 +102,8 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { NCard, NAvatar, NButton, NIcon, NImage, NTime, useMessage } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
+import { toggleLike } from '@/api/like'
+import { useThrottleFn } from '@/utils/throttle'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -169,11 +171,16 @@ const message = useMessage()
 const isLiked = ref(false)
 const isCollected = ref(false)
 
-const handleLike = () => {
-  isLiked.value = !isLiked.value
-  message.info(isLiked.value ? t('post.actions.liked') : t('common.cancel'))
-  console.log('Like post:', props.postId)
-}
+const handleLike = useThrottleFn(async () => {
+  try {
+    const res = await toggleLike({ type: 'post', target_id: Number(props.postId) })
+    if (res.data) {
+      isLiked.value = res.data.is_liked
+    }
+  } catch (error) {
+    console.error('点赞操作失败:', error)
+  }
+}, 1000)
 
 const handleComment = () => {
   message.info(t('common.featureInDevelopment'))

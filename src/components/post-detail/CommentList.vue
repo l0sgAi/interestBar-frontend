@@ -35,10 +35,10 @@
             />
           </div>
           <div class="comment-actions">
-            <NButton text size="small" class="comment-action-btn">
+            <NButton text size="small" class="comment-action-btn" :class="{ 'liked-btn': comment.liked }" @click="handleToggleLike('comment', comment)">
               <template #icon>
                 <NIcon size="16">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg viewBox="0 0 24 24" :fill="comment.liked ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                   </svg>
                 </NIcon>
@@ -130,10 +130,10 @@
                   />
                 </div>
                 <div class="comment-actions">
-                  <NButton text size="small" class="comment-action-btn">
+                  <NButton text size="small" class="comment-action-btn" :class="{ 'liked-btn': reply.liked }" @click="handleToggleLike('comment', reply)">
                     <template #icon>
                       <NIcon size="16">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg viewBox="0 0 24 24" :fill="reply.liked ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
                           <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                         </svg>
                       </NIcon>
@@ -247,9 +247,11 @@ import { useI18n } from 'vue-i18n'
 import { MdPreview } from 'md-editor-v3'
 import 'md-editor-v3/lib/preview.css'
 import { getCommentList, getCommentReplies } from '@/api/comment'
+import { toggleLike } from '@/api/like'
 import CommentReplyEditor from './CommentReplyEditor.vue'
 import {CommentRound} from '@vicons/material'
 import { useFormatTime } from '@/utils/i18n'
+import { useThrottleFn } from '@/utils/throttle'
 
 const props = defineProps({
   postId: {
@@ -419,6 +421,21 @@ const getReplyToUserId = (reply, replies) => {
 const openReply = (comment) => {
   activeReplyId.value = activeReplyId.value === comment.id ? null : comment.id
 }
+
+const handleToggleLike = useThrottleFn(async (type, target) => {
+  try {
+    const res = await toggleLike({ type, target_id: target.id })
+    if (res.data) {
+      const newLiked = res.data.is_liked
+      target.liked = newLiked
+      target.like_count = newLiked
+        ? target.like_count + 1
+        : target.like_count - 1
+    }
+  } catch (error) {
+    console.error('点赞操作失败:', error)
+  }
+}, 1000)
 
 const handleReplySubmit = async (parentComment, newReply) => {
   activeReplyId.value = null
@@ -871,6 +888,14 @@ defineExpose({ refreshComments, addComment })
 
 .comment-action-btn:hover {
   color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.comment-action-btn.liked-btn {
+  color: #f472b6 !important;
+}
+
+.comment-action-btn.liked-btn:hover {
+  color: #ec4899 !important;
 }
 
 /* 查看回复按钮 */

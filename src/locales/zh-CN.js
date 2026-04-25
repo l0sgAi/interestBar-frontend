@@ -322,6 +322,7 @@ export default {
     copySuccess: '复制成功',
     copyFailed: '复制失败',
     likeFeaturePending: '点赞功能待实现',
-    favoriteFeaturePending: '收藏功能待实现'
+    favoriteFeaturePending: '收藏功能待实现',
+    likeFailed: '点赞操作失败'
   }
 }

@@ -322,6 +322,7 @@ export default {
     copySuccess: 'Copied successfully',
     copyFailed: 'Copy failed',
     likeFeaturePending: 'Like feature pending',
-    favoriteFeaturePending: 'Favorite feature pending'
+    favoriteFeaturePending: 'Favorite feature pending',
+    likeFailed: 'Like operation failed'
   }
 }
