@@ -358,13 +358,13 @@ const handleClearCircleSearch = () => {
 
 .search-box:hover {
   background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(83, 249, 166, 0.493);
+  border: 2px rgba(83, 249, 166, 0.493) solid;
 }
 
 .search-box:focus-within {
   background: rgba(255, 255, 255, 0.1);
-  border-color: rgb(0, 255, 102);
-  box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
+  border:2px rgba(59, 223, 125, 0.899) solid;
+  box-shadow: 0 0 0 3px rgba(59, 223, 125, 0.152);
 }
 
 /* 圈子标签 */
@@ -480,7 +480,7 @@ const handleClearCircleSearch = () => {
 }
 
 .notification-btn:hover {
-  color: #667eea;
+  color: #66ea92dd;
   background: rgba(102, 126, 234, 0.1) !important;
   border-radius: 32px;
 }

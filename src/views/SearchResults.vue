@@ -13,7 +13,7 @@
             <h2 class="search-title">{{ t('nav.searchResults') }}</h2>
             <p class="search-keyword">
               {{ t('nav.keyword') }}: {{ keyword }}
-              <span v-if="circleId" class="circle-search-info"> | 圈子: {{ circleName }}</span>
+              <!-- <span v-if="circleId" class="circle-search-info"> | 圈子: {{ circleName }}</span> -->
             </p>
           </div>
           <NDivider/>
@@ -510,7 +510,7 @@ const loadMoreUsers = () => {
 .search-title {
   font-size: 1.5rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #ec4899 0%, #a855f7 25%, #3b82f6 50%, #06b6d4 75%, #22c55e 100%);
+  background: rgba(103, 255, 181, 0.896);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

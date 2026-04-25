@@ -760,9 +760,9 @@ onMounted(() => {
 }
 
 .sidebar-avatar {
-  background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
+  /* background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%); */
   border: 3px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px rgba(236, 72, 153, 0.3);
+  /* box-shadow: 0 8px 32px rgba(236, 72, 153, 0.3); */
   margin-bottom: 12px;
 }
 
@@ -771,7 +771,7 @@ onMounted(() => {
   font-weight: 700;
   color: rgba(255, 255, 255, 0.95);
   margin: 0;
-  background: linear-gradient(135deg, #ec4899 0%, #a855f7 50%, #3b82f6 100%);
+  background: rgba(78, 233, 158, 0.896);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
