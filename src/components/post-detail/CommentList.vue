@@ -178,7 +178,7 @@
                   </button>
                   <!-- 页码显示 -->
                   <span class="page-number">
-                    {{ getCurrentPageNumber(comment.id) }} / {{ Math.max(1, Math.ceil(comment.reply_count / 5)) }}
+                    {{ getCurrentPageNumber(comment.id) }} / {{ Math.max(1, Math.ceil(comment.reply_count / 10)) }}
                   </span>
                   <!-- 下一页 -->
                   <button
