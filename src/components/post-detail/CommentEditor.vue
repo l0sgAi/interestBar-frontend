@@ -16,12 +16,40 @@
         :style="{ height: '25dvh' }"
         @onUploadImg="handleUploadImg"
       />
+      <!-- 图片预览照片墙 -->
+      <div v-if="uploadedImages.length || uploading" class="image-wall">
+        <NImageGroup>
+          <div class="image-wall-grid">
+            <div v-for="(url, idx) in uploadedImages" :key="'img-' + idx" class="image-wall-item">
+              <NImage
+                :src="url"
+                width="80"
+                height="80"
+                object-fit="cover"
+                lazy
+                preview-src=""
+                :style="{ borderRadius: '6px' }"
+              />
+              <button class="image-wall-remove" @click="removeImage(idx)" title="删除图片">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+            <div v-for="n in uploadingCount" :key="'loading-' + n" class="image-wall-item image-wall-loading">
+              <NSpin :size="20" />
+            </div>
+          </div>
+        </NImageGroup>
+        <span class="image-wall-count">{{ uploadedImages.length + uploadingCount }} / {{ MAX_COMMENT_IMAGES }}</span>
+      </div>
       <div class="comment-editor-footer">
         <NButton
           type="primary"
           size="medium"
           round
-          :disabled="!content.trim()"
+          :disabled="!content.trim() && !uploadedImages.length"
           :loading="submitting"
           @click="handleSubmit"
         >
@@ -34,12 +62,13 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import { NCard, NButton, useMessage } from 'naive-ui'
+import { NCard, NButton, NImage, NImageGroup, NSpin, useMessage } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 import { createComment } from '@/api/comment'
 import { getUserInfo } from '@/api/auth'
+import { uploadImage } from '@/api/user'
 
 const props = defineProps({
   postId: {
@@ -56,12 +85,17 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue', 'submit', 'uploadImg'])
+const emit = defineEmits(['update:modelValue', 'submit'])
 
 const { t } = useI18n()
 const message = useMessage()
 const content = ref(props.modelValue)
 const submitting = ref(false)
+const uploading = ref(false)
+const uploadingCount = ref(0)
+const uploadedImages = ref([])
+
+const MAX_COMMENT_IMAGES = 5
 
 watch(() => props.modelValue, (val) => {
   content.value = val
@@ -88,14 +122,22 @@ const toolbars = [
   'previewOnly'
 ]
 
+const removeImage = (idx) => {
+  uploadedImages.value.splice(idx, 1)
+}
+
 const handleSubmit = async () => {
-  if (!content.value.trim() || submitting.value) return
+  if ((!content.value.trim() && !uploadedImages.value.length) || submitting.value) return
   submitting.value = true
   try {
-    const res = await createComment({ post_id: props.postId, content: content.value })
+    const extraData = uploadedImages.value.length > 0 ? { images: [...uploadedImages.value] } : null
+    const res = await createComment({
+      post_id: props.postId,
+      content: content.value,
+      extra_data: extraData
+    })
     message.success(t('comment.editor.success'))
 
-    // 获取当前用户信息
     let userData = {}
     try {
       const userRes = await getUserInfo()
@@ -106,13 +148,10 @@ const handleSubmit = async () => {
       console.error('获取用户信息失败:', err)
     }
 
-    // 构建新评论数据
-    // 如果 res.data 是对象则使用它，如果是数字（ID）则创建新对象
     const newComment = typeof res.data === 'object' && res.data !== null
       ? { ...res.data }
       : { id: res.data }
 
-    // 使用本地获取的用户信息填充评论数据
     newComment.author_name = userData.name || newComment.author_name || ''
     newComment.author_id = userData.id || newComment.author_id
     newComment.author_avatar = userData.avatar_url || newComment.author_avatar || null
@@ -120,9 +159,13 @@ const handleSubmit = async () => {
     newComment.like_count = newComment.like_count || 0
     newComment.reply_count = newComment.reply_count || 0
     newComment.create_time = newComment.create_time || new Date().toISOString()
+    if (extraData) {
+      newComment.extra_data = extraData
+    }
 
     emit('submit', newComment)
     content.value = ''
+    uploadedImages.value = []
   } catch (err) {
     message.error(err.message || t('comment.editor.failed'))
   } finally {
@@ -131,7 +174,39 @@ const handleSubmit = async () => {
 }
 
 const handleUploadImg = async (files, callback) => {
-  emit('uploadImg', files, callback)
+  if (uploadedImages.value.length >= MAX_COMMENT_IMAGES) {
+    message.warning(`评论最多上传 ${MAX_COMMENT_IMAGES} 张图片`)
+    callback([])
+    return
+  }
+  const remaining = MAX_COMMENT_IMAGES - uploadedImages.value.length
+  const filesToUpload = files.slice(0, remaining)
+  if (filesToUpload.length < files.length) {
+    message.warning(`已超出上限，仅上传前 ${remaining} 张`)
+  }
+  uploadingCount.value = filesToUpload.length
+  uploading.value = true
+  try {
+    const urls = []
+    for (const file of filesToUpload) {
+      const res = await uploadImage(file)
+      if (res.data && res.data.url) {
+        urls.push(res.data.url)
+      } else if (res.data) {
+        urls.push(res.data)
+      }
+    }
+    uploadedImages.value = [...uploadedImages.value, ...urls]
+    callback([])
+    message.success('图片上传成功')
+  } catch (error) {
+    console.error('图片上传失败:', error)
+    message.error('图片上传失败，请重试')
+    callback([])
+  } finally {
+    uploading.value = false
+    uploadingCount.value = 0
+  }
 }
 </script>
 
@@ -167,6 +242,66 @@ const handleUploadImg = async (files, callback) => {
 
 .comment-editor-wrapper :deep(.md-editor-content) {
   border-bottom: none !important;
+}
+
+.image-wall {
+  padding: 8px 12px;
+  background: rgb(24, 24, 28);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.image-wall-grid {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.image-wall-item {
+  position: relative;
+  line-height: 0;
+}
+
+.image-wall-remove {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 77, 79, 0.9);
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.image-wall-item:hover .image-wall-remove {
+  opacity: 1;
+}
+
+.image-wall-count {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.35);
+  white-space: nowrap;
+  margin-left: 12px;
+}
+
+.image-wall-loading {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
 }
 
 .comment-editor-footer {

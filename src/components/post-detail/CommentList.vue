@@ -21,6 +21,22 @@
             <span class="comment-author" :class="{ clickable: getUserId(comment) }" @click="getUserId(comment) && goToUserDetail(getUserId(comment))">{{ comment.author_name }}</span>
             <span class="comment-time">{{ formatTime(comment.create_time) }}</span>
           </div>
+          <div v-if="getCommentImages(comment).length" class="comment-image-gallery">
+            <NImageGroup>
+              <NImage
+                v-for="(img, idx) in getCommentImages(comment)"
+                :key="idx"
+                :src="img"
+                :alt="`图片 ${idx + 1}`"
+                width="120"
+                height="120"
+                object-fit="cover"
+                lazy
+                preview-src=""
+                :style="{ borderRadius: '8px' }"
+              />
+            </NImageGroup>
+          </div>
           <div class="comment-content">
             <MdPreview
               :model-value="comment.content"
@@ -110,6 +126,22 @@
                     <span class="comment-author reply-to-name" :class="{ clickable: getReplyToUserId(reply, getCurrentReplies(comment.id)) }" @click="getReplyToUserId(reply, getCurrentReplies(comment.id)) && goToUserDetail(getReplyToUserId(reply, getCurrentReplies(comment.id)))">@{{ getReplyToName(reply, getCurrentReplies(comment.id)) }}</span>
                   </template>
                   <span class="comment-time">{{ formatTime(reply.create_time) }}</span>
+                </div>
+                <div v-if="getCommentImages(reply).length" class="comment-image-gallery">
+                  <NImageGroup>
+                    <NImage
+                      v-for="(img, idx) in getCommentImages(reply)"
+                      :key="idx"
+                      :src="img"
+                      :alt="`图片 ${idx + 1}`"
+                      width="100"
+                      height="100"
+                      object-fit="cover"
+                      lazy
+                      preview-src=""
+                      :style="{ borderRadius: '8px' }"
+                    />
+                  </NImageGroup>
                 </div>
                 <div class="comment-content">
                   <MdPreview
@@ -231,7 +263,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 	import { useRouter } from 'vue-router'
-import { NCard, NAvatar, NButton, NDivider, NIcon, NEmpty, NSpin } from 'naive-ui'
+import { NCard, NAvatar, NButton, NDivider, NIcon, NEmpty, NSpin, NImage, NImageGroup } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 import { MdPreview } from 'md-editor-v3'
 import 'md-editor-v3/lib/preview.css'
@@ -274,6 +306,16 @@ const getUserId = (item) => {
 const goToUserDetail = (userId) => {
   if (userId) {
     router.push(`/user/${userId}`)
+  }
+}
+
+const getCommentImages = (item) => {
+  if (!item.extra_data) return []
+  try {
+    const data = typeof item.extra_data === 'string' ? JSON.parse(item.extra_data) : item.extra_data
+    return data?.images || []
+  } catch {
+    return []
   }
 }
 
@@ -817,6 +859,13 @@ defineExpose({ refreshComments, addComment })
   color: rgba(255, 255, 255, 0.4);
 }
 
+.comment-image-gallery {
+  margin-bottom: 8px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
 .comment-content {
   font-size: 15px;
   color: rgba(255, 255, 255, 0.75);
@@ -1061,6 +1110,14 @@ defineExpose({ refreshComments, addComment })
 
 :deep(.md-editor-dark .md-editor-preview) {
   --md-theme-bg-color: rgb(24, 24, 28);
+}
+
+:deep(.n-image-preview){
+  z-index: 9999 !important;
+}
+
+:deep(.md-editor-code-head){
+  z-index: 1000 !important;
 }
 </style>
 
