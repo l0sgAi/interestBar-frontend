@@ -21,22 +21,11 @@
             <span class="comment-author" :class="{ clickable: getUserId(comment) }" @click="getUserId(comment) && goToUserDetail(getUserId(comment))">{{ comment.author_name }}</span>
             <span class="comment-time">{{ formatTime(comment.create_time) }}</span>
           </div>
-          <div v-if="getCommentImages(comment).length" class="comment-image-gallery">
-            <NImageGroup>
-              <NImage
-                v-for="(img, idx) in getCommentImages(comment)"
-                :key="idx"
-                :src="img"
-                :alt="`图片 ${idx + 1}`"
-                width="120"
-                height="120"
-                object-fit="cover"
-                lazy
-                preview-src=""
-                :style="{ borderRadius: '8px' }"
-              />
-            </NImageGroup>
-          </div>
+          <ImageCarousel
+            v-if="getCommentImages(comment).length"
+            :images="getCommentImages(comment)"
+            :parent-width="800"
+          />
           <div class="comment-content">
             <MdPreview
               :model-value="comment.content"
@@ -127,22 +116,11 @@
                   </template>
                   <span class="comment-time">{{ formatTime(reply.create_time) }}</span>
                 </div>
-                <div v-if="getCommentImages(reply).length" class="comment-image-gallery">
-                  <NImageGroup>
-                    <NImage
-                      v-for="(img, idx) in getCommentImages(reply)"
-                      :key="idx"
-                      :src="img"
-                      :alt="`图片 ${idx + 1}`"
-                      width="100"
-                      height="100"
-                      object-fit="cover"
-                      lazy
-                      preview-src=""
-                      :style="{ borderRadius: '8px' }"
-                    />
-                  </NImageGroup>
-                </div>
+                <ImageCarousel
+                  v-if="getCommentImages(reply).length"
+                  :images="getCommentImages(reply)"
+                  :parent-width="670"
+                />
                 <div class="comment-content">
                   <MdPreview
                     :model-value="reply.content"
@@ -263,7 +241,8 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 	import { useRouter } from 'vue-router'
-import { NCard, NAvatar, NButton, NDivider, NIcon, NEmpty, NSpin, NImage, NImageGroup } from 'naive-ui'
+import { NCard, NAvatar, NButton, NDivider, NIcon, NEmpty, NSpin } from 'naive-ui'
+import ImageCarousel from './ImageCarousel.vue'
 import { useI18n } from 'vue-i18n'
 import { MdPreview } from 'md-editor-v3'
 import 'md-editor-v3/lib/preview.css'
@@ -857,13 +836,6 @@ defineExpose({ refreshComments, addComment })
 .comment-time {
   font-size: 13px;
   color: rgba(255, 255, 255, 0.4);
-}
-
-.comment-image-gallery {
-  margin-bottom: 8px;
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
 }
 
 .comment-content {
