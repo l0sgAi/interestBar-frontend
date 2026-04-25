@@ -244,6 +244,7 @@ const handleCreateSuccess = (data) => {
   top: 64px;
   bottom: 0;
   z-index: 999;
+  overflow-y: hidden !important;
 }
 
 .custom-sider {

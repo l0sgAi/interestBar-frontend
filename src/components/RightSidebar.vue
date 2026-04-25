@@ -174,7 +174,6 @@ const handleLoadMore = () => {
   z-index: 100;
   flex-shrink: 0;
   align-self: flex-start;
-  margin-right: 3dvw;
 }
 
 .sidebar-content {

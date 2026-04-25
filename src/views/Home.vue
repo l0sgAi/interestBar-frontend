@@ -7,7 +7,7 @@
     <SideNav @collapsed="offset = 64" @expanded="offset = 260" />
 
     <!-- 主内容区域和右侧栏的容器 -->
-    <div class="content-wrapper" :style="{ 'margin-left': `${offset}px` }">
+    <div class="content-wrapper" :style="{ 'margin-left': `${offset}px`, width: `calc(100% - ${offset}px)` }">
       <!-- 主内容区域 -->
       <div class="main-content">
         <div class="home-container">
@@ -187,23 +187,23 @@ const handleLogout = async () => {
 }
 
 .content-wrapper {
-  width: calc(100% - 260px);
   display: flex;
+  justify-content: center;
+  gap: 24px;
   margin-top: 4%;
   min-height: calc(100vh - 64px);
-  transition: margin-left 0.3s ease;
+  transition: margin-left 0.3s ease, width 0.3s ease;
 }
 
 .main-content {
-  flex: 1;
   padding: 24px;
   min-height: calc(100vh - 64px);
+  max-width: 780px;
   width: 100%;
 }
 
 .home-container {
   width: 100%;
-  max-width: 900px;
   margin: 0 auto;
 }
 
