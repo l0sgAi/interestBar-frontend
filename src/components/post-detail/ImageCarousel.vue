@@ -4,39 +4,46 @@
       class="carousel-viewport"
       :style="{ width: containerWidth + 'px', height: containerHeight + 'px' }"
     >
-      <NImage
-        :src="images[currentIndex]"
-        :alt="`图片 ${currentIndex + 1}`"
-        object-fit="cover"
-        :width="containerWidth"
-        :height="containerHeight"
-        preview-src=""
-        :style="{ borderRadius: '8px' }"
-      />
-    </div>
-
-    <template v-if="images.length > 1">
-      <button class="carousel-arrow left" :style="arrowStyle" @click.stop="prev">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" :width="iconSize" :height="iconSize">
-          <polyline points="15 18 9 12 15 6"></polyline>
-        </svg>
-      </button>
-      <button class="carousel-arrow right" :style="arrowStyle" @click.stop="next">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" :width="iconSize" :height="iconSize">
-          <polyline points="9 18 15 12 9 6"></polyline>
-        </svg>
-      </button>
-      <div class="carousel-dots" :style="dotsStyle">
-        <span
-          v-for="(_, idx) in images"
+      <div
+        class="carousel-track"
+        :style="{ transform: `translateX(-${currentIndex * containerWidth}px)` }"
+      >
+        <NImage
+          v-for="(img, idx) in images"
           :key="idx"
-          class="dot"
-          :class="{ active: idx === currentIndex }"
-          :style="dotStyle"
-          @click.stop="goTo(idx)"
-        ></span>
+          :src="img"
+          :alt="`图片 ${idx + 1}`"
+          object-fit="cover"
+          :width="containerWidth"
+          :height="containerHeight"
+          preview-src=""
+          :style="{ borderRadius: '8px' }"
+        />
       </div>
-    </template>
+
+      <template v-if="images.length > 1">
+        <button class="carousel-arrow left" :style="arrowStyle" @click.stop="prev">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" :width="iconSize" :height="iconSize">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <button class="carousel-arrow right" :style="arrowStyle" @click.stop="next">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" :width="iconSize" :height="iconSize">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+        <div class="carousel-dots" :style="dotsStyle">
+          <span
+            v-for="(_, idx) in images"
+            :key="idx"
+            class="dot"
+            :class="{ active: idx === currentIndex }"
+            :style="dotStyle"
+            @click.stop="goTo(idx)"
+          ></span>
+        </div>
+      </template>
+    </div>
   </div>
 </template>
 
@@ -112,13 +119,19 @@ const goTo = (idx) => {
 .image-carousel {
   position: relative;
   display: flex;
-  justify-content: center;
+  justify-content: left;
 }
 
 .carousel-viewport {
+  position: relative;
   overflow: hidden;
   line-height: 0;
   flex-shrink: 0;
+}
+
+.carousel-track {
+  display: flex;
+  transition: transform 0.35s ease;
 }
 
 .carousel-viewport :deep(img) {
@@ -165,6 +178,9 @@ const goTo = (idx) => {
   display: flex;
   gap: 6px;
   z-index: 2;
+  padding: 4px 8px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.4);
 }
 
 .dot {
