@@ -315,6 +315,7 @@ const uploadFiles = async (files) => {
 
 .image-wall-item:hover .image-wall-remove {
   opacity: 1;
+  /* background-color: #77ffbdd0; */
 }
 
 .image-wall-count {

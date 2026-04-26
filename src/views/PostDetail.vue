@@ -221,7 +221,8 @@ onMounted(() => {
 
 .post-main-column {
   flex: 1;
-  min-width: 0;
+  max-width: 53dvw;
+  min-width: 40dvw;
   display: flex;
   flex-direction: column;
   gap: 16px;
