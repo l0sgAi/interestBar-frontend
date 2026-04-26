@@ -8,7 +8,9 @@
       :circle-name="post.circleName"
       :circle-avatar="post.circleAvatar"
       :circle-color="post.circleColor"
+      :user-id="post.userId"
       :user-name="post.userName"
+      :user-avatar="post.userAvatar"
       :user-color="post.userColor"
       :title="post.title"
       :content="post.content"
@@ -19,6 +21,7 @@
       :like-count="post.likeCount"
       :comment-count="post.commentCount"
       :collect-count="post.collectCount"
+      :show-circle="post.showCircle !== false"
     />
   </div>
 </template>

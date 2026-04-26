@@ -16,7 +16,6 @@
           object-fit="cover"
           :width="containerWidth"
           :height="containerHeight"
-          preview-src=""
           :style="{ borderRadius: '8px' }"
         />
       </div>

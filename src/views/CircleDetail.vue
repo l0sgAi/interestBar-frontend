@@ -365,7 +365,9 @@ const transformPostData = (apiPosts) => {
     circleId: post.circle_id,
     circleName: post.circle_name || '',
     circleAvatar: post.circle_avatar || '',
+    userId: post.user_id || null,
     userName: post.author_name || '',
+    userAvatar: post.author_avatar || '',
     title: post.title || '',
     content: post.summary || post.content || '',
     images: post.images || [],
@@ -373,7 +375,8 @@ const transformPostData = (apiPosts) => {
     viewCount: post.view_count || 0,
     likeCount: post.like_count || 0,
     commentCount: post.comment_count || 0,
-    collectCount: post.collect_count || 0
+    collectCount: post.collect_count || 0,
+    showCircle: false
   }))
 }
 

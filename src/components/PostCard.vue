@@ -1,8 +1,8 @@
 <template>
   <NCard class="post-card" :bordered="false" @click="handleClick">
     <!-- 帖子头部 -->
-    <div class="post-header">
-      <div class="circle-info">
+    <div v-if="showCircle" class="post-header">
+      <div class="circle-info" @click.stop="goToCircle">
         <NAvatar
           round
           :size="48"
@@ -12,7 +12,21 @@
         </NAvatar>
         <span class="circle-name">{{ circleName }}</span>
       </div>
-      <div class="user-info">
+      <div class="header-spacer"></div>
+      <div class="user-info" @click.stop="goToUser">
+        <div class="user-meta">
+          <div class="user-name">{{ userName }}</div>
+          <div class="post-time">
+            <NTime :time="postTime" format="yyyy-MM-dd HH:mm" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div v-else class="post-header">
+      <div class="author-info" @click.stop="goToUser">
+        <NAvatar round :size="40" :src="userAvatar">
+          <div v-if="!userAvatar">{{ userName.charAt(0) }}</div>
+        </NAvatar>
         <div class="user-meta">
           <div class="user-name">{{ userName }}</div>
           <div class="post-time">
@@ -29,12 +43,14 @@
     </div>
 
     <!-- 搜索结果：封面图（标题下方） -->
-    <div v-if="coverImage" class="post-cover">
-      <img :src="coverImage" :alt="title" class="post-cover__img" />
+    <div v-if="coverImage" class="post-cover" @click.stop>
+      <NImage :src="coverImage" :alt="title" object-fit="cover" class="post-cover__img" />
     </div>
 
     <!-- 非搜索结果：图片轮播 -->
-    <ImageCarousel v-else-if="images && images.length > 0" :images="images" :parent-width="900" />
+    <div v-else-if="images && images.length > 0" @click.stop>
+      <ImageCarousel :images="images" :parent-width="900" />
+    </div>
 
     <!-- 搜索结果：统计信息（仅展示） -->
     <div class="post-stats">
@@ -78,7 +94,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { NCard, NAvatar, NButton, NIcon, NTime, useMessage } from 'naive-ui'
+import { NCard, NAvatar, NButton, NIcon, NTime, NImage, useMessage } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 import { toggleLike } from '@/api/like'
 import { useDebounceFn } from '@/utils/throttle'
@@ -112,9 +128,17 @@ const props = defineProps({
     type: String,
     default: '#ec4899'
   },
+  userId: {
+    type: Number,
+    default: null
+  },
   userName: {
     type: String,
     required: true
+  },
+  userAvatar: {
+    type: String,
+    default: ''
   },
   userColor: {
     type: String,
@@ -155,6 +179,10 @@ const props = defineProps({
   collectCount: {
     type: Number,
     default: 0
+  },
+  showCircle: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -192,6 +220,18 @@ const handleCollect = () => {
 
 const handleClick = () => {
   router.push(`/post/${props.postId}`)
+}
+
+const goToCircle = () => {
+  if (props.circleId) {
+    router.push(`/circle/${props.circleId}`)
+  }
+}
+
+const goToUser = () => {
+  if (props.userId) {
+    router.push(`/user/${props.userId}`)
+  }
 }
 </script>
 
@@ -238,12 +278,52 @@ const handleClick = () => {
   color: rgba(255, 255, 255, 0.8);
 }
 
+.circle-info:hover .circle-name,
+.user-info:hover .user-name,
+.author-info:hover .user-name {
+  color: rgba(255, 255, 255, 1);
+}
+
+.circle-info:hover {
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+}
+
 .user-info {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+.user-info:hover {
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.header-spacer {
   flex: 1;
-  justify-content: flex-end;
+}
+
+.author-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+.author-info :deep(.n-avatar) {
+  color: white;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.author-info:hover {
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .user-meta {
@@ -296,14 +376,18 @@ const handleClick = () => {
   background: rgba(255, 255, 255, 0.05);
 }
 
-.post-cover__img { 
+.post-cover :deep(.post-cover__img) {
+  display: block;
+}
+
+.post-cover :deep(img) {
   height: 18dvh;
   width: 24dvw;
   object-fit: cover;
   transition: transform 0.3s ease;
 }
 
-.post-card:hover .post-cover__img {
+.post-card:hover .post-cover :deep(img) {
   transform: scale(1.02);
 }
 
