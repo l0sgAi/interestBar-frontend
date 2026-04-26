@@ -43,7 +43,7 @@
                   </svg>
                 </NIcon>
               </template>
-              {{ comment.like_count }}
+              {{ formatNumber(comment.like_count) }}
             </NButton>
             <NButton text size="small" class="comment-action-btn" @click="openReply(comment)">
               <template #icon>
@@ -138,7 +138,7 @@
                         </svg>
                       </NIcon>
                     </template>
-                    {{ reply.like_count }}
+                    {{ formatNumber(reply.like_count) }}
                   </NButton>
                   <NButton text size="small" class="comment-action-btn" @click="openReply(reply, comment)">
                     <template #icon>
@@ -250,7 +250,7 @@ import { getCommentList, getCommentReplies } from '@/api/comment'
 import { toggleLike } from '@/api/like'
 import CommentReplyEditor from './CommentReplyEditor.vue'
 import {CommentRound} from '@vicons/material'
-import { useFormatTime } from '@/utils/i18n'
+import { useFormatTime, useFormatNumber } from '@/utils/i18n'
 import { useThrottleFn, useDebounceFn } from '@/utils/throttle'
 
 const props = defineProps({
@@ -276,6 +276,7 @@ const emit = defineEmits(['update:sort', 'update:commentCount'])
 
 const { t } = useI18n()
 const { formatTime } = useFormatTime()
+const { formatNumber } = useFormatNumber()
 	const router = useRouter()
 
 // 跳转到用户详情页

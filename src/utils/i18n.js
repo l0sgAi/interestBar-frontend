@@ -1,5 +1,35 @@
 import { useI18n } from 'vue-i18n'
 
+export const useFormatNumber = () => {
+  const { locale } = useI18n()
+
+  const isZh = () => locale.value === 'zh-CN'
+
+  const stripZero = (val) => val.toFixed(1).replace(/\.0$/, '')
+
+  const formatValue = (num) => {
+    if (isZh()) {
+      if (num >= 100_000_000) return stripZero(num / 100_000_000) + '亿'
+      if (num >= 10_000) return stripZero(num / 10_000) + '万'
+    } else {
+      if (num >= 1_000_000_000) return stripZero(num / 1_000_000_000) + 'B'
+      if (num >= 1_000_000) return stripZero(num / 1_000_000) + 'M'
+      if (num >= 1_000) return stripZero(num / 1_000) + 'K'
+    }
+    return String(num)
+  }
+
+  const formatNumber = (value, cap) => {
+    if (value === null || value === undefined) return '0'
+    const num = Number(value)
+    if (isNaN(num) || num <= 0) return '0'
+    if (cap !== undefined && num >= cap) return formatValue(cap) + '+'
+    return formatValue(num)
+  }
+
+  return { formatNumber }
+}
+
 export const useFormatTime = () => {
   const { t } = useI18n()
 
