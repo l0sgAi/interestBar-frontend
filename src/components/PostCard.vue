@@ -352,16 +352,18 @@ const getDefaultImage = () => {
 
 /* 搜索结果封面图（标题下方） */
 .post-cover {
-  width: 100%;
+  margin-left: 1dvw;
+  height: 18dvh;
+  width: 24dvw;
   margin-bottom: 12px;
   border-radius: 12px;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.05);
 }
 
-.post-cover__img {
-  width: 100%;
-  max-height: 400px;
+.post-cover__img { 
+  height: 18dvh;
+  width: 24dvw;
   object-fit: cover;
   transition: transform 0.3s ease;
 }
@@ -393,14 +395,14 @@ const getDefaultImage = () => {
 /* 帖子图片（只显示首图） */
 .post-image-container {
   position: relative;
-  /* width: 3dvw; */
+  width: 50%;
   margin-bottom: 16px;
   border-radius: 12px;
   overflow: hidden;
 }
 
 .post-image {
-  /* width: 100%; */
+  width: 50%;
   aspect-ratio: 16 / 9;
   border-radius: 12px;
   overflow: hidden;
