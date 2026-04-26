@@ -33,19 +33,8 @@
       <img :src="coverImage" :alt="title" class="post-cover__img" />
     </div>
 
-    <!-- 非搜索结果：帖子图片（只显示首图） -->
-    <div v-else-if="images && images.length > 0" class="post-image-container">
-      <NImage
-        :src="images[0]"
-        :alt="title"
-        class="post-image"
-        object-fit="cover"
-        :fallback-src="getDefaultImage()"
-      />
-      <div v-if="images.length > 1" class="more-images-badge">
-        +{{ images.length - 1 }}
-      </div>
-    </div>
+    <!-- 非搜索结果：图片轮播 -->
+    <ImageCarousel v-else-if="images && images.length > 0" :images="images" :parent-width="900" />
 
     <!-- 搜索结果：统计信息（仅展示） -->
     <div v-if="coverImage" class="post-stats">
@@ -140,10 +129,11 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { NCard, NAvatar, NButton, NIcon, NImage, NTime, useMessage } from 'naive-ui'
+import { NCard, NAvatar, NButton, NIcon, NTime, useMessage } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 import { toggleLike } from '@/api/like'
 import { useDebounceFn } from '@/utils/throttle'
+import ImageCarousel from '@/components/post-detail/ImageCarousel.vue'
 import { useFormatNumber } from '@/utils/i18n'
 
 const router = useRouter()
@@ -253,10 +243,6 @@ const handleCollect = () => {
 
 const handleClick = () => {
   router.push(`/post/${props.postId}`)
-}
-
-const getDefaultImage = () => {
-  return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500"%3E%3Crect width="800" height="500" fill="%23333"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="%23666" font-size="24"%3ENo Image%3C/text%3E%3C/svg%3E'
 }
 </script>
 
@@ -390,40 +376,6 @@ const getDefaultImage = () => {
 
 .stat-icon {
   color: rgba(255, 255, 255, 0.5);
-}
-
-/* 帖子图片（只显示首图） */
-.post-image-container {
-  position: relative;
-  width: 50%;
-  margin-bottom: 16px;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.post-image {
-  width: 50%;
-  aspect-ratio: 16 / 9;
-  border-radius: 12px;
-  overflow: hidden;
-  transition: transform 0.3s ease;
-}
-
-.post-card:hover .post-image {
-  transform: scale(1.02);
-}
-
-.more-images-badge {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  padding: 6px 12px;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(10px);
-  color: white;
-  font-size: 0.85rem;
-  font-weight: 600;
-  border-radius: 20px;
 }
 
 /* 非搜索结果：操作按钮栏 */
