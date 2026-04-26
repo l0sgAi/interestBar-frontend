@@ -2,18 +2,16 @@
   <NCard class="post-card" :bordered="false" @click="handleClick">
     <!-- 帖子头部 -->
     <div class="post-header">
-      <!-- 兴趣圈信息 -->
       <div class="circle-info">
         <NAvatar
           round
           :size="48"
           :src="circleAvatar"
         >
-          <div v-if="circleAvatar===undefined || circleAvatar==''">{{ circleName.charAt(0) }}</div>
+          <div v-if="circleAvatar===undefined || circleAvatar===''">{{ circleName.charAt(0) }}</div>
         </NAvatar>
         <span class="circle-name">{{ circleName }}</span>
       </div>
-      <!-- 用户信息 -->
       <div class="user-info">
         <div class="user-meta">
           <div class="user-name">{{ userName }}</div>
@@ -27,11 +25,16 @@
     <!-- 帖子内容 -->
     <div class="post-content">
       <h3 class="post-title">{{ title }}</h3>
-      <p class="post-text">{{ content }}</p>
+      <p v-if="content" class="post-text">{{ content }}</p>
     </div>
 
-    <!-- 帖子图片（只显示首图） -->
-    <div v-if="images && images.length > 0" class="post-image-container">
+    <!-- 搜索结果：封面图（标题下方） -->
+    <div v-if="coverImage" class="post-cover">
+      <img :src="coverImage" :alt="title" class="post-cover__img" />
+    </div>
+
+    <!-- 非搜索结果：帖子图片（只显示首图） -->
+    <div v-else-if="images && images.length > 0" class="post-image-container">
       <NImage
         :src="images[0]"
         :alt="title"
@@ -44,8 +47,45 @@
       </div>
     </div>
 
-    <!-- 帖子底部操作栏 -->
-    <div class="post-actions" @click.stop>
+    <!-- 搜索结果：统计信息（仅展示） -->
+    <div v-if="coverImage" class="post-stats">
+      <div class="stat-item">
+        <NIcon class="stat-icon" size="18">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </NIcon>
+        <span>{{ formatNumber(viewCount, STATS_COUNT_CAP) }}</span>
+      </div>
+      <div class="stat-item">
+        <NIcon class="stat-icon" size="18">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+          </svg>
+        </NIcon>
+        <span>{{ formatNumber(commentCount, STATS_COUNT_CAP) }}</span>
+      </div>
+      <div class="stat-item">
+          <NIcon class="stat-icon" size="18">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+          </NIcon>
+        <span>{{ formatNumber(likeCount, STATS_COUNT_CAP) }}</span>
+      </div>
+      <div class="stat-item">
+        <NIcon class="stat-icon" size="18">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </NIcon>
+        <span>{{ formatNumber(collectCount, STATS_COUNT_CAP) }}</span>
+      </div>
+    </div>
+
+    <!-- 非搜索结果：操作按钮栏 -->
+    <div v-else class="post-actions" @click.stop>
       <NButton
         text
         :type="isLiked ? 'error' : 'default'"
@@ -55,7 +95,7 @@
         <template #icon>
           <NIcon>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 1 0-7.78z"></path>
             </svg>
           </NIcon>
         </template>
@@ -103,10 +143,14 @@ import { useRouter } from 'vue-router'
 import { NCard, NAvatar, NButton, NIcon, NImage, NTime, useMessage } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 import { toggleLike } from '@/api/like'
-import { useThrottleFn, useDebounceFn } from '@/utils/throttle'
+import { useDebounceFn } from '@/utils/throttle'
+import { useFormatNumber } from '@/utils/i18n'
 
 const router = useRouter()
 const { t } = useI18n()
+const { formatNumber } = useFormatNumber()
+
+const STATS_COUNT_CAP = 100_000_000
 
 const props = defineProps({
   postId: {
@@ -143,7 +187,11 @@ const props = defineProps({
   },
   content: {
     type: String,
-    required: true
+    default: ''
+  },
+  coverImage: {
+    type: String,
+    default: ''
   },
   images: {
     type: Array,
@@ -152,6 +200,10 @@ const props = defineProps({
   postTime: {
     type: [Date, String, Number],
     required: true
+  },
+  viewCount: {
+    type: Number,
+    default: 0
   },
   likeCount: {
     type: Number,
@@ -192,13 +244,11 @@ const handleLike = () => {
 
 const handleComment = () => {
   message.info(t('common.featureInDevelopment'))
-  console.log('Comment post:', props.postId)
 }
 
 const handleCollect = () => {
   isCollected.value = !isCollected.value
   message.info(isCollected.value ? t('post.actions.favorite') : t('common.cancel'))
-  console.log('Collect post:', props.postId)
 }
 
 const handleClick = () => {
@@ -206,7 +256,6 @@ const handleClick = () => {
 }
 
 const getDefaultImage = () => {
-  // 返回一个默认占位图或空字符串
   return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500"%3E%3Crect width="800" height="500" fill="%23333"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="%23666" font-size="24"%3ENo Image%3C/text%3E%3C/svg%3E'
 }
 </script>
@@ -229,7 +278,6 @@ const getDefaultImage = () => {
 /* 帖子头部 */
 .post-header {
   display: flex;
-  /* justify-content: space-between; */
   padding: 8px;
   align-items: center;
   gap: 12px;
@@ -244,11 +292,9 @@ const getDefaultImage = () => {
 }
 
 .circle-info :deep(.n-avatar) {
-  /* background: linear-gradient(135deg, #ec4899 0%, #a855f7 50%, #3b82f6 100%); */
   color: white;
   font-weight: 700;
   font-size: 1.5rem;
-  /* box-shadow: 0 4px 16px rgba(236, 72, 153, 0.4); */
 }
 
 .circle-name {
@@ -304,17 +350,57 @@ const getDefaultImage = () => {
   line-height: 1.6;
 }
 
+/* 搜索结果封面图（标题下方） */
+.post-cover {
+  width: 100%;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.post-cover__img {
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.post-card:hover .post-cover__img {
+  transform: scale(1.02);
+}
+
+/* 搜索结果：统计信息 */
+.post-stats {
+  display: flex;
+  gap: 24px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+}
+
+.stat-icon {
+  color: rgba(255, 255, 255, 0.5);
+}
+
 /* 帖子图片（只显示首图） */
 .post-image-container {
   position: relative;
-  width: 100%;
+  /* width: 3dvw; */
   margin-bottom: 16px;
   border-radius: 12px;
   overflow: hidden;
 }
 
 .post-image {
-  width: 100%;
+  /* width: 100%; */
   aspect-ratio: 16 / 9;
   border-radius: 12px;
   overflow: hidden;
@@ -336,10 +422,9 @@ const getDefaultImage = () => {
   font-size: 0.85rem;
   font-weight: 600;
   border-radius: 20px;
-  backdrop-filter: blur(10px);
 }
 
-/* 帖子操作栏 */
+/* 非搜索结果：操作按钮栏 */
 .post-actions {
   display: flex;
   align-items: center;
@@ -348,7 +433,6 @@ const getDefaultImage = () => {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* NaiveUI 按钮样式覆盖 */
 :deep(.n-button) {
   color: rgba(255, 255, 255, 0.6) !important;
 }
@@ -378,6 +462,11 @@ const getDefaultImage = () => {
 @media (max-width: 768px) {
   .post-image {
     aspect-ratio: 4 / 3;
+  }
+
+  .post-stats {
+    flex-wrap: wrap;
+    gap: 16px;
   }
 }
 </style>

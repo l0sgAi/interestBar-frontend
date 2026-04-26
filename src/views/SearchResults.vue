@@ -245,9 +245,11 @@ const transformPostData = (apiPosts) => {
     userName: post.author_name || '匿名用户',
     userColor: '#a855f7',
     title: post.title || '无标题',
-    content: post.summary || post.content || '',
-    images: post.images || [],
+    content: '',
+    coverImage: post.first_image || '',
+    images: [],
     postTime: post.create_time || '',
+    viewCount: post.view_count || 0,
     likeCount: post.like_count || 0,
     commentCount: post.comment_count || 0,
     collectCount: post.collect_count || 0

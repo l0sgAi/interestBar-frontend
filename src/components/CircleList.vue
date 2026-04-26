@@ -227,9 +227,9 @@ watch([() => props.circles, () => props.hasMore, () => props.loading, loadMoreTr
 
 .circle-item:hover {
   background: rgba(40, 40, 60, 0.8);
-  border-color: rgba(236, 72, 153, 0.3);
+  border-color: rgba(72, 236, 143, 0.3);
   transform: translateX(4px);
-  box-shadow: 0 4px 20px rgba(236, 72, 153, 0.15);
+  box-shadow: 0 4px 20px rgba(72, 236, 176, 0.15);
 }
 
 .circle-avatar {
