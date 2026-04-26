@@ -87,3 +87,20 @@ export function leaveCircle(data) {
     data
   })
 }
+
+/**
+ * 获取圈子帖子列表
+ * @param {Object} params - 查询参数
+ * @param {number} params.circle_id - 圈子ID（必填）
+ * @param {number} params.type - 1=近期热点 2=最新 3=精华（必填）
+ * @param {number} params.size - 每页数量，默认20，上限100
+ * @param {string} params.search_after - 分页游标（上页响应中的值）
+ * @returns {Promise}
+ */
+export function getCirclePosts(params) {
+  return request({
+    url: '/circle/posts',
+    method: 'get',
+    params
+  })
+}

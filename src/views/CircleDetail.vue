@@ -103,31 +103,43 @@
           <NTabs v-model:value="activeTab" type="segment" animated>
             <NTabPane name="hot" :tab="t('post.hottest')">
               <div class="posts-list">
-                <div v-if="hotPosts.length === 0" class="empty-state">
+                <div v-if="hotPosts.length === 0 && !hotLoading" class="empty-state">
                   <p>{{t('post.noPosts')}}</p>
                 </div>
                 <div v-else>
                   <PostList :posts="hotPosts" />
                 </div>
+                <div ref="hotSentinel" class="load-sentinel"></div>
+                <div v-if="hotLoading" class="loading-state">
+                  <NSpin size="small" />
+                </div>
               </div>
             </NTabPane>
             <NTabPane name="new" :tab="t('post.latest')">
               <div class="posts-list">
-                <div v-if="newPosts.length === 0" class="empty-state">
+                <div v-if="newPosts.length === 0 && !newLoading" class="empty-state">
                   <p>{{t('post.noPosts')}}</p>
                 </div>
                 <div v-else>
                   <PostList :posts="newPosts" />
                 </div>
+                <div ref="newSentinel" class="load-sentinel"></div>
+                <div v-if="newLoading" class="loading-state">
+                  <NSpin size="small" />
+                </div>
               </div>
             </NTabPane>
             <NTabPane name="top" :tab="t('post.highlights')">
               <div class="posts-list">
-                <div v-if="topPosts.length === 0" class="empty-state">
+                <div v-if="topPosts.length === 0 && !topLoading" class="empty-state">
                   <p>{{t('post.noPosts')}}</p>
                 </div>
                 <div v-else>
                   <PostList :posts="topPosts" />
+                </div>
+                <div ref="topSentinel" class="load-sentinel"></div>
+                <div v-if="topLoading" class="loading-state">
+                  <NSpin size="small" />
                 </div>
               </div>
             </NTabPane>
@@ -237,14 +249,14 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, inject } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, inject } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { NTabs, NTabPane, NButton, NIcon, NDropdown, NTag, useMessage } from 'naive-ui'
+import { NTabs, NTabPane, NButton, NIcon, NDropdown, NTag, NSpin, useMessage } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 import AppHeader from '@/components/AppHeader.vue'
 import SideNav from '@/components/SideNav.vue'
 import PostList from '@/components/PostList.vue'
-import { getCircleDetail, joinCircle, leaveCircle } from '@/api/circle'
+import { getCircleDetail, joinCircle, leaveCircle, getCirclePosts } from '@/api/circle'
 import { Bell as BellIcon, BellOff as BellOffIcon, Edit as EditIcon, DotsVertical as MoreIcon } from '@vicons/tabler'
 import { User as UserIcon, FileText as FileTextIcon, Flame as FlameIcon } from '@vicons/tabler'
 
@@ -321,10 +333,90 @@ const shouldShowMoreButton = (description) => {
   return description && description.length > 200
 }
 
-// 示例帖子数据（待对接后端）
+// 帖子列表数据
 const hotPosts = ref([])
 const newPosts = ref([])
 const topPosts = ref([])
+
+const hotLoading = ref(false)
+const newLoading = ref(false)
+const topLoading = ref(false)
+
+const hotSearchAfter = ref('')
+const newSearchAfter = ref('')
+const topSearchAfter = ref('')
+
+const hotHasMore = ref(true)
+const newHasMore = ref(true)
+const topHasMore = ref(true)
+
+const POST_PAGE_SIZE = 20
+
+const tabTypeMap = { hot: 1, new: 2, top: 3 }
+const tabStateMap = {
+  hot: { posts: hotPosts, loading: hotLoading, searchAfter: hotSearchAfter, hasMore: hotHasMore },
+  new: { posts: newPosts, loading: newLoading, searchAfter: newSearchAfter, hasMore: newHasMore },
+  top: { posts: topPosts, loading: topLoading, searchAfter: topSearchAfter, hasMore: topHasMore }
+}
+
+const transformPostData = (apiPosts) => {
+  return apiPosts.map(post => ({
+    postId: post.id,
+    circleId: post.circle_id,
+    circleName: post.circle_name || '',
+    circleAvatar: post.circle_avatar || '',
+    userName: post.author_name || '',
+    title: post.title || '',
+    content: post.summary || post.content || '',
+    images: post.images || [],
+    postTime: post.create_time || '',
+    viewCount: post.view_count || 0,
+    likeCount: post.like_count || 0,
+    commentCount: post.comment_count || 0,
+    collectCount: post.collect_count || 0
+  }))
+}
+
+const fetchPosts = async (tab, append = false) => {
+  const state = tabStateMap[tab]
+  if (!state || state.loading.value || (!append && !state.hasMore.value)) return
+
+  state.loading.value = true
+  try {
+    const params = {
+      circle_id: circleDetail.value.id,
+      type: tabTypeMap[tab],
+      size: POST_PAGE_SIZE
+    }
+    if (append && state.searchAfter.value) {
+      params.search_after = state.searchAfter.value
+    }
+
+    const response = await getCirclePosts(params)
+    if (response.data) {
+      const newPosts = transformPostData(response.data.posts || [])
+      if (append) {
+        state.posts.value = [...state.posts.value, ...newPosts]
+      } else {
+        state.posts.value = newPosts
+      }
+      state.searchAfter.value = response.data.search_after || ''
+      state.hasMore.value = !!response.data.search_after
+    }
+  } catch (error) {
+    message.error(t('messages.getDetailFailed', { error: error.message || t('common.unknownError') }))
+  } finally {
+    state.loading.value = false
+  }
+}
+
+// Tab 切换时清空并重新加载
+watch(activeTab, (newTab) => {
+  const state = tabStateMap[newTab]
+  if (state.posts.value.length === 0 && state.hasMore.value) {
+    fetchPosts(newTab)
+  }
+})
 
 // 背景图样式
 const coverImageStyle = computed(() => {
@@ -415,7 +507,6 @@ const fetchCircleDetail = async () => {
       })
 
       // TODO: 根据category_id获取分类名称
-      // TODO: 获取帖子列表数据
     }
   } catch (error) {
     message.error(t('messages.getDetailFailed', { error: error.message || t('common.unknownError') }))
@@ -485,8 +576,44 @@ const handleMoreSelect = (key) => {
   }
 }
 
-onMounted(() => {
-  fetchCircleDetail()
+// 无限滚动
+const hotSentinel = ref(null)
+const newSentinel = ref(null)
+const topSentinel = ref(null)
+
+const sentinelRefMap = { hot: hotSentinel, new: newSentinel, top: topSentinel }
+let observers = []
+
+const setupObservers = () => {
+  observers.forEach(o => o.disconnect())
+  observers = []
+
+  Object.keys(sentinelRefMap).forEach(tab => {
+    const el = sentinelRefMap[tab].value
+    if (!el) return
+
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        const state = tabStateMap[tab]
+        if (state.hasMore.value && !state.loading.value) {
+          fetchPosts(tab, true)
+        }
+      }
+    }, { rootMargin: '200px' })
+
+    observer.observe(el)
+    observers.push(observer)
+  })
+}
+
+onMounted(async () => {
+  await fetchCircleDetail()
+  fetchPosts(activeTab.value)
+  setupObservers()
+})
+
+onUnmounted(() => {
+  observers.forEach(o => o.disconnect())
 })
 </script>
 
@@ -615,6 +742,16 @@ onMounted(() => {
 
 .empty-state p {
   font-size: 1rem;
+}
+
+.load-sentinel {
+  height: 1px;
+}
+
+.loading-state {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0;
 }
 
 /* 右侧信息栏 - 在内容容器内 */
