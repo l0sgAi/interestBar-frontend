@@ -806,7 +806,7 @@ export default {
       searchPlaceholder: 'Search users...',
       empty: 'No users found',
       limitTip: 'Mention up to 10 users',
-      suggestHint: 'Type @ to mention someone'
+      suggestHint: "Type {'@'} to mention someone"
     }
   },
 

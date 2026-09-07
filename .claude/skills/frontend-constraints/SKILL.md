@@ -1,12 +1,12 @@
 ---
-name: frontend-style-constraints
-description: Enforces this project's styling design constraints when writing or reviewing Vue components, Naive UI usage, and CSS. Use whenever the task involves adding/editing styles, overriding Naive UI component appearance (dropdown, modal, popover, button, etc.), theming, animations, design tokens, or fixing "styles not applying" bugs. Also triggers on phrases like "改成项目风格", "统一样式", "主题样式", "为什么样式没生效", "暗色风格", "毛玻璃", "组件样式覆盖".
+name: frontend-constraints
+description: Enforces this project's frontend constraints when writing or reviewing Vue components, Naive UI usage, CSS, and i18n locale text. Use whenever the task involves adding/editing styles, overriding Naive UI component appearance (dropdown, modal, popover, button, etc.), theming, animations, design tokens, writing/editing i18n locale messages (src/locales/), or fixing "styles not applying" / "i18n message compile error" bugs. Also triggers on phrases like "改成项目风格", "统一样式", "主题样式", "为什么样式没生效", "暗色风格", "毛玻璃", "组件样式覆盖", "Invalid linked format", "Message compilation error".
 ---
 
-# 项目样式设计约束（qubar-frontend）
+# 项目前端约束（qubar-frontend）
 
-本项目是 Vue 3 + Naive UI 的深色主题应用。本 skill 总结了项目级的样式设计约束，
-在写新组件、改样式、覆盖 Naive UI 外观、或排查"样式不生效"时必须遵守。
+本项目是 Vue 3 + Naive UI 的深色主题应用。本 skill 总结了项目级的前端约束，
+在写新组件、改样式、覆盖 Naive UI 外观、写 i18n 文案、或排查"样式不生效"时必须遵守。
 
 核心设计语言：**深色玻璃拟态（dark glassmorphism）+ 主题绿强调色 + 大圆角 + 弹性动效**。
 
@@ -111,6 +111,34 @@ color: #8af0d0;
 - `placement="bottom-end"`（弹出位置贴右下，适合顶栏右侧元素）
 
 列表/内容区的上下文菜单按需用 `trigger="click"`，不要一刀切。
+
+## i18n 文案约束：@、{、} 是保留字符，必须转义
+
+vue-i18n 的消息编译器把以下字符当作语法符号，**不能**直接出现在文案里：
+
+| 字符 | 语法含义 | 想显示字面量时的写法 |
+|---|---|---|
+| `@` | 链接消息（`@:some.key`） | `{'@'}`（字面量插值） |
+| `{` / `}` | 插值占位符（`{name}`） | `{'{'}` / `{'}'}` |
+| `|` | 复数分支分隔符 | 避免使用，或改写文案 |
+
+正确示例（`src/locales/en-US.js` 的 `notice.mention.suggestHint`）：
+
+```js
+suggestHint: "Type {'@'} to mention someone"   // ✅ 字面量插值渲染出 @
+suggestHint: 'Type @ to mention someone'        // ❌ 编译器当链接消息解析，报错
+```
+
+**这个坑最危险的地方：dev 和 prod 行为不一致。**
+dev 构建捕获消息编译错误并降级为原样渲染（只在控制台报 warning，功能看起来正常）；
+prod 构建砍掉了这层容错，编译错误直接抛 `SyntaxError: Invalid linked format`，
+异常发生在 `t()` 的模板渲染期间，会把整个组件的渲染打断——表现为线上功能完全失效但本地复现不了。
+排查"本地好的、线上组件不渲染/不弹出"类问题时，优先检查该组件用到的 i18n 文案是否含未转义的保留字符。
+
+写或改 `src/locales/` 文案时：
+
+1. 所有语言（zh-CN / en-US）要同步检查，同一种语言的文案修了另一种往往也踩了同样的坑。
+2. 含 `@` 的邮箱、账号名（如 `legal@qubar.com`）经 `t()` 渲染时同样会炸；经 `tm()` 当数据取出的数组/对象不编译，暂时安全，但新增纯字符串文案不要依赖这个侥幸。
 
 ## 排查清单（样式不生效时按序检查）
 
